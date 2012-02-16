@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/cobra_ico.jpg</file>
+        <file>images/cobra_ico.png</file>
+        <file>images/cobra_tico.png</file>
+    </qresource>
+</RCC>
