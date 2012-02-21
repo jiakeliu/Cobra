@@ -14,7 +14,8 @@ SOURCES = src/main.cc \
     src/event/event.cc \
     src/event/chat.cc \
     src/filevalidator.cc \
-    src/event/auth.cc
+    src/event/auth.cc \
+    src/preferences.cc
 
 INCLUDEPATH = include
 
@@ -26,14 +27,19 @@ HEADERS += \
     include/net.h \
     include/event.h \
     include/filevalidator.h \
-    include/uperms.h
+    include/uperms.h \
+    include/preferences.h
 
 FORMS += \
     resources/mainwindow.ui \
     resources/mainwindow_mdi.ui \
-    resources/mainwindow_docks.ui
+    resources/mainwindow_docks.ui \
+    resources/preferences.ui
 
 TRANSLATIONS = cobratr_cn
 
 RESOURCES += \
     resources/cobra.qrc
+
+
+

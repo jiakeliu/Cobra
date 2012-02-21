@@ -50,6 +50,8 @@ private slots:
     bool sendChat();
 
     /* Meta Functions */
+    void on_actionPreferences_triggered();
+
 protected:
     bool setName(QString);
     bool metaConnect(QString);

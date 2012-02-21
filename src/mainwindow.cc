@@ -5,6 +5,7 @@
 #include "net.h"
 #include "filevalidator.h"
 #include "uperms.h"
+#include "preferences.h"
 
 QSettings* g_cobra_settings;
 
@@ -330,4 +331,10 @@ MainWindow::on_addUserBtn_clicked()
 void
 MainWindow::on_delUserBtn_clicked()
 {
+}
+
+void MainWindow::on_actionPreferences_triggered()
+{
+    Preferences* pDialog = new Preferences(this);
+    pDialog->show();
 }
