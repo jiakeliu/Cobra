@@ -99,7 +99,7 @@ cobraAuthEventHandler::handleServerEvent(cobraNetEvent* event)
     cobraStateEvent* newState = new cobraStateEvent();
     newState->setDestination(auth->source());
     newState->setSource(SERVER);
-    newState->setState(authorized ? QAbstractSocket::ConnectedState : QAbstractSocket::ConnectionRefusedError);
+    newState->setState((int)(authorized ? (int)QAbstractSocket::ConnectedState : (int)QAbstractSocket::ConnectionRefusedError));
 
     return true;
 }

@@ -261,7 +261,7 @@ MainWindow::on_clientButton_clicked()
 
     ui->chatUsername->setText(ui->clientUsername->text());
 
-    setConnectState(false);
+    setConnectState(true);
 }
 
 void
@@ -277,21 +277,14 @@ MainWindow::on_serverStart_clicked()
     bool result = cnd->listen(QHostAddress::Any, ui->serverPort->text().toInt());
     debug(CRITICAL, "Listen: %s\n", result ? "Listen Successful!" : "Failed to Listen!");
 
-    setConnectState(false);
+    setConnectState(true);
 }
 
 void
 MainWindow::setConnectState(bool connected)
 {
-    ui->clientPort->setEnabled(connected);
-    ui->clientAddress->setEnabled(connected);
-    ui->clientButton->setEnabled(connected);
-    ui->ignoreHostname->setEnabled(connected);
-    ui->clientPassword->setEnabled(connected);
-    ui->clientUsername->setEnabled(connected);
-    ui->serverPort->setEnabled(connected);
-    ui->serverStart->setEnabled(connected);
-    ui->privatePassword->setEnabled(connected);
+    ui->clientTab->setEnabled(!connected);
+    ui->serverTab->setEnabled(!connected);
 }
 
 void
