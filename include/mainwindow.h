@@ -58,7 +58,7 @@ protected:
     bool setAway(QString);
 
 protected:
-    void setConnectState(bool connected);
+    //void setConnectState(bool connected);
     bool processChatCommand(QString cmd);
 
 protected:

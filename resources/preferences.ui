@@ -52,8 +52,11 @@
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QTabWidget" name="prefTab">
+       <property name="tabShape">
+        <enum>QTabWidget::Rounded</enum>
+       </property>
        <property name="currentIndex">
-        <number>3</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="General">
         <attribute name="title">
@@ -65,7 +68,7 @@
            <x>10</x>
            <y>140</y>
            <width>441</width>
-           <height>91</height>
+           <height>101</height>
           </rect>
          </property>
          <property name="title">
@@ -76,12 +79,30 @@
            <rect>
             <x>10</x>
             <y>30</y>
-            <width>61</width>
+            <width>90</width>
             <height>21</height>
            </rect>
           </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>90</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>90</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="text">
-           <string>Language:</string>
+           <string>Language</string>
           </property>
          </widget>
          <widget class="QComboBox" name="comboBoxLang">
@@ -107,11 +128,35 @@
          <widget class="QPushButton" name="Apply">
           <property name="geometry">
            <rect>
-            <x>340</x>
+            <x>310</x>
             <y>60</y>
-            <width>90</width>
-            <height>23</height>
+            <width>120</width>
+            <height>31</height>
            </rect>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>120</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="baseSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
           </property>
           <property name="text">
            <string>Apply Language</string>
@@ -124,19 +169,19 @@
            <x>10</x>
            <y>10</y>
            <width>441</width>
-           <height>111</height>
+           <height>131</height>
           </rect>
          </property>
          <property name="title">
           <string>Certificates</string>
          </property>
-         <widget class="QWidget" name="layoutWidget">
+         <widget class="QWidget" name="layoutWidget4">
           <property name="geometry">
            <rect>
             <x>10</x>
             <y>20</y>
             <width>421</width>
-            <height>80</height>
+            <height>101</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -146,7 +191,7 @@
               <widget class="QLabel" name="label_6">
                <property name="minimumSize">
                 <size>
-                 <width>90</width>
+                 <width>106</width>
                  <height>0</height>
                 </size>
                </property>
@@ -173,7 +218,7 @@
               <widget class="QLabel" name="label_7">
                <property name="minimumSize">
                 <size>
-                 <width>90</width>
+                 <width>106</width>
                  <height>0</height>
                 </size>
                </property>
@@ -200,7 +245,7 @@
               <widget class="QLabel" name="label_8">
                <property name="minimumSize">
                 <size>
-                 <width>90</width>
+                 <width>106</width>
                  <height>0</height>
                 </size>
                </property>
@@ -229,7 +274,7 @@
         <attribute name="title">
          <string>Client</string>
         </attribute>
-        <widget class="QWidget" name="layoutWidget">
+        <widget class="QWidget" name="layoutWidget1">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -248,13 +293,13 @@
              <widget class="QLabel" name="iphostname">
               <property name="minimumSize">
                <size>
-                <width>110</width>
+                <width>130</width>
                 <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>110</width>
+                <width>130</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -274,13 +319,13 @@
              <widget class="QLabel" name="label_2">
               <property name="minimumSize">
                <size>
-                <width>110</width>
+                <width>130</width>
                 <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>110</width>
+                <width>130</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -345,7 +390,7 @@
              <widget class="QLabel" name="label_3">
               <property name="minimumSize">
                <size>
-                <width>110</width>
+                <width>130</width>
                 <height>0</height>
                </size>
               </property>
@@ -403,7 +448,7 @@
              <widget class="QLabel" name="label_4">
               <property name="minimumSize">
                <size>
-                <width>110</width>
+                <width>130</width>
                 <height>0</height>
                </size>
               </property>
@@ -500,7 +545,7 @@
         <attribute name="title">
          <string>Server</string>
         </attribute>
-        <widget class="QWidget" name="layoutWidget1">
+        <widget class="QWidget" name="layoutWidget2">
          <property name="geometry">
           <rect>
            <x>90</x>
@@ -516,7 +561,7 @@
              <widget class="QLabel" name="label">
               <property name="minimumSize">
                <size>
-                <width>70</width>
+                <width>90</width>
                 <height>0</height>
                </size>
               </property>
@@ -568,7 +613,7 @@
              <widget class="QLabel" name="label_5">
               <property name="minimumSize">
                <size>
-                <width>70</width>
+                <width>90</width>
                 <height>0</height>
                </size>
               </property>
@@ -635,7 +680,7 @@
         <attribute name="title">
          <string>Users</string>
         </attribute>
-        <widget class="QWidget" name="layoutWidget">
+        <widget class="QWidget" name="layoutWidget3">
          <property name="geometry">
           <rect>
            <x>30</x>

@@ -15,6 +15,25 @@ public:
     explicit Preferences(QWidget *parent = 0);
     ~Preferences();
 
+protected:
+    void setConnectState(bool connected);
+
+private slots:
+    void on_lineEditCACert_textChanged(const QString &ca);
+
+    void on_lineEditLocalCert_textChanged(const QString &local);
+
+    void on_lineEditPrivateKey_textChanged(const QString &privkey);
+
+    void on_tbCACert_clicked();
+
+    void on_tbLocalCert_clicked();
+
+    void on_tbPrivateKey_clicked();
+
+    void on_connectButton_clicked();
+
+    void on_pushButtonStart_clicked();
 
 private:
     Ui::Preferences *ui;

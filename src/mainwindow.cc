@@ -7,7 +7,6 @@
 #include "uperms.h"
 #include "preferences.h"
 
-QSettings* g_cobra_settings;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -68,10 +67,6 @@ MainWindow::MainWindow(QWidget *parent) :
     stateHandler->put();
     chatHandler->put();
     authHandler->put();
-
-    ui->certificateText->setText(g_cobra_settings->value("ssl/ca").toString());
-    ui->localCertificateText->setText(g_cobra_settings->value("ssl/local_certificate").toString());
-    ui->privateKeyText->setText(g_cobra_settings->value("ssl/private_key").toString());
 
     /* Hide the central widget so that the dock widgets take over. */
     ui->centralwidget->hide();
@@ -263,7 +258,7 @@ MainWindow::on_clientButton_clicked()
 
     ui->chatUsername->setText(ui->clientUsername->text());
 
-    setConnectState(true);
+    //setConnectState(true);
 }
 
 void
@@ -279,32 +274,32 @@ MainWindow::on_serverStart_clicked()
     bool result = cnd->listen(QHostAddress::Any, ui->serverPort->text().toInt());
     debug(CRITICAL, "Listen: %s\n", result ? "Listen Successful!" : "Failed to Listen!");
 
-    setConnectState(true);
+    //setConnectState(true);
 }
 
-void
+/*void
 MainWindow::setConnectState(bool connected)
 {
     ui->clientTab->setEnabled(!connected);
     ui->serverTab->setEnabled(!connected);
-}
+}*/
 
 void
 MainWindow::on_certificateText_textChanged(const QString &ca)
 {
-    g_cobra_settings->setValue("ssl/ca", ca);
+    //g_cobra_settings->setValue("ssl/ca", ca);
 }
 
 void
 MainWindow::on_localCertificateText_textChanged(const QString &local)
 {
-    g_cobra_settings->setValue("ssl/local_certificate", local);
+    //g_cobra_settings->setValue("ssl/local_certificate", local);
 }
 
 void
 MainWindow::on_privateKeyText_textChanged(const QString &privkey)
 {
-    g_cobra_settings->setValue("ssl/private_key", privkey);
+    //g_cobra_settings->setValue("ssl/private_key", privkey);
 }
 
 void
