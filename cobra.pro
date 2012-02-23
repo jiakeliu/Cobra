@@ -15,7 +15,8 @@ SOURCES = src/main.cc \
     src/event/chat.cc \
     src/filevalidator.cc \
     src/event/auth.cc \
-    src/preferences.cc
+    src/preferences.cc \
+    src/event/transfer.cc
 
 INCLUDEPATH = include
 
@@ -40,6 +41,3 @@ TRANSLATIONS = cobratr_cn
 
 RESOURCES += \
     resources/cobra.qrc
-
-
-

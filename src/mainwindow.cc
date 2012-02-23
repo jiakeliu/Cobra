@@ -51,11 +51,13 @@ MainWindow::MainWindow(QWidget *parent) :
     cobraStateEventHandler* stateHandler = new cobraStateEventHandler();
     cobraChatEventHandler* chatHandler = new cobraChatEventHandler();
     cobraAuthEventHandler* authHandler = new cobraAuthEventHandler();
+    cobraTransferEventHandler* xferHandler = new cobraTransferEventHandler();
     chatHandler->setChatDock(ui->chatDock);
 
     cobraNetHandler::instance()->registerEventHandler(stateHandler);
     cobraNetHandler::instance()->registerEventHandler(chatHandler);
     cobraNetHandler::instance()->registerEventHandler(authHandler);
+    cobraNetHandler::instance()->registerEventHandler(xferHandler);
 
     registerMetaCommand(&MainWindow::setName, "\\name");
     registerMetaCommand(&MainWindow::metaConnect, "\\connect");

@@ -6,10 +6,11 @@
 #include <QtGui>
 #include <QtNetwork/QAbstractSocket>
 
-#define cobraNetEventType       (QEvent::User+1)
-#define cobraStateEventType     (cobraNetEventType+1)
-#define cobraAuthEventType      (cobraNetEventType+2)
-#define cobraChatEventType      (cobraNetEventType+3)
+#define cobraNetEventType           (QEvent::User+1)
+#define cobraStateEventType         (cobraNetEventType+1)
+#define cobraAuthEventType          (cobraNetEventType+2)
+#define cobraChatEventType          (cobraNetEventType+3)
+#define cobraTransferEventType      (cobraNetEventType+4)
 
 /**
  * @typedef cobraId event.h "event.h"
@@ -328,9 +329,9 @@ protected:
 };
 
 /**
- * @class cobraChatEvent event.h "event.h"
+ * @class cobraAuthEvent event.h "event.h"
  *
- * The event used to communicate chat information to the server and other
+ * The event used to communicate authentication information to the server and other
  * machines.
  */
 
@@ -409,6 +410,77 @@ protected:
     QTextEdit*      m_teChat;
 };
 
+
+
+/**
+ * @class cobraTransferEventHandler event.h "event.h"
+ *
+ * The cobraTransferEventHandler is used to handle incoming authorization requests.
+ */
+class cobraTransferEventHandler : public cobraNetEventHandler {
+
+public:
+    cobraTransferEventHandler();
+    cobraTransferEventHandler(cobraTransferEventHandler& event);
+    virtual ~cobraTransferEventHandler();
+
+public:
+    virtual bool handleEvent(cobraNetEvent* event);
+
+    /**
+     * @fn virtual cobraNetEvent* eventGenesis() const;
+     * Generates an event of the type that it handles.
+     */
+    virtual cobraNetEvent* eventGenesis() const;
+
+protected:
+    virtual bool handleServerEvent(cobraNetEvent* event);
+};
+
+/**
+ * @class cobraTransferEvent event.h "event.h"
+ *
+ * The event used to communicate authentication information to the server and other
+ * machines.
+ */
+
+class cobraTransferEvent : public cobraNetEvent {
+public:
+   cobraTransferEvent();
+   cobraTransferEvent(cobraTransferEvent& state);
+   virtual ~cobraTransferEvent();
+
+   QString username() const;
+   void setUsername(const QString& user);
+
+   QString password() const;
+   void setPassword(const QString& pwd);
+
+public:
+
+   /**
+    * @fn virtual int serialize(QDataStream& stream)
+    * Serialize the data for chats which is pending on the given cobraNetConnection.
+    */
+   virtual int serialize(QDataStream& stream);
+
+   /**
+    * @fn virtual int deserialize(QDataStream& stream)
+    * Deserialize the data for chats which is pending on the given cobraNetConnection.
+    */
+   virtual int deserialize(QDataStream& stream);
+
+   /**
+    * @fn virtual cobraNetEvent* duplicate()
+    * Create a new duplicate event and dump all values to it!
+    * This is called to ensure that the main event loop or thread loop
+    * doesn't delete it while we are using it, as once posted, the event loop
+    * handles deletion.
+    * @return A pointer to the copied cobra event.
+    */
+   virtual cobraNetEvent* duplicate();
+protected:
+};
 
 
 #endif // EVENT_H
