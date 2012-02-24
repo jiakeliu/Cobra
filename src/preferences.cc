@@ -18,6 +18,10 @@ Preferences::Preferences(QWidget *parent) :
     ui->lineEditCACert->setText(g_cobra_settings->value("ssl/ca").toString());
     ui->lineEditLocalCert->setText(g_cobra_settings->value("ssl/local_certificate").toString());
     ui->lineEditPrivateKey->setText(g_cobra_settings->value("ssl/private_key").toString());
+
+
+    QRegExp unameRexp("[a-zA-Z0-9_]+");
+    ui->lineEditUser->setValidator(new QRegExpValidator(unameRexp, this));
 }
 
 Preferences::~Preferences()

@@ -48,6 +48,9 @@
    <bool>true</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_5">
+   <property name="margin">
+    <number>0</number>
+   </property>
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
@@ -56,7 +59,7 @@
         <enum>QTabWidget::Rounded</enum>
        </property>
        <property name="currentIndex">
-        <number>2</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="General">
         <attribute name="title">

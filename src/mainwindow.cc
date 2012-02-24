@@ -17,9 +17,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     installEventFilter(cobraNetHandler::instance());
 
-    QRegExp unameRexp("[a-zA-Z0-9_]+");
-    ui->chatUsername->setValidator(new QRegExpValidator(unameRexp, this));
-
     tabifyDockWidget(ui->serverList, ui->fileList);
     tabifyDockWidget(ui->fileList, ui->cueList);
 
@@ -117,9 +114,6 @@ MainWindow::setName(QString name)
     }
 
     m_cUsername = cmdArgs[0];
-
-    ui->chatUsername->setText(m_cUsername);
-    ui->chatUsername->update();
     return true;
 }
 
@@ -224,89 +218,6 @@ check:
     debug(LOW, "Found command!\n");
     metaCmdEntry fn = m_msfMetaMap[cmd];
     return (this->*fn)(args);
-}
-
-void
-MainWindow::on_actionConnect_triggered()
-{
-}
-
-void
-MainWindow::on_clientButton_clicked()
-{
-    cobraNetHandler* cnd = cobraNetHandler::instance();
-
-    if (!cnd->loadClientCertificates()) {
-        QMessageBox::warning(this, "Certificates Not Specified!", "Before you can connect to a server, you must select the CA Certificate to use with the connection! (Preferences->Certificates)");
-        return;
-    }
-
-    if (ui->ignoreHostname->isChecked()) {
-        QList<QSslError> exclude;
-        cobraNetHandler::instance()->getAllowedErrors(exclude);
-
-        exclude.append(QSslError(QSslError::HostNameMismatch, cobraNetHandler::instance()->getCaCertificate()));
-
-        cobraNetHandler::instance()->setAllowedErrors(exclude);
-    }
-
-    bool result = cnd->connect(ui->clientAddress->text(), ui->clientPort->text().toInt(), ui->clientUsername->text(), ui->clientPassword->text());
-    debug(CRITICAL, "Connect: %s\n", result ? "Connection Successful!" : "Failed to Connect!");
-
-    ui->chatUsername->setText(ui->clientUsername->text());
-}
-
-void
-MainWindow::on_serverStart_clicked()
-{
-    cobraNetHandler* cnd = cobraNetHandler::instance();
-
-    if (!cnd->loadServerCertificates(ui->privatePassword->text())) {
-        QMessageBox::warning(this, "Certificates Not Specified!", "Before you can connect to a server, you must select the CA Certificate to use with the connection! (Preferences->Certificates)");
-        return;
-    }
-
-    bool result = cnd->listen(QHostAddress::Any, ui->serverPort->text().toInt());
-    debug(CRITICAL, "Listen: %s\n", result ? "Listen Successful!" : "Failed to Listen!");
-}
-
-void
-MainWindow::on_certificateText_textChanged(const QString &ca)
-{
-    //g_cobra_settings->setValue("ssl/ca", ca);
-}
-
-void
-MainWindow::on_localCertificateText_textChanged(const QString &local)
-{
-    //g_cobra_settings->setValue("ssl/local_certificate", local);
-}
-
-void
-MainWindow::on_privateKeyText_textChanged(const QString &privkey)
-{
-    //g_cobra_settings->setValue("ssl/private_key", privkey);
-}
-
-void
-MainWindow::on_chatUsername_textChanged(const QString &username)
-{
-    m_cUsername = username;
-}
-
-void
-MainWindow::updateUserAuthoCombo()
-{
-}
-
-void
-MainWindow::on_addUserBtn_clicked()
-{
-}
-
-void
-MainWindow::on_delUserBtn_clicked()
-{
 }
 
 void MainWindow::on_actionPreferences_triggered()

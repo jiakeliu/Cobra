@@ -35,18 +35,6 @@ public:
     virtual bool eventFilter(QObject* obj, QEvent* event);
 
 private slots:
-    void on_actionConnect_triggered();
-    void on_clientButton_clicked();
-    void on_serverStart_clicked();
-
-    void on_privateKeyText_textChanged(const QString &privkey);
-    void on_certificateText_textChanged(const QString &ca);
-    void on_localCertificateText_textChanged(const QString &local);
-    void on_chatUsername_textChanged(const QString &newName);    
-    void on_addUserBtn_clicked();
-    void on_delUserBtn_clicked();
-
-    void updateUserAuthoCombo();
     bool sendChat();
 
     /* Meta Functions */

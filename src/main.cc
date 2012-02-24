@@ -6,8 +6,6 @@
 #include <QtNetwork/QSslSocket>
 #include "net.h"
 
-extern QSettings* g_cobra_settings;
-
 /**
  * @fn void handleArgs(QApplication& app)
  *
