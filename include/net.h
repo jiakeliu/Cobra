@@ -11,7 +11,6 @@
 #include <QtNetwork/QSslKey>
 
 #include "event.h"
-#include "uperms.h"
 /**
  * Event Driven Network Handler
  *
@@ -244,7 +243,7 @@ public:
      * @return Whether or not this net handler is serving or not.
      */
     bool isServing() const {
-        return m_bServing;
+        return isListening();
     }
 
     void setUsername(QString user) {
@@ -359,58 +358,41 @@ public:
     }
 
     /**
-     * @fn bool isAuthorized(QString user, QString pass)
+     * @fn bool isAuthorized(QString pass)
      * Validates the provided credentials against the configured list.
-     * @param user Username sent by the client.
      * @param pass Password sent by the client.
      * @return True if a valid user account; False otherwise.
      */
-    bool isAuthorized(QString user, QString pass);
+    bool isAuthorized(QString pass);
 
     /**
-     * @fn bool setSessionPassword(QString pwd)
+     * @fn void setSessionPassword(QString pwd)
      * Sets the server session password.
      * @param pwd The password value to assign to the session.
-     * @return true if properly set; false otherwise
      */
-    bool setSessionPassword(QString pwd);
+    void setSessionPassword(QString pwd);
 
     /**
-     * @fn QString getSessionPassword() const
+     * @fn QString sessionPassword() const
      * Gets the server session password.
      * @return The current session password string
      */
-    QString getSessionPassword() const;
+    QString sessionPassword() const;
 
     /**
-     * @fn void getAuthList(QList<UserPermissions> &authList) const
-     * Returns the current list of Authorized persons.
-     * @param authList Used to transfer the list of user permissions.
+     * @fn void setGuestPassword(QString pwd)
+     * Sets the server guest password.
+     * @param pwd The password value to assign to the session.
      */
-    void getAuthList(QList<UserPermissions> &authList) const;
+    void setGuestPassword(QString pwd);
 
     /**
-     * @fn void setAuthList(QList<UserPermissions> &authList)
-     * Sets the current list of Authorized persons.
-     * @param authList Used to transfer the list of user permissions.
+     * @fn QString guestPassword() const
+     * Gets the server guest password.
+     * @return The current guest password string
      */
-    void setAuthList(QList<UserPermissions> &authList);
+    QString guestPassword() const;
 
-    /**
-     * @fn bool addAuth(UserPermissions &auth)
-     * Adds the given UserPermissions object to the list of authorized users.
-     * @param auth Used to transfer the user permissions object.
-     * @return Returns true if added; false otherwise or duplicate user.
-     */
-    bool addAuth(UserPermissions &auth);
-
-    /**
-     * @fn bool delAuth(UserPermissions &auth)
-     * Removes the given UserPermissions object from the list of authorized users.
-     * @param auth Used to transfer the user permissions object.
-     * @return Returns true if added; false otherwise or duplicate user.
-     */
-    bool delAuth(UserPermissions &auth);
 
 public slots:
 
@@ -466,8 +448,8 @@ protected:
     QSslCertificate                     m_sslLocalCertificate;
     QSslKey                             m_sslPrivateKey;
 
-    QList<UserPermissions>             m_lupAuthorized;
-    bool                                m_bServing;
+    QString                             m_sSessionPwd;
+    QString                             m_sGuestPwd;
 };
 
 /**

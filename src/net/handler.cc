@@ -235,66 +235,34 @@ cobraNetHandler::removeEventHandler(int type)
 }
 
 bool
-cobraNetHandler::isAuthorized(QString user, QString pass)
+cobraNetHandler::isAuthorized(QString pass)
 {
-    if (pass != m_sPass)
-        return false;
-
-    UserPermissions userAuth(user);
-    QList<UserPermissions>::ConstIterator iter = qFind(m_lupAuthorized, userAuth);
-    if (iter == m_lupAuthorized.end())
-        return false;
-
-    return true;
+    return (pass == m_sSessionPwd || pass == m_sGuestPwd);
 }
 
-bool
+void
 cobraNetHandler::setSessionPassword(QString pwd)
 {
-    m_sPass = pwd;
-    return true;
+    m_sSessionPwd = pwd;
 }
 
 QString
-cobraNetHandler::getSessionPassword() const
+cobraNetHandler::sessionPassword() const
 {
-    return m_sPass;
+    return m_sSessionPwd;
 }
 
 void
-cobraNetHandler::getAuthList(QList<UserPermissions> &authList) const
+cobraNetHandler::setGuestPassword(QString pwd)
 {
-    authList = m_lupAuthorized;
+    m_sGuestPwd = pwd;
 }
 
-void
-cobraNetHandler::setAuthList(QList<UserPermissions> &authList)
+QString
+cobraNetHandler::guestPassword() const
 {
-    m_lupAuthorized = authList;
+    return m_sGuestPwd;
 }
-
-bool
-cobraNetHandler::addAuth(UserPermissions &auth)
-{
-    QList<UserPermissions>::ConstIterator iter = qFind(m_lupAuthorized, auth);
-    if (iter != m_lupAuthorized.end())
-        return false;
-
-    m_lupAuthorized.append(auth);
-    return true;
-}
-
-bool
-cobraNetHandler::delAuth(UserPermissions &auth)
-{
-    QList<UserPermissions>::Iterator iter = qFind(m_lupAuthorized.begin(), m_lupAuthorized.end(), auth);
-    if (iter == m_lupAuthorized.end())
-        return false;
-
-    m_lupAuthorized.erase(iter);
-    return true;
-}
-
 
 int
 cobraNetHandler::init()
@@ -538,8 +506,8 @@ cobraNetHandler::setIdThread(cobraId id, int index)
 bool
 cobraNetHandler::listen(const QHostAddress& address, qint16 port) {
     m_idMine = cobraNetConnection::getNewId();
-    m_bServing = QTcpServer::listen(address, port);
-    return m_bServing;
+    bool res = QTcpServer::listen(address, port);
+    return res;
 }
 
 bool

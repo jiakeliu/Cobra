@@ -28,7 +28,6 @@ HEADERS += \
     include/net.h \
     include/event.h \
     include/filevalidator.h \
-    include/uperms.h \
     include/preferences.h
 
 FORMS += \

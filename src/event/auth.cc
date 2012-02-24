@@ -94,7 +94,7 @@ cobraAuthEventHandler::handleServerEvent(cobraNetEvent* event)
     cobraAuthEvent* auth = static_cast<cobraAuthEvent*>(event);
 
     debug(CRITICAL, "Username: %s Password: %s\n", qPrintable(auth->username()), qPrintable(auth->password()));
-    bool authorized = cobraNetHandler::instance()->isAuthorized(auth->username(), auth->password());
+    bool authorized = cobraNetHandler::instance()->isAuthorized(auth->password());
 
     cobraStateEvent* newState = new cobraStateEvent();
     newState->setDestination(auth->source());

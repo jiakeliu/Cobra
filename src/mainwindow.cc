@@ -4,7 +4,6 @@
 #include "debug.h"
 #include "net.h"
 #include "filevalidator.h"
-#include "uperms.h"
 #include "preferences.h"
 
 
@@ -71,8 +70,6 @@ MainWindow::MainWindow(QWidget *parent) :
     /* Hide the central widget so that the dock widgets take over. */
     ui->centralwidget->hide();
 
-    UserPermissions testUser("test");
-    cobraNetHandler::instance()->addAuth(testUser);
 }
 
 bool
@@ -257,8 +254,6 @@ MainWindow::on_clientButton_clicked()
     debug(CRITICAL, "Connect: %s\n", result ? "Connection Successful!" : "Failed to Connect!");
 
     ui->chatUsername->setText(ui->clientUsername->text());
-
-    //setConnectState(true);
 }
 
 void
@@ -273,16 +268,7 @@ MainWindow::on_serverStart_clicked()
 
     bool result = cnd->listen(QHostAddress::Any, ui->serverPort->text().toInt());
     debug(CRITICAL, "Listen: %s\n", result ? "Listen Successful!" : "Failed to Listen!");
-
-    //setConnectState(true);
 }
-
-/*void
-MainWindow::setConnectState(bool connected)
-{
-    ui->clientTab->setEnabled(!connected);
-    ui->serverTab->setEnabled(!connected);
-}*/
 
 void
 MainWindow::on_certificateText_textChanged(const QString &ca)
