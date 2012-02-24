@@ -2,7 +2,7 @@
 #include "net.h"
 
 cobraNetHandler::cobraNetHandler(QObject* parent, int cnt)
-    :QTcpServer(parent), m_iThreadCnt(cnt), m_bServing(false)
+    :QTcpServer(parent), m_iThreadCnt(cnt)
 {
     debug(LOW, "cobraNetHandler initializing...\n");
     m_idMine = NO_ID;

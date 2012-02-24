@@ -102,10 +102,9 @@ cobraNetEventThread::disconnect()
    //add disconnect update info
    //set the connected state in state.cc
 
-// model the disconnect off this
+    // model the disconnect off this
     cobraNetConnection* cnx = qobject_cast<cobraNetConnection*>(sender());
     cobraStateEvent* event = new cobraStateEvent();
-    cobraNetHandler* netEvent = new cobraNetHandler();
 
     if (!cnx) {
         debug(ERROR(CRITICAL), "WTF: No Connection Associated with the ClientReady signal?");
@@ -113,7 +112,6 @@ cobraNetEventThread::disconnect()
     }
 
     cnx->setId(SERVER);
-    netEvent->setConnected(false);
     m_cncConnections.append(cnx);
 
     event->setSource(SERVER);
