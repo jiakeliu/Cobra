@@ -3,6 +3,7 @@
 
 #include <QApplication>
 #include <QThread>
+#include <QStringList>
 
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QSslSocket>
@@ -262,11 +263,20 @@ public:
         m_sPass = password;
     }
 
+    void updateUserList(QStringList userList) {
+        m_sUserList = userList;
+    }
+
     QString getUsername() const {
         return m_sUser;
     }
+
     QString getPassword() const {
         return m_sPass;
+    }
+
+    QStringList getUserList() const {
+        return m_sUserList;
     }
 
     /**
@@ -451,6 +461,7 @@ protected:
 
     QString                             m_sUser;
     QString                             m_sPass;
+    QStringList                         m_sUserList;
 
     mutable QReadWriteLock              m_eventLock;
     mutable QReadWriteLock              m_certLock;

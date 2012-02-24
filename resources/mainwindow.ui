@@ -51,7 +51,7 @@
          <x>0</x>
          <y>0</y>
          <width>489</width>
-         <height>440</height>
+         <height>422</height>
         </rect>
        </property>
        <attribute name="label">
@@ -69,7 +69,7 @@
          <x>0</x>
          <y>0</y>
          <width>489</width>
-         <height>440</height>
+         <height>422</height>
         </rect>
        </property>
        <attribute name="label">
@@ -87,7 +87,7 @@
          <x>0</x>
          <y>0</y>
          <width>489</width>
-         <height>440</height>
+         <height>422</height>
         </rect>
        </property>
        <attribute name="label">
@@ -109,7 +109,7 @@
      <x>0</x>
      <y>0</y>
      <width>690</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -203,7 +203,7 @@
           <x>0</x>
           <y>0</y>
           <width>200</width>
-          <height>435</height>
+          <height>418</height>
          </rect>
         </property>
         <attribute name="label">
@@ -216,7 +216,7 @@
           <x>0</x>
           <y>0</y>
           <width>200</width>
-          <height>435</height>
+          <height>418</height>
          </rect>
         </property>
         <attribute name="label">
@@ -231,7 +231,7 @@
   <widget class="QDockWidget" name="chatDock">
    <property name="minimumSize">
     <size>
-     <width>361</width>
+     <width>445</width>
      <height>276</height>
     </size>
    </property>

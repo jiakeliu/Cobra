@@ -78,15 +78,47 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
         }
 
     case QAbstractSocket::ConnectedState:
+    {
         cobraNetHandler::instance()->setId(state->destination());
         debug(MED, "Connection Accepted\n");
         cobraNetHandler::instance()->setConnected(true);
+
+        QString user = cobraNetHandler::instance()->getUsername();
+        QStringList list = cobraNetHandler::instance()->getUserList();
+
+        //Temp user type
+        QString type = "Host";
+
+        if (type == "Host") {
+            user.append("!");
+            list << user;
+        }
+        else {
+            user.append("*");
+            list << user;
+        }
+
+        cobraNetHandler::instance()->updateUserList(list);
+
         break;
+    }
 
     case QAbstractSocket::ClosingState:
         {
             debug(MED, "Closing Connection\n");
             cobraNetHandler::instance()->setConnected(false);
+
+            QString user = cobraNetHandler::instance()->getUsername();
+            QStringList list = cobraNetHandler::instance()->getUserList();
+
+            QString userHost = user.append("!");
+            QString userGuest = user.append("*");
+
+            list.removeAll(userHost);
+            list.removeAll(userGuest);
+
+            cobraNetHandler::instance()->updateUserList(list);
+
             break;
         }
 
