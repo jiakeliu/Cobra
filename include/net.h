@@ -246,6 +246,14 @@ public:
         return isListening();
     }
 
+    /**
+     * @fn bool isConnected() const
+     * @return Whether or not this net handler is connected or not.
+     */
+    bool isConnected() const {
+        return m_bConnected;
+    }
+
     void setUsername(QString user) {
         m_sUser = user;
     }
@@ -418,6 +426,15 @@ protected:
      */
     void incomingConnection(int descriptor);
 
+friend class cobraStateEventHandler;
+    /**
+     * @fn void setConnected() const
+     * @set the connected state of the net handler.
+     */
+    void setConnected(bool setme) {
+        m_bConnected = setme;
+    }
+
 protected:
     typedef QMap<int, cobraNetEventHandler*>::Iterator         eventIterator;
     typedef QMap<int, cobraNetEventHandler*>::ConstIterator    constEventIterator;
@@ -450,6 +467,8 @@ protected:
 
     QString                             m_sSessionPwd;
     QString                             m_sGuestPwd;
+//add connection that says are connected
+    bool                                m_bConnected;
 };
 
 /**

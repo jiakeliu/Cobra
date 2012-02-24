@@ -173,7 +173,7 @@
    <property name="minimumSize">
     <size>
      <width>648</width>
-     <height>221</height>
+     <height>171</height>
     </size>
    </property>
    <property name="baseSize">
@@ -312,7 +312,7 @@ p, li { white-space: pre-wrap; }
    <property name="minimumSize">
     <size>
      <width>745</width>
-     <height>414</height>
+     <height>214</height>
     </size>
    </property>
    <property name="toolTip">

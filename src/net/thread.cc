@@ -98,6 +98,30 @@ cobraNetEventThread::disconnect()
 {
     debug(LOW, "Disconnect: %lu\n", (unsigned long)QThread::currentThreadId());
     m_semAvailableConnections.release();
+
+   //add disconnect update info
+   //set the connected state in state.cc
+
+// model the disconnect off this
+    cobraNetConnection* cnx = qobject_cast<cobraNetConnection*>(sender());
+    cobraStateEvent* event = new cobraStateEvent();
+    cobraNetHandler* netEvent = new cobraNetHandler();
+
+    if (!cnx) {
+        debug(ERROR(CRITICAL), "WTF: No Connection Associated with the ClientReady signal?");
+        return;
+    }
+
+    cnx->setId(SERVER);
+    netEvent->setConnected(false);
+    m_cncConnections.append(cnx);
+
+    event->setSource(SERVER);
+    event->setResponse(true);
+    event->setDestination(NO_ID);
+    event->setState(QAbstractSocket::ClosingState);
+
+    cobraSendEvent(event);
 }
 
 void
@@ -119,7 +143,7 @@ void
 cobraNetEventThread::clientReady()
 {
     debug(LOW, "Client Ready: %lu\n", (unsigned long)QThread::currentThreadId());
-
+// model the disconnect off this
     cobraNetConnection* cnx = qobject_cast<cobraNetConnection*>(sender());
     cobraStateEvent* event = new cobraStateEvent();
 
@@ -186,6 +210,8 @@ cobraNetEventThread::sockError(QAbstractSocket::SocketError error)
         return -1;
     }
     debug(ERROR(CRITICAL), "Socket Error: %d\n", error);
+// added disconnect
+    disconnect();
     return error;
 }
 

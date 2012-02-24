@@ -521,6 +521,8 @@ cobraNetHandler::connect(QString ip, int port, QString user, QString pass)
 
     m_sUser = user;
     m_sPass = pass;
+   
+    setConnected(false);
 
     debug(LOW, "Connecting: %lu\n", (unsigned long)QThread::currentThreadId());
 

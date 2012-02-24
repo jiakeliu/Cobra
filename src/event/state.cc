@@ -57,6 +57,8 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
     cobraStateEvent* state = static_cast<cobraStateEvent*>(event);
     debug(CRITICAL, "Recieved Server State Event: %lu\n", (unsigned long)QThread::currentThreadId());
 
+   
+// we need to make our own enumeration
     switch(state->getState())
     {
     case QAbstractSocket::ConnectingState:
@@ -70,6 +72,7 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
             auth->setPassword(pwd);
 
             debug(CRITICAL, "Sending Auth Packet\n");
+            cobraNetHandler::instance()->setConnected(true);
             cobraSendEvent(auth);
             break;
         }
@@ -77,11 +80,23 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
     case QAbstractSocket::ConnectedState:
         cobraNetHandler::instance()->setId(state->destination());
         debug(MED, "Connection Accepted\n");
+        cobraNetHandler::instance()->setConnected(true);
         break;
 
+    case QAbstractSocket::ClosingState:
+        {
+            debug(MED, "Closing Connection\n");
+            cobraNetHandler::instance()->setConnected(false);
+            break;
+        }
+
     case QAbstractSocket::ConnectionRefusedError:
-        debug(MED, "Invalid Credentials\n");
-        break;
+        {
+            debug(MED, "Invalid Credentials\n");
+//need to break all connections
+            cobraNetHandler::instance()->setConnected(false);
+            break;
+        }
     }
     return false;
 }
