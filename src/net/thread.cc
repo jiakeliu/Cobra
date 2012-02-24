@@ -114,6 +114,7 @@ cobraNetEventThread::disconnect()
     cnx->setId(SERVER);
     m_cncConnections.append(cnx);
 
+//make set connect a ::friend
     event->setSource(SERVER);
     event->setResponse(true);
     event->setDestination(NO_ID);

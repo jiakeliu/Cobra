@@ -34,6 +34,14 @@ class cobraNetConnection;
   * If the data being recieved is a large amount of data, pull the necessary data,
   * and write the rest directly to disk (file transfers, primarily).
   */
+enum m_iSocketState 
+    {
+        ConnectingState,
+        ConnectedState,
+        ClosingState,
+        ConnectionRefused,
+        DisconnectedState
+   };
 
 class cobraNetEvent : public QEvent {
 public:
@@ -481,6 +489,7 @@ public:
    virtual cobraNetEvent* duplicate();
 protected:
 };
+
 
 
 #endif // EVENT_H

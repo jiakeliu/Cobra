@@ -61,7 +61,7 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
 // we need to make our own enumeration
     switch(state->getState())
     {
-    case QAbstractSocket::ConnectingState:
+    case ConnectingState:
         {
             cobraAuthEvent* auth = new cobraAuthEvent();
             QString user = cobraNetHandler::instance()->getUsername();
@@ -77,7 +77,7 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
             break;
         }
 
-    case QAbstractSocket::ConnectedState:
+    case ConnectedState:
     {
         cobraNetHandler::instance()->setId(state->destination());
         debug(MED, "Connection Accepted\n");
@@ -103,7 +103,7 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
         break;
     }
 
-    case QAbstractSocket::ClosingState:
+    case ClosingState:
         {
             debug(MED, "Closing Connection\n");
             cobraNetHandler::instance()->setConnected(false);
@@ -122,7 +122,15 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
             break;
         }
 
-    case QAbstractSocket::ConnectionRefusedError:
+    case DisconnectedState:
+        {
+            debug(MED, "Disconnected from Server\n");
+//need to break all connections
+            cobraNetHandler::instance()->setConnected(false);
+            break;
+        }
+
+    case ConnectionRefused:
         {
             debug(MED, "Invalid Credentials\n");
 //need to break all connections
