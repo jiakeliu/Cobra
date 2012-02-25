@@ -614,7 +614,7 @@ cobraNetHandler::broadcastUserlist()
     event->setSource(SERVER);
     event->setDestination(BROADCAST);
 
-    return sendServerEvent(event);
+    return broadcastServerEvent(event);
 }
 
 bool

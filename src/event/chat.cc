@@ -115,7 +115,7 @@ cobraChatEventHandler::handleEvent(cobraNetEvent* event)
 bool
 cobraChatEventHandler::handleServerEvent(cobraNetEvent* event)
 {
-    debug(CRITICAL, "Handling client chat request!\n");
+    debug(CRITICAL, "Handling server chat request!\n");
 
     cobraChatEvent* cevent = static_cast<cobraChatEvent*>(event);
     switch (cevent->command()) {
