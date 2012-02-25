@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>623</width>
-    <height>1054</height>
+    <width>625</width>
+    <height>1089</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -42,8 +42,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>623</width>
-     <height>25</height>
+     <width>625</width>
+     <height>22</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -127,6 +127,18 @@
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>32</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>32</height>
+    </size>
+   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
@@ -155,6 +167,9 @@
    <property name="statusTip">
     <string>&lt;select file name&gt;</string>
    </property>
+   <property name="floating">
+    <bool>false</bool>
+   </property>
    <property name="features">
     <set>QDockWidget::AllDockWidgetFeatures</set>
    </property>
@@ -182,8 +197,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>98</width>
-          <height>28</height>
+          <width>79</width>
+          <height>650</height>
          </rect>
         </property>
         <attribute name="label">
@@ -196,7 +211,7 @@
           <x>0</x>
           <y>0</y>
           <width>79</width>
-          <height>628</height>
+          <height>650</height>
          </rect>
         </property>
         <attribute name="label">
@@ -218,7 +233,7 @@
    <property name="minimumSize">
     <size>
      <width>623</width>
-     <height>270</height>
+     <height>285</height>
     </size>
    </property>
    <property name="baseSize">
@@ -252,7 +267,13 @@
       <verstretch>0</verstretch>
      </sizepolicy>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0">
+     <property name="spacing">
+      <number>4</number>
+     </property>
+     <property name="margin">
+      <number>4</number>
+     </property>
      <item>
       <widget class="QSplitter" name="splitter">
        <property name="sizePolicy">
@@ -287,20 +308,17 @@
          <string>Chat Log</string>
         </property>
         <property name="documentTitle">
-         <string>ChatLog</string>
+         <string/>
         </property>
         <property name="readOnly">
          <bool>true</bool>
         </property>
         <property name="html">
          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;title&gt;ChatLog&lt;/title&gt;&lt;style type=&quot;text/css&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;table border=&quot;0&quot; style=&quot;-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;&quot;&gt;
-&lt;tr&gt;
-&lt;td style=&quot;border: none;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; color:#840608;&quot;&gt;&amp;gt;Chat Logs&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Lucida Grande'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#840608;&quot;&gt;&amp;gt;Chat Logs&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="textInteractionFlags">
          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -360,12 +378,12 @@ p, li { white-space: pre-wrap; }
       </widget>
      </item>
      <item>
-      <widget class="QListView" name="userListView">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+      <widget class="QListWidget" name="userList">
+       <property name="maximumSize">
+        <size>
+         <width>164</width>
+         <height>16777215</height>
+        </size>
        </property>
       </widget>
      </item>
@@ -382,7 +400,7 @@ p, li { white-space: pre-wrap; }
    <property name="minimumSize">
     <size>
      <width>102</width>
-     <height>127</height>
+     <height>128</height>
     </size>
    </property>
    <property name="acceptDrops">
@@ -412,7 +430,7 @@ p, li { white-space: pre-wrap; }
    <property name="minimumSize">
     <size>
      <width>102</width>
-     <height>127</height>
+     <height>128</height>
     </size>
    </property>
    <property name="acceptDrops">
@@ -442,7 +460,7 @@ p, li { white-space: pre-wrap; }
    <property name="minimumSize">
     <size>
      <width>102</width>
-     <height>127</height>
+     <height>128</height>
     </size>
    </property>
    <property name="acceptDrops">
@@ -468,6 +486,10 @@ p, li { white-space: pre-wrap; }
    </property>
   </action>
   <action name="actionConnect">
+   <property name="icon">
+    <iconset resource="cobra.qrc">
+     <normaloff>:/images/connect_ico.png</normaloff>:/images/connect_ico.png</iconset>
+   </property>
    <property name="text">
     <string>Connect ...</string>
    </property>

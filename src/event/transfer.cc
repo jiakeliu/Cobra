@@ -49,12 +49,14 @@ cobraTransferEventHandler::~cobraTransferEventHandler()
 bool
 cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
 {
+    (void)event;
     return false;
 }
 
 bool
 cobraTransferEventHandler::handleServerEvent(cobraNetEvent* event)
 {
+    (void)event;
     return false;
 }
 

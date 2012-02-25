@@ -27,6 +27,8 @@ typedef unsigned int cobraId;
 
 class cobraNetConnection;
 
+#define CHAT_NOTIFY(x) "<font color=grey>" x "</font>"
+
  /**
   * @class cobraNetEvent event.h "event.h"
   *
@@ -34,15 +36,6 @@ class cobraNetConnection;
   * If the data being recieved is a large amount of data, pull the necessary data,
   * and write the rest directly to disk (file transfers, primarily).
   */
-enum m_iSocketState 
-    {
-        ConnectingState,
-        ConnectedState,
-        ClosingState,
-        ConnectionRefused,
-        DisconnectedState
-   };
-
 class cobraNetEvent : public QEvent {
 public:
     cobraNetEvent(int type);
@@ -105,6 +98,14 @@ public:
      */
     virtual cobraNetEvent* duplicate() = 0;
 
+    enum SocketState {
+        ConnectingState,
+        ConnectedState,
+        ClosingState,
+        ConnectionRefused,
+        DisconnectedState
+    };
+
 protected:
     bool    m_bResponse;
     cobraId m_idDestination;    /* Server ID */
@@ -134,7 +135,6 @@ public:
     virtual ~cobraNetEventHandler();
 
 public:
-    virtual bool handleServerEvent(cobraNetEvent* event) = 0;
     virtual bool handleEvent(cobraNetEvent* event) = 0;
 
     /**
@@ -168,6 +168,9 @@ public:
      * This may look funny because we're using the semaphore for reference counting.
      */
     int     get();
+
+protected:
+    virtual bool handleServerEvent(cobraNetEvent* event) = 0;
 
 protected:
     QString    m_sName;
@@ -337,9 +340,10 @@ public:
    virtual cobraNetEvent* duplicate();
 
    enum ChatCommands {
-       Message,
-       Username,
-       Away
+       ChatMessage,
+       ChangeUsername,
+       Away,
+       ListUpdate
    };
 
 protected:
@@ -452,6 +456,7 @@ protected:
     QPushButton*    m_pbSend;
     QTextEdit*      m_teText;
     QTextEdit*      m_teChat;
+    QListWidget*    m_lwUserlist;
 };
 
 

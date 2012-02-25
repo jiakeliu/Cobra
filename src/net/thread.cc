@@ -96,22 +96,35 @@ cobraNetEventThread::connect(QString ip, int port)
 void
 cobraNetEventThread::removeConnection(int id)
 {
-    cobraStateEvent* event = new cobraStateEvent();
+    QVector<cobraNetConnection*>::iterator iter;
+    for (iter=m_cncConnections.begin(); iter<m_cncConnections.end(); iter++) {
+        if (!(*iter)->is(id))
+            continue;
 
-    event->setSource(SERVER);
-    event->setResponse(true);
-    event->setDestination((cobraId)id);
-    event->setFlag(Forced);
-    event->setState(ClosingState);
-    cobraSendEvent(event);
+        cobraStateEvent* event = new cobraStateEvent();
+
+        event->setSource(SERVER);
+        event->setResponse(true);
+        event->setDestination((cobraId)id);
+        event->setFlag(Forced);
+        event->setState(cobraStateEvent::ClosingState);
+
+        QDataStream stream(*iter);
+
+        debug(CRITICAL, "Sending Data!\n");
+        stream << cobraStreamMagic;
+        event->serialize(stream);
+
+        m_cncConnections.erase(iter);
+        m_semAvailableConnections.release();
+        (*iter)->deleteLater();
+    }
 }
 
 void
 cobraNetEventThread::disconnect()
 {
     debug(LOW, "Disconnect: %lu\n", (unsigned long)QThread::currentThreadId());
-    m_semAvailableConnections.release();
-
     cobraNetConnection* cnx = qobject_cast<cobraNetConnection*>(sender());
 
     cobraStateEvent* event = new cobraStateEvent();
@@ -131,9 +144,8 @@ cobraNetEventThread::disconnect()
         event->setDestination(SERVER);
     }
 
-    event->setState(DisconnectedState);
+    event->setState(cobraStateEvent::DisconnectedState);
     cobraSendEvent(event);
-    cnx->deleteLater();
 }
 
 void
@@ -170,7 +182,7 @@ cobraNetEventThread::clientReady()
     event->setSource(SERVER);
     event->setResponse(true);
     event->setDestination(BROADCAST);
-    event->setState(ConnectingState);
+    event->setState(cobraStateEvent::ConnectingState);
 
     cobraSendEvent(event);
 }
@@ -222,9 +234,11 @@ cobraNetEventThread::sockError(QAbstractSocket::SocketError error)
         debug(ERROR(CRITICAL), "Socket Error: %d (Not Sent By Device)\n", error);
         return -1;
     }
-    debug(ERROR(CRITICAL), "Socket Error: %d\n", error);
-// added disconnect
-    disconnect();
+    debug(ERROR(CRITICAL), "Socket Error (%d): %s\n", error, qPrintable(device->errorString()));
+
+    /* Only disconnect if this error is a host disconnect error... */
+    if (error != QAbstractSocket::RemoteHostClosedError)
+        disconnect();
     return error;
 }
 

@@ -30,6 +30,12 @@ Preferences::~Preferences()
     delete ui;
 }
 
+void
+Preferences::showClientTab()
+{
+    ui->prefTab->setCurrentIndex(1);
+    show();
+}
 
 void
 Preferences::setConnectState(bool connected)
@@ -112,7 +118,10 @@ Preferences::on_connectButton_clicked()
     cobraNetHandler* cnd = cobraNetHandler::instance();
 
     if (!cnd->loadClientCertificates()) {
-        QMessageBox::warning(this, "Certificates Not Specified!", "Before you can connect to a server, you must select the CA Certificate to use with the connection! (Preferences->Certificates)");
+        QMessageBox::warning(this, "Certificates Not Specified!",
+                             "Before you can connect to a server, you must select\n"
+                             "the CA Certificate to use with the connection!\n"
+                             "(Select \"Preferences->Profile\")");
         return;
     }
 
@@ -124,6 +133,8 @@ Preferences::on_connectButton_clicked()
 
         cobraNetHandler::instance()->setAllowedErrors(exclude);
     }
+
+    debug(HIGH, "Connecting as %s\n", qPrintable(ui->lineEditUser->text()));
 
     bool result = cnd->connect(ui->lineEditIP->text(), ui->lineEditPort->text().toInt(), ui->lineEditUser->text(), ui->lineEditPass->text());
     debug(CRITICAL, "Connect: %s\n", result ? "Connection Successful!" : "Failed to Connect!");
@@ -139,7 +150,10 @@ Preferences::on_pushButtonStart_clicked()
     cobraNetHandler* cnd = cobraNetHandler::instance();
 
     if (!cnd->loadServerCertificates(ui->lineEditKey->text())) {
-        QMessageBox::warning(this, "Certificates Not Specified!", "Before you can connect to a server, you must select the CA Certificate to use with the connection! (Preferences->Certificates)");
+        QMessageBox::warning(this, "Certificates Not Specified!",
+                             "Before you can connect to a server, you must select\n"
+                             "the CA Certificate, Local Certificate, and Private Key\n"
+                             "to use with the connection!\n(Select \"Preferences->Profile\")");
         return;
     }
 
@@ -149,5 +163,12 @@ Preferences::on_pushButtonStart_clicked()
     setConnectState(true);
 }
 
+void Preferences::on_guestPwd_textChanged(const QString &pwd)
+{
+    cobraNetHandler::instance()->setGuestPassword(pwd);
+}
 
-
+void Preferences::on_participantPwd_textChanged(const QString &pwd)
+{
+    cobraNetHandler::instance()->setSessionPassword(pwd);
+}

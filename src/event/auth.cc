@@ -103,21 +103,24 @@ cobraAuthEventHandler::handleServerEvent(cobraNetEvent* event)
 
     if (authorized) {
         debug(HIGH, "User is authorized as a %s\n", authorized&GuestAuth?"Guest":"Participant");
-        QStringList list = netHandler->getUserList();
-        QString user = netHandler->getUsername();
 
-        user.append((authorized&GuestAuth)?"*":"!");
-        list << user;
+        QString user;
+        user = (authorized&GuestAuth)?"*":"!";
+        user += auth->username();
 
+        debug(HIGH, "Username Authorized: %s\n", qPrintable(user));
+        debug(HIGH, "ID: %d\n", event->source());
+
+        netHandler->setIdUsername(event->source(), user);
         netHandler->setIdAuthorization(event->source(), authorized);
-        netHandler->updateUserList(list);
-        newState->setState(ConnectedState);
+        netHandler->broadcastUserlist();
 
-    } else
-        newState->setState(ConnectionRefused);
+        newState->setState(cobraStateEvent::ConnectedState);
+    } else {
+        newState->setState(cobraStateEvent::ConnectionRefused);
+    }
 
     cobraSendEvent(newState);
-
     return true;
 }
 

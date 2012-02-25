@@ -4,11 +4,11 @@
 #include <QMainWindow>
 #include <QSettings>
 
+class Preferences;
+
 namespace Ui {
     class MainWindow;
 }
-
-#define CHAT_NOTIFY(x) "<font color=grey>" x "</font>"
 
 class MainWindow;
 typedef bool (MainWindow::*metaCmdEntry)(QString);
@@ -40,6 +40,8 @@ private slots:
     /* Meta Functions */
     void on_actionPreferences_triggered();
 
+    void on_actionConnect_triggered();
+
 protected:
     bool setName(QString);
     bool metaConnect(QString);
@@ -54,12 +56,10 @@ protected:
     bool processMetaCommand(QString cmd);
 
 protected:
-
     metaCmdMap m_msfMetaMap;
-
     Ui::MainWindow *ui;
-
     QString m_cUsername;
+    Preferences* m_pDialog;
 };
 
 

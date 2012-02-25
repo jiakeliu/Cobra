@@ -9,7 +9,8 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    m_pDialog(NULL)
 {
     ui->setupUi(this);
 
@@ -17,8 +18,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     installEventFilter(cobraNetHandler::instance());
 
-    tabifyDockWidget(ui->serverList, ui->fileList);
-    tabifyDockWidget(ui->fileList, ui->cueList);
+    //tabifyDockWidget(ui->serverList, ui->fileList);
+    //tabifyDockWidget(ui->fileList, ui->cueList);
+    ui->serverList->setVisible(false);
+    ui->cueList->setVisible(false);
+    ui->fileList->setVisible(false);
+    ui->fileInfoDock->setVisible(false);
 
     QString style =
             "QDockWidget::title { "
@@ -66,6 +71,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* Hide the central widget so that the dock widgets take over. */
     ui->centralwidget->hide();
+
+    QRect rect = geometry();
+    rect.setHeight(500);
+    setGeometry(rect);
 
 }
 
@@ -228,6 +237,16 @@ check:
 
 void MainWindow::on_actionPreferences_triggered()
 {
-    Preferences* pDialog = new Preferences(this);
-    pDialog->show();
+    debug(HIGH, "Show preferences...\n");
+    if (!m_pDialog)
+        m_pDialog = new Preferences(this);
+    m_pDialog->show();
+}
+
+void MainWindow::on_actionConnect_triggered()
+{
+    debug(HIGH, "Show connection preferences...\n");
+    if (!m_pDialog)
+        m_pDialog = new Preferences(this);
+    m_pDialog->showClientTab();
 }

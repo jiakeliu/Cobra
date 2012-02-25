@@ -4,7 +4,7 @@
 #include <QApplication>
 
 cobraChatEvent::cobraChatEvent()
-    :cobraNetEvent(cobraChatEventType), m_iCommand(Message)
+    :cobraNetEvent(cobraChatEventType), m_iCommand(ChatMessage)
 {}
 
 cobraChatEvent::cobraChatEvent(cobraChatEvent& event)
@@ -92,8 +92,21 @@ cobraChatEventHandler::handleEvent(cobraNetEvent* event)
 
     debug(CRITICAL, "Handling client chat request!\n");
 
-    if (m_teChat) {
-        m_teChat->append(ev->msg());
+    switch(ev->command()) {
+        case cobraChatEvent::ChatMessage: {
+            debug(HIGH, "Received Chat Message: %s\n", qPrintable(ev->msg()));
+            if (m_teChat)
+                m_teChat->append(ev->msg());
+            break;
+        }
+        case cobraChatEvent::ListUpdate: {
+            debug(HIGH, "Received List Update: %s\n", qPrintable(ev->msg()));
+            QStringList userlist = ev->msg().split(" ");
+            m_lwUserlist->clear();
+            for (int x=0; x<userlist.count(); x++)
+                m_lwUserlist->addItem(userlist[x]);
+            break;
+        }
     }
 
     return true;
@@ -104,13 +117,26 @@ cobraChatEventHandler::handleServerEvent(cobraNetEvent* event)
 {
     debug(CRITICAL, "Handling client chat request!\n");
 
-    cobraChatEvent* chat = static_cast<cobraChatEvent*>(event);
+    cobraChatEvent* cevent = static_cast<cobraChatEvent*>(event);
+    switch (cevent->command()) {
+        case cobraChatEvent::ChatMessage: {
+            cobraChatEvent* chat = dynamic_cast<cobraChatEvent*>(event->duplicate());
+            if (!chat)
+                return false;
 
-    chat->setResponse(true);
-    chat->setDestination(BROADCAST);
-    chat->setSource(SERVER);
+            QString msg = cobraNetHandler::instance()->getIdUsername(chat->source());
+            msg += ": ";
+            msg += chat->msg();
 
-    cobraSendEvent(chat);
+            chat->setMsg(msg);
+            chat->setResponse(true);
+            chat->setDestination(BROADCAST);
+            chat->setSource(SERVER);
+
+            cobraSendEvent(chat);
+            break;
+        }
+    }
     return true;
 }
 
@@ -132,6 +158,7 @@ cobraChatEventHandler::setChatDock(QDockWidget* chat)
     m_pbSend = chat->findChild<QPushButton *>("sendButton");
     m_teText = chat->findChild<QTextEdit *>("sendText");
     m_teChat = chat->findChild<QTextEdit *>("chatText");
+    m_lwUserlist = chat->findChild<QListWidget *>("userList");
 
     return true;
 }

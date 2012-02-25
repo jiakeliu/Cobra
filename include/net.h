@@ -272,20 +272,12 @@ public:
         m_sPass = password;
     }
 
-    void updateUserList(QStringList userList) {
-        m_sUserList = userList;
-    }
-
     QString getUsername() const {
         return m_sUser;
     }
 
     QString getPassword() const {
         return m_sPass;
-    }
-
-    QStringList getUserList() const {
-        return m_sUserList;
     }
 
     /**
@@ -295,6 +287,13 @@ public:
      */
     int optimalThread() const;
 
+    /**
+     * @fn virtual bool listen(cosnt QHostAddress& address = QHostAddress::Any, qint16 port = 0)
+     * Virtual function used to set when we are acting as the server.
+     * @param address The address of this system to use.
+     * @param port The port on the local machine to open for connection.
+     * @return True on success; False otherwise.
+     */
     virtual bool listen(const QHostAddress& address = QHostAddress::Any, qint16 port = 0);
 
     /**
@@ -367,12 +366,36 @@ public:
     void getAllowedErrors(QList<QSslError>& err);
 
     /**
+     * @fn bool addId(cobraId id)
+     * Add the specified id.
+     * @param id The CobraID to add.
+     * @return True if the id doesn't exist. False is it exists.
+     */
+    bool addId(cobraId id);
+
+    /**
+     * @fn bool delId(cobraId id)
+     * Remove the specified id.
+     * @param id The CobraID to remove.
+     * @return True if the id exists. False is it doesn't.
+     */
+    bool delId(cobraId id);
+
+    /**
      * @fn bool setIdThread(cobraId id, int index)
      * Create an association between the specified id and index.
      * @param id The id to associate.
      * @param index The index to associate with the Id.
      */
     bool setIdThread(cobraId id, int index);
+
+    /**
+     * @fn int getIdThread(cobraId id)
+     * Get the associated index of the given id.
+     * @param id The id to associate.
+     * @returns The index if valid, -1 if invalid id.
+     */
+    int getIdThread(cobraId id);
 
     /**
      * @fn bool setIdAuthorization(cobraId id, int auth)
@@ -389,6 +412,29 @@ public:
      * @return The authorization value for the specified id
      */
     int getIdAuthorization(cobraId id) const;
+
+    /**
+     * @fn bool setIdUsername(cobraId id, QString& user)
+     * Create an association between the specified id and username.
+     * @param id The id to associate.
+     * @param auth The username to associate with the Id.
+     */
+    bool setIdUsername(cobraId id, QString& user);
+
+    /**
+     * @fn bool getIdUsername(cobraId id, QString& user)
+     * Get the association between the specified id and username.
+     * @param id The id to associate.
+     * @return The username value for the specified id
+     */
+    QString getIdUsername(cobraId id) const;
+
+    /**
+     * @fn bool broadcastUserlist()
+     * Broadcast the userlist to all clients.
+     * @return True on success; False on failure (when not the server);
+     */
+    bool broadcastUserlist();
 
     /**
      * @fn void setId(cobraId id)
@@ -493,7 +539,6 @@ protected:
 
     QString                             m_sUser;
     QString                             m_sPass;
-    QStringList                         m_sUserList;
 
     mutable QReadWriteLock              m_eventLock;
     mutable QReadWriteLock              m_certLock;
@@ -504,6 +549,7 @@ protected:
     {
         int threadIdx;
         int authorization;
+        QString username;
     };
 
     QMap<cobraId, clientId>             m_cIds;
@@ -516,7 +562,7 @@ protected:
 
     QString                             m_sSessionPwd;
     QString                             m_sGuestPwd;
-//add connection that says are connected
+
     bool                                m_bConnected;
 };
 

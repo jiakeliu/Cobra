@@ -208,7 +208,9 @@ cobraNetHandler::getEvent(int type)
     cobraNetEvent* event = NULL;
     cobraNetEventHandler* handler = getEventHandler(type);
 
+    debug(CRITICAL, "Pre-Event Genesis!\n");
     event = handler->eventGenesis();
+    debug(CRITICAL, "Post-Event Genesis!\n");
 
     handler->put();
     return event;
@@ -296,6 +298,8 @@ cobraNetHandler::cleanup()
     for (int x=0; x<m_tThreads.count(); x++) {
         if (!m_tThreads.at(x))
             continue;
+
+        QMetaObject::invokeMethod(m_cnetWorkers[x], "removeConnection", Qt::QueuedConnection, Q_ARG(int, BROADCAST));
 
         m_tThreads.at(x)->quit();
         m_tThreads.at(x)->wait();
@@ -497,21 +501,55 @@ cobraNetHandler::getAllowedErrors(QList<QSslError>& err)
 }
 
 bool
-cobraNetHandler::setIdThread(cobraId id, int index)
+cobraNetHandler::addId(cobraId id)
 {
     QWriteLocker locker(&m_cidLock);
     if (m_cIds.contains(id))
+        return false;
+
+    m_cIds[id].username = "";
+    m_cIds[id].authorization = 0;
+    m_cIds[id].threadIdx = -1;
+    return true;
+}
+
+bool
+cobraNetHandler::delId(cobraId id)
+{
+    QWriteLocker locker(&m_cidLock);
+    if (!m_cIds.contains(id))
+        return false;
+
+    m_cIds.remove(id);
+    return true;
+}
+
+bool
+cobraNetHandler::setIdThread(cobraId id, int index)
+{
+    QWriteLocker locker(&m_cidLock);
+    if (!m_cIds.contains(id))
         return false;
 
     m_cIds[id].threadIdx = index;
     return true;
 }
 
+int
+cobraNetHandler::getIdThread(cobraId id)
+{
+    QWriteLocker locker(&m_cidLock);
+    if (!m_cIds.contains(id))
+        return -1;
+
+    return m_cIds[id].threadIdx;
+}
+
 bool
 cobraNetHandler::setIdAuthorization(cobraId id, int auth)
 {
     QWriteLocker locker(&m_cidLock);
-    if (m_cIds.contains(id))
+    if (!m_cIds.contains(id))
         return false;
 
     m_cIds[id].authorization = auth;
@@ -522,21 +560,71 @@ int
 cobraNetHandler::getIdAuthorization(cobraId id) const
 {
     QReadLocker locker(&m_cidLock);
-    if (m_cIds.contains(id))
+    if (!m_cIds.contains(id))
         return 0;
 
     return m_cIds[id].authorization;
 }
 
 bool
-cobraNetHandler::removeConnection(cobraId id)
+cobraNetHandler::setIdUsername(cobraId id, QString& user)
 {
     QWriteLocker locker(&m_cidLock);
-    if (m_cIds.contains(id))
+    if (!m_cIds.contains(id))
         return false;
 
-    int idx = m_cIds[id].threadIdx;
-    m_cIds.remove(id);
+    debug(LOW, "Setting Username: %s\n", qPrintable(user));
+    m_cIds[id].username = user;
+    return true;
+}
+
+QString
+cobraNetHandler::getIdUsername(cobraId id) const
+{
+    QReadLocker locker(&m_cidLock);
+    if (!m_cIds.contains(id))
+        return "";
+
+    return m_cIds[id].username;
+}
+
+bool
+cobraNetHandler::broadcastUserlist()
+{
+    if (!isServing()) {
+        debug(ERROR(HIGH), "Why are we trying to broadcast the userlist, when we are not the server?\n");
+        return false;
+    }
+
+    QString ulist;
+    QMap<cobraId, clientId>::const_iterator it;
+
+    for (it=m_cIds.begin(); it!=m_cIds.end(); it++) {
+        debug(LOW, "User ID: %d\n", it.key());
+        ulist += it.value().username;
+        ulist += " ";
+    }
+
+    debug(HIGH, "Userlist: %s\n", qPrintable(ulist));
+
+    cobraChatEvent* event = new cobraChatEvent();
+    event->setCommand(cobraChatEvent::ListUpdate);
+    event->setMsg(ulist);
+    event->setResponse(true);
+    event->setSource(SERVER);
+    event->setDestination(BROADCAST);
+
+    return sendServerEvent(event);
+}
+
+bool
+cobraNetHandler::removeConnection(cobraId id)
+{
+    int idx = getIdThread(id);
+    if (idx < 0)
+        return false;
+
+    delId(id);
 
     QMetaObject::invokeMethod(m_cnetWorkers[idx], "removeConnection", Qt::QueuedConnection, Q_ARG(int, id));
     return true;
@@ -561,11 +649,10 @@ cobraNetHandler::connect(QString ip, int port, QString user, QString pass)
 
     m_sUser = user;
     m_sPass = pass;
-   
-    setConnected(false);
 
     debug(LOW, "Connecting: %lu\n", (unsigned long)QThread::currentThreadId());
 
+    addId(SERVER);
     setIdThread(SERVER, idx);
 
     QMetaObject::invokeMethod(m_cnetWorkers[idx], "connect", Qt::QueuedConnection, Q_ARG(QString, ip), Q_ARG(int, port));
@@ -584,6 +671,7 @@ cobraNetHandler::incomingConnection(int desc)
     debug(LOW, "Connection Request: %lu\n", (unsigned long)QThread::currentThreadId());
 
     cobraId id = cobraNetConnection::getNewId();
+    addId(id);
     setIdThread(id, idx);
 
     QMetaObject::invokeMethod(m_cnetWorkers[idx], "connectionRequest", Qt::QueuedConnection, Q_ARG(int, desc), Q_ARG(int, id));

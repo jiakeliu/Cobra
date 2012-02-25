@@ -62,7 +62,7 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
 
     switch(state->getState())
     {
-    case ConnectingState:
+    case cobraStateEvent::ConnectingState:
         {
             cobraAuthEvent* auth = new cobraAuthEvent();
             QString user = cobraNetHandler::instance()->getUsername();
@@ -79,7 +79,7 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
             break;
         }
 
-    case ConnectedState:
+    case cobraStateEvent::ConnectedState:
         {
             cobraNetHandler::instance()->setId(state->destination());
             debug(MED, "Connection Accepted\n");
@@ -87,21 +87,28 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
             break;
         }
 
-    case ClosingState:
+    case cobraStateEvent::ClosingState:
         {
             debug(MED, "Closing Connection\n");
             cobraNetHandler::instance()->setConnected(false);
             break;
         }
 
-    case DisconnectedState:
+    case cobraStateEvent::DisconnectedState:
         {
             debug(MED, "Disconnected from Server\n");
             cobraNetHandler::instance()->setConnected(false);
+
+            cobraChatEvent* chat = new cobraChatEvent();
+            chat->setMsg(CHAT_NOTIFY("Disconnected from server!"));
+            chat->setResponse(true);
+            chat->setSource(SERVER);
+            chat->setDestination(cobraMyId);
+            cobraSendEvent(chat);
             break;
         }
 
-    case ConnectionRefused:
+    case cobraStateEvent::ConnectionRefused:
         {
             debug(MED, "Invalid Credentials\n");
             cobraNetHandler::instance()->setConnected(false);
@@ -127,7 +134,7 @@ cobraStateEventHandler::handleServerEvent(cobraNetEvent* event)
     if (!state)
         return false;
 
-    if (state->getState() == DisconnectedState)
+    if (state->getState() == cobraStateEvent::DisconnectedState)
         cobraNetHandler::instance()->removeConnection(event->source());
 
     return true;
