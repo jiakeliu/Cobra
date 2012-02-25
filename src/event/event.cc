@@ -2,7 +2,7 @@
 #include "net.h"
 
 cobraNetEvent::cobraNetEvent(int type)
-    :QEvent((QEvent::Type)type), m_bResponse(false), m_iSize(0)
+    :QEvent((QEvent::Type)type), m_bResponse(false)
 {
     m_idSource = cobraNetHandler::instance()->myId();
     m_idDestination = SERVER;
@@ -10,7 +10,7 @@ cobraNetEvent::cobraNetEvent(int type)
 
 cobraNetEvent::cobraNetEvent(cobraNetEvent& event)
     :QEvent(event), m_bResponse(event.m_bResponse),
-      m_iSize(event.m_iSize), m_idDestination(event.m_idDestination),
+      m_idDestination(event.m_idDestination),
       m_idSource(event.m_idSource)
 {}
 
@@ -21,22 +21,20 @@ cobraNetEvent::~cobraNetEvent()
 int cobraNetEvent::serialize(QDataStream& connection)
 {
     connection << type();
-    connection << m_iSize;
     connection << m_bResponse;
     connection << m_idDestination;
     connection << m_idSource;
 
-    return (sizeof(m_iSize) + sizeof(m_bResponse) + sizeof(m_idDestination) + sizeof(m_idSource));
+    return (sizeof(m_bResponse) + sizeof(m_idDestination) + sizeof(m_idSource));
 }
 
 int cobraNetEvent::deserialize(QDataStream& connection)
 {
-    connection >> m_iSize;
     connection >> m_bResponse;
     connection >> m_idDestination;
     connection >> m_idSource;
 
-    return (sizeof(m_iSize) + sizeof(m_bResponse) + sizeof(m_idDestination) + sizeof(m_idSource));
+    return (sizeof(m_bResponse) + sizeof(m_idDestination) + sizeof(m_idSource));
 }
 
 int cobraNetEventHandler::put() {

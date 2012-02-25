@@ -2,11 +2,12 @@
 #include "net.h"
 
 cobraStateEvent::cobraStateEvent()
-    :cobraNetEvent(cobraStateEventType)
+    :cobraNetEvent(cobraStateEventType), m_iFlags(0)
 {}
 
 cobraStateEvent::cobraStateEvent(cobraStateEvent& state)
-    :cobraNetEvent(state), m_sState(state.m_sState)
+    :cobraNetEvent(state),
+      m_iFlags(state.m_iFlags), m_iState(state.m_iState)
 {}
 
 cobraStateEvent::~cobraStateEvent()
@@ -16,18 +17,20 @@ int
 cobraStateEvent::serialize(QDataStream& connection)
 {
     int size = cobraNetEvent::serialize(connection);
-    connection << m_sState;
-    debug(CRITICAL, "Serialize State: %d\n", m_sState);
-    return (size + sizeof(m_sState));
+    connection << m_iState;
+    connection << m_iFlags;
+    debug(CRITICAL, "Serialize State: %d\n", m_iState);
+    return (size + sizeof(m_iState));
 }
 
 int
 cobraStateEvent::deserialize(QDataStream& connection)
 {
     int size = cobraNetEvent::serialize(connection);
-    connection >> m_sState;
-    debug(CRITICAL, "Deserialize State: %d\n", m_sState);
-    return (size + sizeof(m_sState));
+    connection >> m_iState;
+    connection >> m_iFlags;
+    debug(CRITICAL, "Deserialize State: %d\n", m_iState);
+    return (size + sizeof(m_iState));
 }
 
 cobraNetEvent*
@@ -57,8 +60,6 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
     cobraStateEvent* state = static_cast<cobraStateEvent*>(event);
     debug(CRITICAL, "Recieved Server State Event: %lu\n", (unsigned long)QThread::currentThreadId());
 
-   
-// we need to make our own enumeration
     switch(state->getState())
     {
     case ConnectingState:
@@ -73,59 +74,29 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
 
             debug(CRITICAL, "Sending Auth Packet\n");
             cobraNetHandler::instance()->setConnected(true);
+
             cobraSendEvent(auth);
             break;
         }
 
     case ConnectedState:
-    {
-        cobraNetHandler::instance()->setId(state->destination());
-        debug(MED, "Connection Accepted\n");
-        cobraNetHandler::instance()->setConnected(true);
-
-        QString user = cobraNetHandler::instance()->getUsername();
-        QStringList list = cobraNetHandler::instance()->getUserList();
-
-        //Temp user type
-        QString type = "Host";
-
-        if (type == "Host") {
-            user.append("!");
-            list << user;
+        {
+            cobraNetHandler::instance()->setId(state->destination());
+            debug(MED, "Connection Accepted\n");
+            cobraNetHandler::instance()->setConnected(true);
+            break;
         }
-        else {
-            user.append("*");
-            list << user;
-        }
-
-        cobraNetHandler::instance()->updateUserList(list);
-
-        break;
-    }
 
     case ClosingState:
         {
             debug(MED, "Closing Connection\n");
             cobraNetHandler::instance()->setConnected(false);
-
-            QString user = cobraNetHandler::instance()->getUsername();
-            QStringList list = cobraNetHandler::instance()->getUserList();
-
-            QString userHost = user.append("!");
-            QString userGuest = user.append("*");
-
-            list.removeAll(userHost);
-            list.removeAll(userGuest);
-
-            cobraNetHandler::instance()->updateUserList(list);
-
             break;
         }
 
     case DisconnectedState:
         {
             debug(MED, "Disconnected from Server\n");
-//need to break all connections
             cobraNetHandler::instance()->setConnected(false);
             break;
         }
@@ -133,12 +104,12 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
     case ConnectionRefused:
         {
             debug(MED, "Invalid Credentials\n");
-//need to break all connections
             cobraNetHandler::instance()->setConnected(false);
             break;
         }
     }
-    return false;
+
+    return true;
 }
 
 bool
@@ -151,6 +122,14 @@ cobraStateEventHandler::handleServerEvent(cobraNetEvent* event)
         return false;
 
     debug(CRITICAL, "Handling Client State Event: %lu\n", (unsigned long)QThread::currentThreadId());
+
+    cobraStateEvent* state = dynamic_cast<cobraStateEvent*>(event);
+    if (!state)
+        return false;
+
+    if (state->getState() == DisconnectedState)
+        cobraNetHandler::instance()->removeConnection(event->source());
+
     return true;
 }
 

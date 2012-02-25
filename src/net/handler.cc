@@ -70,7 +70,7 @@ cobraNetHandler::sendServerEvent(cobraNetEvent *event)
         return false;
     }
 
-    int idx = m_cIds[dest];
+    int idx = m_cIds[dest].threadIdx;
 
     if (!m_cnetWorkers[idx]) {
         debug(ERROR(CRITICAL), "Failed to resolve the destination worker! (%d -> %d)\n", dest, idx);
@@ -234,10 +234,14 @@ cobraNetHandler::removeEventHandler(int type)
     return true;
 }
 
-bool
+int
 cobraNetHandler::isAuthorized(QString pass)
 {
-    return (pass == m_sSessionPwd || pass == m_sGuestPwd);
+    if (pass == m_sSessionPwd)
+        return ParticipantAuth;
+    if (pass == m_sGuestPwd)
+        return GuestAuth;
+    return 0;
 }
 
 void
@@ -499,7 +503,42 @@ cobraNetHandler::setIdThread(cobraId id, int index)
     if (m_cIds.contains(id))
         return false;
 
-    m_cIds[id] = index;
+    m_cIds[id].threadIdx = index;
+    return true;
+}
+
+bool
+cobraNetHandler::setIdAuthorization(cobraId id, int auth)
+{
+    QWriteLocker locker(&m_cidLock);
+    if (m_cIds.contains(id))
+        return false;
+
+    m_cIds[id].authorization = auth;
+    return true;
+}
+
+int
+cobraNetHandler::getIdAuthorization(cobraId id) const
+{
+    QReadLocker locker(&m_cidLock);
+    if (m_cIds.contains(id))
+        return 0;
+
+    return m_cIds[id].authorization;
+}
+
+bool
+cobraNetHandler::removeConnection(cobraId id)
+{
+    QWriteLocker locker(&m_cidLock);
+    if (m_cIds.contains(id))
+        return false;
+
+    int idx = m_cIds[id].threadIdx;
+    m_cIds.remove(id);
+
+    QMetaObject::invokeMethod(m_cnetWorkers[idx], "removeConnection", Qt::QueuedConnection, Q_ARG(int, id));
     return true;
 }
 
@@ -507,6 +546,7 @@ bool
 cobraNetHandler::listen(const QHostAddress& address, qint16 port) {
     m_idMine = cobraNetConnection::getNewId();
     bool res = QTcpServer::listen(address, port);
+    setConnected(res);
     return res;
 }
 

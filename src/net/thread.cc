@@ -94,16 +94,26 @@ cobraNetEventThread::connect(QString ip, int port)
 }
 
 void
+cobraNetEventThread::removeConnection(int id)
+{
+    cobraStateEvent* event = new cobraStateEvent();
+
+    event->setSource(SERVER);
+    event->setResponse(true);
+    event->setDestination((cobraId)id);
+    event->setFlag(Forced);
+    event->setState(ClosingState);
+    cobraSendEvent(event);
+}
+
+void
 cobraNetEventThread::disconnect()
 {
     debug(LOW, "Disconnect: %lu\n", (unsigned long)QThread::currentThreadId());
     m_semAvailableConnections.release();
 
-   //add disconnect update info
-   //set the connected state in state.cc
-
-    // model the disconnect off this
     cobraNetConnection* cnx = qobject_cast<cobraNetConnection*>(sender());
+
     cobraStateEvent* event = new cobraStateEvent();
 
     if (!cnx) {
@@ -111,16 +121,19 @@ cobraNetEventThread::disconnect()
         return;
     }
 
-    cnx->setId(SERVER);
-    m_cncConnections.append(cnx);
+    if (cnx->is(SERVER)) {
+        event->setSource(SERVER);
+        event->setResponse(true);
+        event->setDestination(BROADCAST);
+    } else {
+        event->setSource(cnx->id());
+        event->setResponse(false);
+        event->setDestination(SERVER);
+    }
 
-//make set connect a ::friend
-    event->setSource(SERVER);
-    event->setResponse(true);
-    event->setDestination(NO_ID);
-    event->setState(QAbstractSocket::ClosingState);
-
+    event->setState(DisconnectedState);
     cobraSendEvent(event);
+    cnx->deleteLater();
 }
 
 void
@@ -142,7 +155,7 @@ void
 cobraNetEventThread::clientReady()
 {
     debug(LOW, "Client Ready: %lu\n", (unsigned long)QThread::currentThreadId());
-// model the disconnect off this
+
     cobraNetConnection* cnx = qobject_cast<cobraNetConnection*>(sender());
     cobraStateEvent* event = new cobraStateEvent();
 
@@ -156,8 +169,8 @@ cobraNetEventThread::clientReady()
 
     event->setSource(SERVER);
     event->setResponse(true);
-    event->setDestination(NO_ID);
-    event->setState(QAbstractSocket::ConnectingState);
+    event->setDestination(BROADCAST);
+    event->setState(ConnectingState);
 
     cobraSendEvent(event);
 }
@@ -192,9 +205,10 @@ cobraNetEventThread::readyRead()
     int bytes = event->deserialize(stream);
     debug(HIGH, "Bytes read from incoming event: %d\n", bytes);
 
-    if (event->source() == NO_ID) {
-        event->setSource(cnx->id());
-    }
+    if (cnx->id() != event->source())
+        debug(ERROR(CRITICAL), "Incoming event failed source coherenecy check!\n");
+
+    event->setSource(cnx->id());
 
     cobraSendEvent(event);
     return bytes;

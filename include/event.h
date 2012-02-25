@@ -107,7 +107,6 @@ public:
 
 protected:
     bool    m_bResponse;
-    int     m_iSize;
     cobraId m_idDestination;    /* Server ID */
     cobraId m_idSource;         /* My ID */
 };
@@ -176,6 +175,10 @@ protected:
     QSemaphore m_semRef;
 };
 
+enum StateFlags {
+    Forced = 0x1
+};
+
 /**
  * @class cobraStateEvent event.h "event.h"
  *
@@ -196,7 +199,7 @@ public:
     * Sets the state of the event.
     */
    void setState(int state) {
-       m_sState = state;
+       m_iState = state;
    }
 
    /**
@@ -204,7 +207,34 @@ public:
     * Gets the current state.
     */
    int getState() const {
-       return m_sState;
+       return m_iState;
+   }
+
+   /**
+    * @fn void setFlag(int flag)
+    * Used to set a state flag.
+    * @param flag The flag to be set.
+    */
+   void setFlag(int flag) {
+       m_iFlags |= flag;
+   }
+
+   /**
+    * @fn void clearFlag(int flag)
+    * Used to clear a state flag.
+    * @param flag The flag to be cleared.
+    */
+   void clearFlag(int flag) {
+       m_iFlags &= ~flag;
+   }
+
+   /**
+    * @fn void toggleFlag(int flag)
+    * Used to toggle a state flag.
+    * @param flag The flag to be toggle.
+    */
+   void toggleFlag(int flag) {
+       m_iFlags ^= flag;
    }
 
    /**
@@ -229,8 +259,8 @@ public:
     */
    virtual cobraNetEvent* duplicate();
 protected:
-
-   int                          m_sState;
+   int  m_iFlags;
+   int  m_iState;
 };
 
 
@@ -279,8 +309,8 @@ public:
    QString msg() const;
    void setMsg(const QString& msg);
 
-   QString name() const;
-   void setName(const QString& name);
+   int command() const;
+   void setCommand(int cmd);
 
 public:
 
@@ -305,10 +335,16 @@ public:
     * @return A pointer to the copied cobra event.
     */
    virtual cobraNetEvent* duplicate();
+
+   enum ChatCommands {
+       Message,
+       Username,
+       Away
+   };
+
 protected:
-    QString m_sUsername;
+    int m_iCommand;
     QString m_sMessage;
-    QString m_sCommand;
 };
 
 /**

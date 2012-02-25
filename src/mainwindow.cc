@@ -146,12 +146,19 @@ MainWindow::sendChat()
     cobraChatEvent* chat = NULL;
     QString text;
 
-    chat = new cobraChatEvent();
-    if (!chat)
+    if (!cobraNetHandler::instance()->isConnected()) {
+        debug(ERROR(HIGH), "Attempted to send chat while not connected\n");
+        ui->sendText->setText("");
+        ui->chatText->append(CHAT_NOTIFY("Failed to send message: Not Connected."));
         return false;
+    }
 
     text = ui->sendText->toPlainText();
     text.remove('\n');
+
+    chat = new cobraChatEvent();
+    if (!chat)
+        return false;
 
     if (text.isEmpty()) {
         ui->sendText->setText("");
@@ -166,7 +173,6 @@ MainWindow::sendChat()
     chat->setDestination(SERVER);
     chat->setSource(cobraMyId);
 
-    chat->setName(m_cUsername);
     chat->setMsg(text);
     cobraSendEvent(chat);
 

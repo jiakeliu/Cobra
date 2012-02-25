@@ -92,14 +92,31 @@ cobraAuthEventHandler::handleServerEvent(cobraNetEvent* event)
     debug(CRITICAL, "Handling Client Authorization Request!\n");
 
     cobraAuthEvent* auth = static_cast<cobraAuthEvent*>(event);
+    cobraNetHandler* netHandler = cobraNetHandler::instance();
+    cobraStateEvent* newState = new cobraStateEvent();
 
     debug(CRITICAL, "Username: %s Password: %s\n", qPrintable(auth->username()), qPrintable(auth->password()));
-    bool authorized = cobraNetHandler::instance()->isAuthorized(auth->password());
+    int authorized = netHandler->isAuthorized(auth->password());
 
-    cobraStateEvent* newState = new cobraStateEvent();
     newState->setDestination(auth->source());
     newState->setSource(SERVER);
-    newState->setState((int)(authorized ? (int)QAbstractSocket::ConnectedState : (int)QAbstractSocket::ConnectionRefusedError));
+
+    if (authorized) {
+        debug(HIGH, "User is authorized as a %s\n", authorized&GuestAuth?"Guest":"Participant");
+        QStringList list = netHandler->getUserList();
+        QString user = netHandler->getUsername();
+
+        user.append((authorized&GuestAuth)?"*":"!");
+        list << user;
+
+        netHandler->setIdAuthorization(event->source(), authorized);
+        netHandler->updateUserList(list);
+        newState->setState(ConnectedState);
+
+    } else
+        newState->setState(ConnectionRefused);
+
+    cobraSendEvent(newState);
 
     return true;
 }

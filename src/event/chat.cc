@@ -4,12 +4,11 @@
 #include <QApplication>
 
 cobraChatEvent::cobraChatEvent()
-    :cobraNetEvent(cobraChatEventType)
+    :cobraNetEvent(cobraChatEventType), m_iCommand(Message)
 {}
 
 cobraChatEvent::cobraChatEvent(cobraChatEvent& event)
-    :cobraNetEvent(event), m_sUsername(event.m_sUsername), m_sMessage(event.m_sMessage),
-      m_sCommand(event.m_sCommand)
+    :cobraNetEvent(event), m_iCommand(event.m_iCommand), m_sMessage(event.m_sMessage)
 {}
 
 cobraChatEvent::~cobraChatEvent()
@@ -18,37 +17,41 @@ cobraChatEvent::~cobraChatEvent()
 int cobraChatEvent::serialize(QDataStream& connection)
 {
     int size = cobraNetEvent::serialize(connection);
-    connection << m_sUsername;
+    connection << m_iCommand;
     connection << m_sMessage;
-    return size + m_sMessage.length() + m_sUsername.length();
+    return size + m_sMessage.length() + sizeof(m_iCommand);
 }
 
 int cobraChatEvent::deserialize(QDataStream& connection)
 {
     int size = cobraNetEvent::deserialize(connection);
-    connection >> m_sUsername;
+    connection >> m_iCommand;
     connection >> m_sMessage;
-    return size + m_sMessage.length() + m_sUsername.length();
+    return size + m_sMessage.length() + sizeof(m_iCommand);
 }
 
-QString cobraChatEvent::msg() const
+QString
+cobraChatEvent::msg() const
 {
     return m_sMessage;
 }
 
-void cobraChatEvent::setMsg(const QString &msg)
+void
+cobraChatEvent::setMsg(const QString &msg)
 {
     m_sMessage = msg;
 }
 
-QString cobraChatEvent::name() const
+int
+cobraChatEvent::command() const
 {
-    return m_sUsername;
+    return m_iCommand;
 }
 
-void cobraChatEvent::setName(const QString &name)
+void
+cobraChatEvent::setCommand(int cmd)
 {
-    m_sUsername = name;
+    m_iCommand = cmd;
 }
 
 cobraNetEvent*
@@ -90,7 +93,7 @@ cobraChatEventHandler::handleEvent(cobraNetEvent* event)
     debug(CRITICAL, "Handling client chat request!\n");
 
     if (m_teChat) {
-        m_teChat->append(ev->name() + ": " + ev->msg());
+        m_teChat->append(ev->msg());
     }
 
     return true;

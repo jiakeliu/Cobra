@@ -51,6 +51,14 @@
 
 #define cobraStreamMagic            (0x31337313)
 
+/**
+ * @def AUTHORIZATION
+ * Used to specify what level access a user has.
+ */
+enum cobraAuthorization {
+    GuestAuth = 1, ParticipantAuth = 2
+};
+
 class cobraNetConnection;
 extern QSettings* g_cobra_settings;
 
@@ -70,6 +78,7 @@ public slots:
     bool connectionRequest(int fd, int id);
     bool connect(QString ip, int port);
 
+    void removeConnection(int id);
     void disconnect();
     int readyRead();
     int sockError(QAbstractSocket::SocketError);
@@ -119,7 +128,6 @@ protected:
     cobraId     m_Id;
     static cobraId currentId;
 };
-
 
 /**
  * @class cobraNetHandler net.h "nethandler."
@@ -366,6 +374,21 @@ public:
      */
     bool setIdThread(cobraId id, int index);
 
+    /**
+     * @fn bool setIdAuthorization(cobraId id, int auth)
+     * Create an association between the specified id and authorization.
+     * @param id The id to associate.
+     * @param auth The authorization to associate with the Id.
+     */
+    bool setIdAuthorization(cobraId id, int auth);
+
+    /**
+     * @fn bool getIdAuthorization(cobraId id, int auth)
+     * Get the association between the specified id and authorization.
+     * @param id The id to associate.
+     * @return The authorization value for the specified id
+     */
+    int getIdAuthorization(cobraId id) const;
 
     /**
      * @fn void setId(cobraId id)
@@ -377,12 +400,12 @@ public:
     }
 
     /**
-     * @fn bool isAuthorized(QString pass)
+     * @fn int isAuthorized(QString pass)
      * Validates the provided credentials against the configured list.
      * @param pass Password sent by the client.
      * @return True if a valid user account; False otherwise.
      */
-    bool isAuthorized(QString pass);
+    int isAuthorized(QString pass);
 
     /**
      * @fn void setSessionPassword(QString pwd)
@@ -429,6 +452,7 @@ public slots:
     void cleanup();
 
 protected:
+    friend class cobraStateEventHandler;
 
     /**
      * @fn int incomingConnection(int desc)
@@ -437,7 +461,14 @@ protected:
      */
     void incomingConnection(int descriptor);
 
-friend class cobraStateEventHandler;
+    /**
+     * @fn bool removeConnection(cobraId cnx)
+     * This function is used to remove a connection from the list of clients.
+     * @param cnx The cobraId of the given client to remove.
+     * @return True if the client was successfully removed. False otherwise.
+     */
+    bool removeConnection(cobraId id);
+
     /**
      * @fn void setConnected() const
      * @set the connected state of the net handler.
@@ -469,7 +500,13 @@ protected:
     mutable QReadWriteLock              m_errorLock;
     mutable QReadWriteLock              m_cidLock;
 
-    QMap<cobraId, int>                  m_cIds;
+    struct clientId
+    {
+        int threadIdx;
+        int authorization;
+    };
+
+    QMap<cobraId, clientId>             m_cIds;
     cobraId                             m_idMine;
     int                                 m_iThreadCnt;
 
