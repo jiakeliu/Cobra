@@ -23,6 +23,12 @@ Preferences::Preferences(QWidget *parent) :
 
     QRegExp unameRexp("[a-zA-Z0-9_]+");
     ui->lineEditUser->setValidator(new QRegExpValidator(unameRexp, this));
+    ui->lineEditPort->setValidator(new QIntValidator(1024, 65535, this));
+    ui->lineEditPort2->setValidator(new QIntValidator(1024, 65535, this));
+    //QRegExp ipv4_RegEx(IPV4_REGEX);
+    QRegExp ipv4_RegEx("(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)([.]|$)){1,4})|(([^0-2][^0-9][^0-9])(([a-zA-Z0-9_])+[.])+)");
+    //QRegExp ipv4_RegEx(HOST_NAME);
+    ui->lineEditIP->setValidator(new QRegExpValidator(ipv4_RegEx, this));
 }
 
 Preferences::~Preferences()

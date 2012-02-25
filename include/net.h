@@ -42,9 +42,10 @@
  *
  */
 
-#define IPV4_REGEX "\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){1,4}\b"
+//validator for ipv4, hostname and port 1000+  --n preferences.cc
+#define IPV4_REGEX "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)([.]|$)){1,4}"
 #define IPV6_REGEX "\b(([A-Fa-f0-9]{1-4})(:|::$)){0,8}\b"
-#define HOST_NAME  "\b(([a-zA-Z0-9-]+)(\.|$))+\b"
+#define HOST_NAME  "(([a-zA-Z0-9-]+)([.]|$))+"
 
 #define cobraNetEventCnxPerThread   (2)
 #define cobraNetEventThreadCount    (4)
@@ -82,7 +83,7 @@ public slots:
     void disconnect();
     int readyRead();
     int sockError(QAbstractSocket::SocketError);
-    int sslErrors(QList<QSslError>);
+    int sslErrors(QList<QSslError>);   
     void serverReady();
     void clientReady();
 
