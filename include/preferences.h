@@ -25,6 +25,10 @@ private slots:
 
     void on_lineEditPrivateKey_textChanged(const QString &privkey);
 
+    void on_lineEditUser_textChanged(const QString &username);
+
+    void on_lineEditPass_textChanged(const QString &password);
+
     void on_tbCACert_clicked();
 
     void on_tbLocalCert_clicked();
@@ -34,6 +38,7 @@ private slots:
     void on_connectButton_clicked();
 
     void on_pushButtonStart_clicked();
+
 
 private:
     Ui::Preferences *ui;

@@ -6,7 +6,6 @@
 #include <QtGui>
 
 
-
 QSettings* g_cobra_settings;
 
 Preferences::Preferences(QWidget *parent) :
@@ -18,6 +17,8 @@ Preferences::Preferences(QWidget *parent) :
     ui->lineEditCACert->setText(g_cobra_settings->value("ssl/ca").toString());
     ui->lineEditLocalCert->setText(g_cobra_settings->value("ssl/local_certificate").toString());
     ui->lineEditPrivateKey->setText(g_cobra_settings->value("ssl/private_key").toString());
+    ui->lineEditUser->setText(g_cobra_settings->value("ssl/username").toString());
+    ui->lineEditPass->setText(g_cobra_settings->value("ssl/password").toString());
 
 
     QRegExp unameRexp("[a-zA-Z0-9_]+");
@@ -54,6 +55,19 @@ Preferences::on_lineEditPrivateKey_textChanged(const QString &privkey)
 {
     g_cobra_settings->setValue("ssl/private_key", privkey);
 }
+
+void
+Preferences::on_lineEditUser_textChanged(const QString &username)
+{
+    g_cobra_settings->setValue("ssl/username", username);
+}
+
+void
+Preferences::on_lineEditPass_textChanged(const QString &password)
+{
+    g_cobra_settings->setValue("ssl/password", password);
+}
+
 
 void
 Preferences::on_tbCACert_clicked()
@@ -114,8 +128,6 @@ Preferences::on_connectButton_clicked()
     bool result = cnd->connect(ui->lineEditIP->text(), ui->lineEditPort->text().toInt(), ui->lineEditUser->text(), ui->lineEditPass->text());
     debug(CRITICAL, "Connect: %s\n", result ? "Connection Successful!" : "Failed to Connect!");
 
-    //ui->chatUsername->setText(ui->clientUsername->text()); <-what's diff btwn this and username?
-
    setConnectState(true);
 }
 
@@ -136,3 +148,6 @@ Preferences::on_pushButtonStart_clicked()
 
     setConnectState(true);
 }
+
+
+
