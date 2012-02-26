@@ -103,15 +103,23 @@ cobraChatEventHandler::handleEvent(cobraNetEvent* event)
             debug(HIGH, "Received List Update: %s\n", qPrintable(ev->msg()));
             QStringList userlist = ev->msg().split(" ");
             m_lwUserlist->clear();
+
             for (int x=0; x<userlist.count(); x++)
             {
+                if (userlist.at(x).isEmpty())
+                {
+                    continue;
+                }
+
                 QChar userType = userlist.at(x)[0];
+
                 if(userType == '*')
                 {
                     QString userDisplayed = userlist.at(x);
                     userDisplayed.remove(0,1);
                     new QListWidgetItem(QPixmap(":/images/userGuest.png"), userDisplayed, m_lwUserlist);
                 }
+
                 if(userType == '!')
                 {
                     QString userDisplayed = userlist.at(x);
