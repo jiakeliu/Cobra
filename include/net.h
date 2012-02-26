@@ -42,7 +42,6 @@
  *
  */
 
-//validator for ipv4, hostname and port 1000+  --n preferences.cc
 #define IPV4_REGEX "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)([.]|$)){1,4}"
 #define IPV6_REGEX "\b(([A-Fa-f0-9]{1-4})(:|::$)){0,8}\b"
 #define HOST_NAME  "(([a-zA-Z0-9-]+)([.]|$))+"
@@ -84,7 +83,7 @@ public slots:
     void connectionRefused();
     int readyRead();
     int sockError(QAbstractSocket::SocketError);
-    int sslErrors(QList<QSslError>);   
+    int sslErrors(QList<QSslError>);
     void serverReady();
     void clientReady();
 
@@ -499,6 +498,9 @@ public slots:
      */
     void cleanup();
 
+ signals:
+    void rejected();
+
 protected:
     friend class cobraStateEventHandler;
 
@@ -523,6 +525,14 @@ protected:
      */
     void setConnected(bool setme) {
         m_bConnected = setme;
+    }
+
+/**
+     * @fn void reject()
+     * @emit the rejected signal
+     */
+    void reject() {
+        emit rejected();
     }
 
 protected:

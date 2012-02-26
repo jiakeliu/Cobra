@@ -112,6 +112,7 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
         {
             debug(MED, "Invalid Credentials\n");
             cobraNetHandler::instance()->setConnected(false);
+            cobraNetHandler::instance()->reject();
             break;
         }
     }

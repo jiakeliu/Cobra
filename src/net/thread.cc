@@ -136,10 +136,12 @@ cobraNetEventThread::disconnect()
     }
 
     if (cnx->is(SERVER)) {
+        debug(ERROR(LOW), "Thinks we are the server\n");
         event->setSource(SERVER);
         event->setResponse(true);
         event->setDestination(BROADCAST);
     } else {
+        debug(ERROR(LOW), "Thinks we are not the server\n");
         event->setSource(cnx->id());
         event->setResponse(false);
         event->setDestination(SERVER);

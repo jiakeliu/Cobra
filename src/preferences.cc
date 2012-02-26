@@ -31,6 +31,9 @@ Preferences::Preferences(QWidget *parent) :
     QRegExp ipv4_RegEx("(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)([.]|$)){1,4})|(([^0-2][^0-9][^0-9])(([a-zA-Z0-9_])+[.])+)");
     //QRegExp ipv4_RegEx(HOST_NAME);
     ui->lineEditIP->setValidator(new QRegExpValidator(ipv4_RegEx, this));
+
+
+    QObject::connect(cobraNetHandler::instance(), SIGNAL(rejected()), this, SLOT(setConnectState(false)));
 }
 
 Preferences::~Preferences()
@@ -48,8 +51,16 @@ Preferences::showClientTab()
 void
 Preferences::setConnectState(bool connected)
 {
-   ui->Client->setEnabled(!connected);
-   ui->Server->setEnabled(!connected);
+    char* temp = "not set";
+    if (connected)
+        temp = "true";
+    else
+        temp = "false";
+ 
+    debug(LOW, "Setting the connected state to %s\n", temp); 
+    debug(HIGH, "Connecting as %s\n", qPrintable(ui->lineEditUser->text()));
+    ui->Client->setEnabled(!connected);
+    ui->Server->setEnabled(!connected);
 }
 
 void
