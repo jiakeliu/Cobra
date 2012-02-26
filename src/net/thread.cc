@@ -16,20 +16,23 @@ cobraNetEventThread::sendEvent(cobraNetEvent *event)
     if (!event)
         return false;
 
-    debug(CRITICAL, "Sending event!\n");
     cobraId dest = event->destination();
 
     debug(CRITICAL, "Destination: %d (isBroadcast: %s)\n", dest, (dest == BROADCAST)?"yes":"no");
     for (int idx=0; idx<m_cncConnections.count(); idx++) {
-        if (m_cncConnections[idx])
-            debug(CRITICAL, "Found Connection! %d\n", idx);
-        if (m_cncConnections[idx] && m_cncConnections[idx]->is(dest)) {
-            QDataStream stream(m_cncConnections[idx]);
-
-            debug(CRITICAL, "Sending Data!\n");
-            stream << cobraStreamMagic;
-            event->serialize(stream);
+        if (!m_cncConnections[idx]) {
+            debug(ERROR(CRITICAL), "Null Connection Found in Connection List! %d\n", idx);
+            continue;
         }
+
+        if (!m_cncConnections[idx]->is(dest))
+            continue;
+
+        QDataStream stream(m_cncConnections[idx]);
+
+        debug(CRITICAL, "Sending Data!\n");
+        stream << cobraStreamMagic;
+        event->serialize(stream);
     }
 
     return false;
@@ -39,7 +42,6 @@ bool
 cobraNetEventThread::connectionRequest(int fd, int id)
 {
     debug(LOW, "Connect: %d\n", fd);
-    debug(LOW, "Connect: %lu\n", (unsigned long)QThread::currentThreadId());
     if (!m_semAvailableConnections.tryAcquire())
         return false;
 
@@ -69,7 +71,6 @@ bool
 cobraNetEventThread::connect(QString ip, int port)
 {
     debug(LOW, "Connect: %s:%d\n", qPrintable(ip), port);
-    debug(LOW, "Connect: %lu\n", (unsigned long)QThread::currentThreadId());
 
     if (!m_semAvailableConnections.tryAcquire())
         return false;
@@ -99,22 +100,28 @@ cobraNetEventThread::removeConnection(int id)
 {
     QVector<cobraNetConnection*>::iterator iter;
     for (iter=m_cncConnections.begin(); iter<m_cncConnections.end(); iter++) {
+        if (!*iter) {
+            debug(ERROR(CRITICAL), "Null connection encountered in connection list.\n");
+            continue;
+        }
+
         if (!(*iter)->is(id))
             continue;
 
-        cobraStateEvent* event = new cobraStateEvent();
+        cobraStateEvent event;
 
-        event->setSource(SERVER);
-        event->setResponse(true);
-        event->setDestination((cobraId)id);
-        event->setFlag(cobraStateEvent::Forced);
-        event->setState(cobraStateEvent::ClosingState);
+        event.setSource(SERVER);
+        event.setResponse(true);
+        event.setDestination((cobraId)id);
+        event.setFlag(cobraStateEvent::Forced);
+        event.setState(cobraStateEvent::ClosingState);
 
-        QDataStream stream(*iter);
-
-        debug(CRITICAL, "Sending Data!\n");
-        stream << cobraStreamMagic;
-        event->serialize(stream);
+        {
+            debug(CRITICAL, "Sending Closing State Message!\n");
+            QDataStream stream(*iter);
+            stream << cobraStreamMagic;
+            event.serialize(stream);
+        }
 
         m_cncConnections.erase(iter);
         m_semAvailableConnections.release();
@@ -125,9 +132,7 @@ cobraNetEventThread::removeConnection(int id)
 void
 cobraNetEventThread::disconnect()
 {
-    debug(LOW, "Disconnect: %lu\n", (unsigned long)QThread::currentThreadId());
     cobraNetConnection* cnx = qobject_cast<cobraNetConnection*>(sender());
-
     cobraStateEvent* event = new cobraStateEvent();
 
     if (!cnx) {
@@ -136,12 +141,12 @@ cobraNetEventThread::disconnect()
     }
 
     if (cnx->is(SERVER)) {
-        debug(ERROR(LOW), "Thinks we are not the server\n");
+        debug(LOW, "Disconnect (As a client).\n");
         event->setSource(SERVER);
         event->setResponse(true);
         event->setDestination(BROADCAST);
     } else {
-        debug(ERROR(LOW), "Thinks we are the server\n");
+        debug(LOW, "Disconnect (As the server).\n");
         event->setSource(cnx->id());
         event->setResponse(false);
         event->setDestination(SERVER);

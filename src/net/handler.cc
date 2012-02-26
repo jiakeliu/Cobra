@@ -92,8 +92,10 @@ cobraNetHandler::broadcastServerEvent(cobraNetEvent *event)
 
     cobraNetHandler::workerIterator iter;
     for (iter=m_cnetWorkers.begin(); iter != m_cnetWorkers.end(); iter++) {
-        if (!*iter)
+        if (!*iter) {
+            debug(ERROR(CRITICAL), "Null worker in list!\n");
             continue;
+        }
 
         qRegisterMetaType<cobraNetEvent*>("cobraNetEvent*");
         QMetaObject::invokeMethod(*iter, "sendEvent", Qt::QueuedConnection, Q_ARG(cobraNetEvent*, event));

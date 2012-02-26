@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
             "border-bottom-left-radius: 0px; "
             "border-bottom-right-radius: 0px; "
             "border: 1px solid #202020; "
-            "color: rgb(128,128,128); "
+            "color: rgb(255,255,255); "
             "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:0.4,"
                     "stop:0.856444 rgb(115,115,115), stop:0.3 rgb(100,100,100), stop:0.980424 rgb(92,92,92)); "
             "text-align: center; "

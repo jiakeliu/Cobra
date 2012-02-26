@@ -82,8 +82,8 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
 
     case cobraStateEvent::ConnectedState:
         {
-            handler->setId(state->destination());
             debug(MED, "Connection Accepted\n");
+            handler->setId(state->destination());
             handler->setConnected(true);
             break;
         }
@@ -108,12 +108,21 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
             chat->setSource(SERVER);
             chat->setDestination(cobraMyId);
             cobraSendEvent(chat);
+
+            chat = new cobraChatEvent();
+            chat->setMsg("");
+            chat->setCommand(cobraChatEvent::ListUpdate);
+            chat->setResponse(true);
+            chat->setSource(SERVER);
+            chat->setDestination(cobraMyId);
+            cobraSendEvent(chat);
             break;
         }
 
     case cobraStateEvent::ConnectionRefused:
         {
             debug(MED, "Invalid Credentials\n");
+            handler->reject();
             handler->setConnected(false);
             handler->removeConnection(SERVER);
             break;
