@@ -622,14 +622,31 @@ cobraNetHandler::broadcastUserlist()
     return event(cevent);
 }
 
+void
+cobraNetHandler::chatNotify(cobraId id, QString msg)
+{
+       cobraChatEvent* chat = new cobraChatEvent();
+       chat->setDestination(id);
+       chat->setSource(m_idMine);
+       chat->setResponse(true);
+       chat->setCommand(cobraChatEvent::ChatMessage);
+       chat->setMsg(msg);
+       cobraSendEvent(chat);
+}
+
 bool
 cobraNetHandler::removeConnection(cobraId id)
 {
+    debug(LOW, "Removing connection: %d\n", id);
     int idx = getIdThread(id);
     if (idx < 0)
         return false;
 
+    QString username = getIdUsername(id);
     delId(id);
+
+    chatNotify(BROADCAST, QString(CHAT_NOTIFY("User '%1' has disconnected.\n")).arg(username));
+    broadcastUserlist();
 
     QMetaObject::invokeMethod(m_cnetWorkers[idx], "removeConnection", Qt::QueuedConnection, Q_ARG(int, id));
     return true;

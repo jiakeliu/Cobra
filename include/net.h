@@ -482,6 +482,14 @@ public:
      */
     QString guestPassword() const;
 
+    /**
+     * @fn void chatNotify(cobraId, QString msg)
+     * Sends a notification to the specified user via the chat window.
+     * @param id The ID of the user to send it to.
+     * @param msg The Message to send
+     */
+    void chatNotify(cobraId id, QString msg);
+
 
 public slots:
 

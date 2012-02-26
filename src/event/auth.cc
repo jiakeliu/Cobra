@@ -116,6 +116,7 @@ cobraAuthEventHandler::handleServerEvent(cobraNetEvent* event)
         newState->setState(cobraStateEvent::ConnectedState);
         cobraSendEvent(newState);
     } else {
+        newState->setFlag(cobraStateEvent::AuthenticationFailure);
         newState->setState(cobraStateEvent::ConnectionRefused);
 
         cobraSendEvent(newState);

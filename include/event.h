@@ -98,14 +98,6 @@ public:
      */
     virtual cobraNetEvent* duplicate() = 0;
 
-    enum SocketState {
-        ConnectingState,
-        ConnectedState,
-        ClosingState,
-        ConnectionRefused,
-        DisconnectedState
-    };
-
 protected:
     bool    m_bResponse;
     cobraId m_idDestination;    /* Server ID */
@@ -176,10 +168,6 @@ protected:
     QString    m_sName;
     int        m_iType;
     QSemaphore m_semRef;
-};
-
-enum StateFlags {
-    Forced = 0x1
 };
 
 /**
@@ -261,6 +249,20 @@ public:
     * @return A pointer to the copied cobra event.
     */
    virtual cobraNetEvent* duplicate();
+
+   enum SocketState {
+       ConnectingState,
+       ConnectedState,
+       ClosingState,
+       ConnectionRefused,
+       DisconnectedState
+   };
+
+   enum StateFlags {
+       Forced = 0x1,
+       AuthenticationFailure = 0x2
+   };
+
 protected:
    int  m_iFlags;
    int  m_iState;
