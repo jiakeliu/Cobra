@@ -611,14 +611,14 @@ cobraNetHandler::broadcastUserlist()
 
     debug(HIGH, "Userlist: %s\n", qPrintable(ulist));
 
-    cobraChatEvent* event = new cobraChatEvent();
-    event->setCommand(cobraChatEvent::ListUpdate);
-    event->setMsg(ulist);
-    event->setResponse(true);
-    event->setSource(SERVER);
-    event->setDestination(BROADCAST);
+    cobraChatEvent* cevent = new cobraChatEvent();
+    cevent->setCommand(cobraChatEvent::ListUpdate);
+    cevent->setMsg(ulist);
+    cevent->setResponse(true);
+    cevent->setSource(SERVER);
+    cevent->setDestination(BROADCAST);
 
-    return broadcastServerEvent(event);
+    return event(cevent);
 }
 
 bool
@@ -638,13 +638,18 @@ bool
 cobraNetHandler::listen(const QHostAddress& address, qint16 port) {
     m_idMine = cobraNetConnection::getNewId();
     bool res = QTcpServer::listen(address, port);
+
     setConnected(res);
 
+    debug(LOW, "Is Listening: %d\n", isListening());
+
     if (res) {
+        QString username = QString("!%1").arg(m_sUser);
         addId(m_idMine);
         setIdThread(m_idMine, -1);
         setIdAuthorization(m_idMine, ParticipantAuth);
-        setIdUsername(m_idMine, m_sUser);
+        setIdUsername(m_idMine, username);
+        broadcastUserlist();
     }
 
     return res;

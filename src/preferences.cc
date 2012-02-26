@@ -17,8 +17,10 @@ Preferences::Preferences(QWidget *parent) :
     ui->lineEditCACert->setText(g_cobra_settings->value("ssl/ca").toString());
     ui->lineEditLocalCert->setText(g_cobra_settings->value("ssl/local_certificate").toString());
     ui->lineEditPrivateKey->setText(g_cobra_settings->value("ssl/private_key").toString());
-    ui->lineEditUser->setText(g_cobra_settings->value("ssl/username").toString());
-    ui->lineEditPass->setText(g_cobra_settings->value("ssl/password").toString());
+    ui->lineEditUser->setText(g_cobra_settings->value("client/username").toString());
+    ui->lineEditPass->setText(g_cobra_settings->value("client/password").toString());
+    ui->guestPwd->setText(g_cobra_settings->value("server/guest").toString());
+    ui->participantPwd->setText(g_cobra_settings->value("server/participant").toString());
 
 
     QRegExp unameRexp("[a-zA-Z0-9_]+");
@@ -71,13 +73,13 @@ Preferences::on_lineEditPrivateKey_textChanged(const QString &privkey)
 void
 Preferences::on_lineEditUser_textChanged(const QString &username)
 {
-    g_cobra_settings->setValue("ssl/username", username);
+    g_cobra_settings->setValue("client/username", username);
 }
 
 void
 Preferences::on_lineEditPass_textChanged(const QString &password)
 {
-    g_cobra_settings->setValue("ssl/password", password);
+    g_cobra_settings->setValue("client/password", password);
 }
 
 
@@ -166,6 +168,13 @@ Preferences::on_pushButtonStart_clicked()
         return;
     }
 
+    cnd->setGuestPassword(ui->guestPwd->text());
+    cnd->setSessionPassword(ui->participantPwd->text());
+    cnd->setUsername(ui->lineEditUser->text());
+
+    debug(HIGH, "Setting Participant Passphrase: %s\n", qPrintable(ui->participantPwd->text()));
+    debug(HIGH, "Setting Guest Passphrase: %s\n", qPrintable(ui->guestPwd->text()));
+
     bool result = cnd->listen(QHostAddress::Any, ui->lineEditPort_2->text().toInt());
     debug(CRITICAL, "Listen: %s\n", result ? "Listen Successful!" : "Failed to Listen!");
 
@@ -174,10 +183,10 @@ Preferences::on_pushButtonStart_clicked()
 
 void Preferences::on_guestPwd_textChanged(const QString &pwd)
 {
-    cobraNetHandler::instance()->setGuestPassword(pwd);
+    g_cobra_settings->setValue("server/guest", pwd);
 }
 
 void Preferences::on_participantPwd_textChanged(const QString &pwd)
 {
-    cobraNetHandler::instance()->setSessionPassword(pwd);
+    g_cobra_settings->setValue("server/participant", pwd);
 }
