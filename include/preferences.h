@@ -40,8 +40,11 @@ private slots:
 
     void on_participantPwd_textChanged(const QString &arg1);
 
+    void restoreConnection();
+
 private:
     Ui::Preferences *ui;
+
 };
 
 #endif // PREFERENCES_H

@@ -33,7 +33,7 @@ Preferences::Preferences(QWidget *parent) :
     ui->lineEditIP->setValidator(new QRegExpValidator(ipv4_RegEx, this));
 
 
-    QObject::connect(cobraNetHandler::instance(), SIGNAL(rejected()), this, SLOT(setConnectState(false)));
+    QObject::connect(cobraNetHandler::instance(), SIGNAL(rejected()), this, SLOT(restoreConnection()));
 }
 
 Preferences::~Preferences()
@@ -200,4 +200,9 @@ void Preferences::on_guestPwd_textChanged(const QString &pwd)
 void Preferences::on_participantPwd_textChanged(const QString &pwd)
 {
     g_cobra_settings->setValue("server/participant", pwd);
+}
+
+void Preferences::restoreConnection()
+{
+    setConnectState(false);
 }
