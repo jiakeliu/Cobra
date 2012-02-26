@@ -59,7 +59,7 @@
         <enum>QTabWidget::Rounded</enum>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>3</number>
        </property>
        <widget class="QWidget" name="Profile">
         <attribute name="title">
@@ -302,7 +302,7 @@
               </size>
              </property>
              <property name="echoMode">
-              <enum>QLineEdit::Password</enum>
+              <enum>QLineEdit::Normal</enum>
              </property>
             </widget>
            </item>
@@ -685,7 +685,7 @@
            <item>
             <widget class="QLineEdit" name="guestPwd">
              <property name="echoMode">
-              <enum>QLineEdit::Password</enum>
+              <enum>QLineEdit::Normal</enum>
              </property>
             </widget>
            </item>

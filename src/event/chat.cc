@@ -105,9 +105,11 @@ cobraChatEventHandler::handleEvent(cobraNetEvent* event)
             m_lwUserlist->clear();
             for (int x=0; x<userlist.count(); x++)
             {
-               // QChar fail = userlist.at(x)[0];
-               // qDebug() << fail;
-                new QListWidgetItem(QPixmap(":/images/userMe.png"), userlist[x], m_lwUserlist);
+                QChar userType = userlist.at(x)[0];
+                if(userType == '*')
+                    new QListWidgetItem(QPixmap(":/images/userGuest.png"), userlist[x], m_lwUserlist);
+                if(userType == '!')
+                    new QListWidgetItem(QPixmap(":/images/userAdmin.png"), userlist[x], m_lwUserlist);
             }
             break;
         }
