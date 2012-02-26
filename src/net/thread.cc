@@ -79,6 +79,7 @@ cobraNetEventThread::connect(QString ip, int port)
         return false;
 
     cnx->moveToThread(this->thread());
+    cnx->setId(SERVER);
 
     QObject::connect(cnx, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(sslErrors(QList<QSslError>)));
     QObject::connect(cnx, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(sockError(QAbstractSocket::SocketError)));
@@ -176,7 +177,10 @@ cobraNetEventThread::clientReady()
         return;
     }
 
-    cnx->setId(SERVER);
+    if (cnx->id() != SERVER) {
+        debug(ERROR(HIGH), "Uh, we connected to a server without setting its ID?\nThis should never happen ^_^.\n");
+        cnx->setId(SERVER);
+    }
     m_cncConnections.append(cnx);
 
     event->setSource(SERVER);
