@@ -5,5 +5,9 @@
         <file>images/cobra_tico.png</file>
         <file>images/connect_ico.png</file>
         <file>images/stop_ico.png</file>
+        <file>images/preferences.png</file>
+        <file>images/userMe.png</file>
+        <file>images/userGuest.png</file>
+        <file>images/userAdmin.png</file>
     </qresource>
 </RCC>

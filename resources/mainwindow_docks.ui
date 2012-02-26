@@ -197,8 +197,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>79</width>
-          <height>650</height>
+          <width>98</width>
+          <height>28</height>
          </rect>
         </property>
         <attribute name="label">
@@ -488,7 +488,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionConnect">
    <property name="icon">
     <iconset resource="cobra.qrc">
-     <normaloff>:/images/connect_ico.png</normaloff>:/images/connect_ico.png</iconset>
+     <normaloff>:/images/preferences.png</normaloff>:/images/preferences.png</iconset>
    </property>
    <property name="text">
     <string>Connect ...</string>

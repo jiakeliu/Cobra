@@ -104,7 +104,11 @@ cobraChatEventHandler::handleEvent(cobraNetEvent* event)
             QStringList userlist = ev->msg().split(" ");
             m_lwUserlist->clear();
             for (int x=0; x<userlist.count(); x++)
-                m_lwUserlist->addItem(userlist[x]);
+            {
+               // QChar fail = userlist.at(x)[0];
+               // qDebug() << fail;
+                new QListWidgetItem(QPixmap(":/images/userMe.png"), userlist[x], m_lwUserlist);
+            }
             break;
         }
     }
