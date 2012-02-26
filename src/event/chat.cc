@@ -107,9 +107,17 @@ cobraChatEventHandler::handleEvent(cobraNetEvent* event)
             {
                 QChar userType = userlist.at(x)[0];
                 if(userType == '*')
-                    new QListWidgetItem(QPixmap(":/images/userGuest.png"), userlist[x], m_lwUserlist);
+                {
+                    QString userDisplayed = userlist.at(x);
+                    userDisplayed.remove(0,1);
+                    new QListWidgetItem(QPixmap(":/images/userGuest.png"), userDisplayed, m_lwUserlist);
+                }
                 if(userType == '!')
-                    new QListWidgetItem(QPixmap(":/images/userAdmin.png"), userlist[x], m_lwUserlist);
+                {
+                    QString userDisplayed = userlist.at(x);
+                    userDisplayed.remove(0,1);
+                    new QListWidgetItem(QPixmap(":/images/userAdmin.png"), userDisplayed, m_lwUserlist);
+                }
             }
             break;
         }
