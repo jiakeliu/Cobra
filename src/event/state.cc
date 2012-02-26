@@ -90,6 +90,7 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
     case cobraStateEvent::ClosingState:
         {
             debug(MED, "Closing Connection\n");
+            cobraNetHandler::instance()->reject();
             cobraNetHandler::instance()->setConnected(false);
             break;
         }
@@ -97,6 +98,7 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
     case cobraStateEvent::DisconnectedState:
         {
             debug(MED, "Disconnected from Server\n");
+            cobraNetHandler::instance()->reject();
             cobraNetHandler::instance()->setConnected(false);
 
             cobraChatEvent* chat = new cobraChatEvent();
