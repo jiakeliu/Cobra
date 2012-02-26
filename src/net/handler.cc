@@ -605,7 +605,8 @@ cobraNetHandler::broadcastUserlist()
 
     for (it=m_cIds.begin(); it!=m_cIds.end(); it++) {
         debug(LOW, "User ID: %d\n", it.key());
-        ulist += it.value().username;
+        ulist += (it.value().authorization&GuestAuth)?"*":"!";
+        ulist += (it.value().username);
         ulist += " ";
     }
 
@@ -644,11 +645,10 @@ cobraNetHandler::listen(const QHostAddress& address, qint16 port) {
     debug(LOW, "Is Listening: %d\n", isListening());
 
     if (res) {
-        QString username = QString("!%1").arg(m_sUser);
         addId(m_idMine);
         setIdThread(m_idMine, -1);
         setIdAuthorization(m_idMine, ParticipantAuth);
-        setIdUsername(m_idMine, username);
+        setIdUsername(m_idMine, m_sUser);
         broadcastUserlist();
     }
 

@@ -59,6 +59,7 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
 
     cobraStateEvent* state = static_cast<cobraStateEvent*>(event);
     debug(CRITICAL, "Recieved Server State Event: %lu\n", (unsigned long)QThread::currentThreadId());
+    cobraNetHandler* handler = cobraNetHandler::instance();
 
     switch(state->getState())
     {
@@ -81,25 +82,25 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
 
     case cobraStateEvent::ConnectedState:
         {
-            cobraNetHandler::instance()->setId(state->destination());
+            handler->setId(state->destination());
             debug(MED, "Connection Accepted\n");
-            cobraNetHandler::instance()->setConnected(true);
+            handler->setConnected(true);
             break;
         }
 
     case cobraStateEvent::ClosingState:
         {
             debug(MED, "Closing Connection\n");
-            cobraNetHandler::instance()->reject();
-            cobraNetHandler::instance()->setConnected(false);
+            handler->reject();
+            handler->setConnected(false);
             break;
         }
 
     case cobraStateEvent::DisconnectedState:
         {
             debug(MED, "Disconnected from Server\n");
-            cobraNetHandler::instance()->reject();
-            cobraNetHandler::instance()->setConnected(false);
+            handler->reject();
+            handler->setConnected(false);
 
             cobraChatEvent* chat = new cobraChatEvent();
             chat->setMsg(CHAT_NOTIFY("Disconnected from server!"));
@@ -113,8 +114,8 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
     case cobraStateEvent::ConnectionRefused:
         {
             debug(MED, "Invalid Credentials\n");
-            cobraNetHandler::instance()->setConnected(false);
-            cobraNetHandler::instance()->reject();
+            handler->setConnected(false);
+            handler->removeConnection(SERVER);
             break;
         }
     }

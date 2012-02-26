@@ -179,8 +179,6 @@ Preferences::on_pushButtonStart_clicked()
         return;
     }
 
-    cnd->setGuestPassword(ui->guestPwd->text());
-    cnd->setSessionPassword(ui->participantPwd->text());
     cnd->setUsername(ui->lineEditUser->text());
 
     debug(HIGH, "Setting Participant Passphrase: %s\n", qPrintable(ui->participantPwd->text()));
@@ -195,11 +193,13 @@ Preferences::on_pushButtonStart_clicked()
 void Preferences::on_guestPwd_textChanged(const QString &pwd)
 {
     g_cobra_settings->setValue("server/guest", pwd);
+    cobraNetHandler::instance()->setGuestPassword(pwd);
 }
 
 void Preferences::on_participantPwd_textChanged(const QString &pwd)
 {
     g_cobra_settings->setValue("server/participant", pwd);
+    cobraNetHandler::instance()->setSessionPassword(pwd);
 }
 
 void Preferences::restoreConnection()

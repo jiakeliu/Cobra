@@ -503,6 +503,7 @@ public slots:
 
 protected:
     friend class cobraStateEventHandler;
+    friend class cobraAuthEventHandler;
 
     /**
      * @fn int incomingConnection(int desc)
