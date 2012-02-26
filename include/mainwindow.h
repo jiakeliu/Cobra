@@ -42,6 +42,16 @@ private slots:
 
     void on_actionConnect_triggered();
 
+    void on_actionFile_List_toggled(bool );
+
+    void on_actionClip_Cue_toggled(bool );
+
+    void on_actionServer_list_toggled(bool );
+
+    void on_actionChat_Window_toggled(bool );
+
+    void on_actionFile_Info_toggled(bool );
+
 protected:
     bool setName(QString);
     bool metaConnect(QString);

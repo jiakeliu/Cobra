@@ -241,7 +241,8 @@ check:
     return (this->*fn)(args);
 }
 
-void MainWindow::on_actionPreferences_triggered()
+void
+MainWindow::on_actionPreferences_triggered()
 {
     debug(HIGH, "Show preferences...\n");
     if (!m_pDialog)
@@ -249,10 +250,48 @@ void MainWindow::on_actionPreferences_triggered()
     m_pDialog->show();
 }
 
-void MainWindow::on_actionConnect_triggered()
+void
+MainWindow::on_actionConnect_triggered()
 {
     debug(HIGH, "Show connection preferences...\n");
     if (!m_pDialog)
         m_pDialog = new Preferences(this);
     m_pDialog->showClientTab();
+}
+
+void
+MainWindow::on_actionFile_List_toggled(bool checked)
+{
+    ui->fileList->setVisible(checked);
+    checked = !checked;
+}
+
+
+
+void
+MainWindow::on_actionClip_Cue_toggled(bool checked)
+{
+    ui->cueList->setVisible(checked);
+    checked = !checked;
+}
+
+void
+MainWindow::on_actionServer_list_toggled(bool checked)
+{
+    ui->serverList->setVisible(checked);
+    checked = !checked;
+}
+
+void
+MainWindow::on_actionChat_Window_toggled(bool checked)
+{
+    ui->chatDock->setVisible(checked);
+    checked = !checked;
+}
+
+void
+MainWindow::on_actionFile_Info_toggled(bool checked)
+{
+    ui->fileInfoDock->setVisible(checked);
+    checked=!checked;
 }
