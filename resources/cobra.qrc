@@ -9,5 +9,6 @@
         <file>images/userMe.png</file>
         <file>images/userGuest.png</file>
         <file>images/userAdmin.png</file>
+        <file>images/connect.png</file>
     </qresource>
 </RCC>

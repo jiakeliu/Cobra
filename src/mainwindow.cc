@@ -267,7 +267,6 @@ MainWindow::on_actionFile_List_toggled(bool checked)
 }
 
 
-
 void
 MainWindow::on_actionClip_Cue_toggled(bool checked)
 {
