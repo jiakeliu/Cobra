@@ -117,14 +117,30 @@ cobraChatEventHandler::handleEvent(cobraNetEvent* event)
                 {
                     QString userDisplayed = userlist.at(x);
                     userDisplayed.remove(0,1);
-                    new QListWidgetItem(QPixmap(":/images/userGuest.png"), userDisplayed, m_lwUserlist);
+
+                    if (userDisplayed == cobraNetHandler::instance()->getUsername())
+                    {
+
+                        (new QListWidgetItem(QPixmap(":/images/userGuest.png"), userDisplayed,m_lwUserlist))->setForeground(Qt::blue);
+                    }
+                    else
+                    {
+                        new QListWidgetItem(QPixmap(":/images/userGuest.png"), userDisplayed, m_lwUserlist);
+                    }
                 }
 
                 if(userType == '!')
                 {
                     QString userDisplayed = userlist.at(x);
                     userDisplayed.remove(0,1);
-                    new QListWidgetItem(QPixmap(":/images/userAdmin.png"), userDisplayed, m_lwUserlist);
+                    if (userDisplayed == cobraNetHandler::instance()->getUsername())
+                    {
+                        (new QListWidgetItem(QPixmap(":/images/userAdmin.png"), userDisplayed, m_lwUserlist))->setForeground(Qt::blue);
+                    }
+                    else
+                    {
+                        new QListWidgetItem(QPixmap(":/images/userAdmin.png"), userDisplayed, m_lwUserlist);
+                    }
                 }
             }
             break;
