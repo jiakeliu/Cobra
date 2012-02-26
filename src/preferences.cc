@@ -28,7 +28,9 @@ Preferences::Preferences(QWidget *parent) :
     ui->lineEditPort->setValidator(new QIntValidator(1024, 65535, this));
     ui->lineEditPort_2->setValidator(new QIntValidator(1024, 65535, this));
     //QRegExp ipv4_RegEx(IPV4_REGEX);
-    QRegExp ipv4_RegEx("(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)([.]|$)){1,4})|(([^0-2][^0-9][^0-9])(([a-zA-Z0-9_])+[.])+)");
+    //QRegExp ipv4_RegEx("(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)([.]|$)){1,4})|(([^0-2][^0-9][^0-9])(([a-zA-Z0-9_])+[.])+)");
+    QRegExp ipv4_RegEx(IPV4_REGEX"|(([^0-2][^0-9][^0-9])(([a-zA-Z0-9_])+[.])+)");
+
     //QRegExp ipv4_RegEx(HOST_NAME);
     ui->lineEditIP->setValidator(new QRegExpValidator(ipv4_RegEx, this));
 
