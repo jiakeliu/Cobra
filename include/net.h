@@ -81,6 +81,7 @@ public slots:
 
     void removeConnection(int id);
     void disconnect();
+    void connectionRefused();
     int readyRead();
     int sockError(QAbstractSocket::SocketError);
     int sslErrors(QList<QSslError>);   
@@ -162,7 +163,7 @@ public:
      * @param password Password to use when connecting to the server.
      * @return true is connection inits correctly.
      */
-    bool connect(QString ip, int port, QString user, QString password);
+    bool connect(QString ip, int port);
 
     /**
      * @fn bool broadcastSeverEvent(cobraNetEvent* event)

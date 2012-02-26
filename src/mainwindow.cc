@@ -135,7 +135,13 @@ MainWindow::metaConnect(QString cmd)
     if (cmdArgs.count() < 4)
         return false;
 
-    cobraNetHandler::instance()->connect(cmdArgs[0], cmdArgs[1].toInt(), cmdArgs[2], cmdArgs[3]);
+    cobraNetHandler* handler = cobraNetHandler::instance();
+
+    handler->setUsername(cmdArgs[2]);
+    handler->setPassword(cmdArgs[3]);
+
+    handler->connect(cmdArgs[0], cmdArgs[1].toInt());
+
     return true;
 }
 

@@ -142,7 +142,10 @@ Preferences::on_connectButton_clicked()
 
     debug(HIGH, "Connecting as %s\n", qPrintable(ui->lineEditUser->text()));
 
-    bool result = cnd->connect(ui->lineEditIP->text(), ui->lineEditPort->text().toInt(), ui->lineEditUser->text(), ui->lineEditPass->text());
+    cnd->setUsername(ui->lineEditUser->text());
+    cnd->setPassword(ui->lineEditPass->text());
+
+    bool result = cnd->connect(ui->lineEditIP->text(), ui->lineEditPort->text().toInt());
     debug(CRITICAL, "Connect: %s\n", result ? "Connection Successful!" : "Failed to Connect!");
 
    setConnectState(true);

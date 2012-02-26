@@ -143,7 +143,7 @@ cobraNetHandler::event(QEvent* event)
     handler->handleEvent(pevent);
     handler->put();
 
-    debug(LOW, "Event: %d\n", pevent->type());
+    debug(LOW, "Loval Event: %d\n", pevent->type());
     return true;
 }
 
@@ -239,10 +239,14 @@ cobraNetHandler::removeEventHandler(int type)
 int
 cobraNetHandler::isAuthorized(QString pass)
 {
+    debug(LOW, "Checking Authorization: %s against (%s,%s)\n", qPrintable(pass),
+          qPrintable(m_sSessionPwd), qPrintable(m_sGuestPwd));
+
     if (pass == m_sSessionPwd)
         return ParticipantAuth;
     if (pass == m_sGuestPwd)
         return GuestAuth;
+
     return 0;
 }
 
@@ -635,20 +639,25 @@ cobraNetHandler::listen(const QHostAddress& address, qint16 port) {
     m_idMine = cobraNetConnection::getNewId();
     bool res = QTcpServer::listen(address, port);
     setConnected(res);
+
+    if (res) {
+        addId(m_idMine);
+        setIdThread(m_idMine, -1);
+        setIdAuthorization(m_idMine, ParticipantAuth);
+        setIdUsername(m_idMine, m_sUser);
+    }
+
     return res;
 }
 
 bool
-cobraNetHandler::connect(QString ip, int port, QString user, QString pass)
+cobraNetHandler::connect(QString ip, int port)
 {
     int idx = optimalThread();
     if (idx < 0) {
         debug(ERROR(CRITICAL), "Failed to select optimal thread! (Are threads initialized?)\n");
         return false;
     }
-
-    m_sUser = user;
-    m_sPass = pass;
 
     debug(LOW, "Connecting: %lu\n", (unsigned long)QThread::currentThreadId());
 

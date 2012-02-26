@@ -226,6 +226,32 @@ cobraNetEventThread::readyRead()
     return bytes;
 }
 
+void
+cobraNetEventThread::connectionRefused()
+{
+    debug(LOW, "Disconnect: %lu\n", (unsigned long)QThread::currentThreadId());
+    cobraNetConnection* cnx = qobject_cast<cobraNetConnection*>(sender());
+    cobraStateEvent* event = new cobraStateEvent();
+
+    if (!cnx) {
+        debug(ERROR(CRITICAL), "WTF: No Connection Associated with the ClientReady signal?");
+        return;
+    }
+
+    if (cnx->is(SERVER)) {
+        event->setSource(SERVER);
+        event->setResponse(true);
+        event->setDestination(BROADCAST);
+    } else {
+        event->setSource(cnx->id());
+        event->setResponse(false);
+        event->setDestination(SERVER);
+    }
+
+    event->setState(cobraStateEvent::ConnectionRefused);
+    cobraSendEvent(event);
+}
+
 int
 cobraNetEventThread::sockError(QAbstractSocket::SocketError error)
 {
@@ -236,9 +262,16 @@ cobraNetEventThread::sockError(QAbstractSocket::SocketError error)
     }
     debug(ERROR(CRITICAL), "Socket Error (%d): %s\n", error, qPrintable(device->errorString()));
 
-    /* Only disconnect if this error is a host disconnect error... */
-    if (error != QAbstractSocket::RemoteHostClosedError)
-        disconnect();
+    switch(error) {
+        /* Only disconnect if this error is a host disconnect error... */
+        case QAbstractSocket::RemoteHostClosedError:
+            break;
+        case QAbstractSocket::ConnectionRefusedError:
+            connectionRefused();
+            break;
+        default:
+            disconnect();
+    }
     return error;
 }
 
