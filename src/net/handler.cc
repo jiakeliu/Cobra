@@ -647,7 +647,7 @@ cobraNetHandler::removeConnection(cobraId id)
     QString username = getIdUsername(id);
     delId(id);
 
-    chatNotify(BROADCAST, QString(CHAT_NOTIFY("User '%1' has disconnected.\n")).arg(username));
+//    chatNotify(BROADCAST, QString(CHAT_NOTIFY("User '%1' has disconnected.\n")).arg(username));
     broadcastUserlist();
 
     QMetaObject::invokeMethod(m_cnetWorkers[idx], "removeConnection", Qt::QueuedConnection, Q_ARG(int, id));
