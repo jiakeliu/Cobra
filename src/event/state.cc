@@ -74,7 +74,7 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
             auth->setPassword(pwd);
 
             debug(CRITICAL, "Sending Auth Packet\n");
-            cobraNetHandler::instance()->setConnected(true);
+            handler->setConnectionState(cobraStateEvent::ConnectingState);
 
             cobraSendEvent(auth);
             break;
@@ -84,7 +84,7 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
         {
             debug(MED, "Connection Accepted\n");
             handler->setId(state->destination());
-            handler->setConnected(true);
+            handler->setConnectionState(cobraStateEvent::ConnectedState);
             break;
         }
 
@@ -92,18 +92,25 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
         {
             debug(MED, "Closing Connection\n");
             handler->reject();
-            handler->setConnected(false);
+            handler->setConnectionState(cobraStateEvent::ClosingState);
             break;
         }
 
     case cobraStateEvent::DisconnectedState:
         {
             debug(MED, "Disconnected from Server\n");
+
+            bool wasConnected = handler->isConnected();
+            handler->setConnectionState(cobraStateEvent::DisconnectedState);
             handler->reject();
-            handler->setConnected(false);
 
             cobraChatEvent* chat = new cobraChatEvent();
-            chat->setMsg(CHAT_NOTIFY("Disconnected from server!"));
+
+            if (wasConnected)
+                handler->chatNotify(cobraMyId, CHAT_NOTIFY("Disconnected from server!"));
+            else
+                handler->chatNotify(cobraMyId, CHAT_NOTIFY("Failed to connect to server!"));
+
             chat->setResponse(true);
             chat->setSource(SERVER);
             chat->setDestination(cobraMyId);
@@ -123,7 +130,7 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
         {
             debug(MED, "Invalid Credentials\n");
             handler->reject();
-            handler->setConnected(false);
+            handler->setConnectionState(cobraStateEvent::DisconnectedState);
             handler->removeConnection(SERVER);
             break;
         }

@@ -262,7 +262,15 @@ public:
      * @return Whether or not this net handler is connected or not.
      */
     bool isConnected() const {
-        return m_bConnected;
+        return (m_iState == cobraStateEvent::ConnectedState);
+    }
+
+    /**
+     * @fn bool isConnecting() const
+     * @return Whether or not this net handler is connecting or not.
+     */
+    bool isConnecting() const {
+        return (m_iState == cobraStateEvent::ConnectingState);
     }
 
     void setUsername(QString user) {
@@ -529,11 +537,12 @@ protected:
     bool removeConnection(cobraId id);
 
     /**
-     * @fn void setConnected() const
-     * @set the connected state of the net handler.
+     * @fn void setConnectionState(int state)
+     * Set the state of the connection with the server.
+     * @param state State to switch to.
      */
-    void setConnected(bool setme) {
-        m_bConnected = setme;
+    void setConnectionState(int state) {
+        m_iState = state;
     }
 
 /**
@@ -584,7 +593,7 @@ protected:
     QString                             m_sSessionPwd;
     QString                             m_sGuestPwd;
 
-    bool                                m_bConnected;
+    int                                 m_iState;
 };
 
 /**

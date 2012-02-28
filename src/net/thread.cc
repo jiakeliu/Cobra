@@ -116,8 +116,8 @@ cobraNetEventThread::removeConnection(int id)
         event.setFlag(cobraStateEvent::Forced);
         event.setState(cobraStateEvent::ClosingState);
 
-        {
-            debug(CRITICAL, "Sending Closing State Message!\n");
+        { /* Make our QDataStream object is destroyed before deleteLater call */
+            debug(CRITICAL, "Sending Closing State Message to %d (cnx: %d)!\n", id, (*iter)->id());
             QDataStream stream(*iter);
             stream << cobraStreamMagic;
             event.serialize(stream);
@@ -180,13 +180,13 @@ cobraNetEventThread::clientReady()
     cobraStateEvent* event = new cobraStateEvent();
 
     if (!cnx) {
-        debug(ERROR(CRITICAL), "WTF: No Connection Associated with the ClientReady signal?");
+        debug(ERROR(CRITICAL), "We've already cleaned up this connection, nothing to see here...\n");
         return;
     }
 
     if (cnx->id() != SERVER) {
         debug(ERROR(HIGH), "Uh, we connected to a server without setting its ID?\nThis should never happen ^_^.\n");
-        cnx->setId(SERVER);
+        exit(1);
     }
     m_cncConnections.append(cnx);
 
@@ -229,7 +229,8 @@ cobraNetEventThread::readyRead()
     debug(HIGH, "Bytes read from incoming event: %d\n", bytes);
 
     if (cnx->id() != event->source())
-        debug(ERROR(CRITICAL), "Incoming event failed source coherenecy check!\n");
+        debug(ERROR(CRITICAL), "Incoming event failed source coherenecy check! (Cnx: %d; Source: %d)\n",
+              cnx->id(), event->source());
 
     event->setSource(cnx->id());
 
