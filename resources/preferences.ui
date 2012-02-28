@@ -45,7 +45,7 @@
     <normaloff>:/images/cobra_tico.png</normaloff>:/images/cobra_tico.png</iconset>
   </property>
   <property name="modal">
-   <bool>true</bool>
+   <bool>false</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_5">
    <property name="margin">
@@ -59,7 +59,7 @@
         <enum>QTabWidget::Rounded</enum>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="Profile">
         <attribute name="title">
@@ -745,5 +745,22 @@
  <resources>
   <include location="cobra.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>connectButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Preferences</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>240</x>
+     <y>176</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>480</x>
+     <y>118</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
