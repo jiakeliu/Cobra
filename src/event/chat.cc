@@ -101,6 +101,7 @@ cobraChatEventHandler::handleEvent(cobraNetEvent* event)
         }
         case cobraChatEvent::ListUpdate: {
             debug(HIGH, "Received List Update: %s\n", qPrintable(ev->msg()));
+
             QStringList userlist = ev->msg().split(" ");
             m_lwUserlist->clear();
 
