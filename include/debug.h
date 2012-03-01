@@ -1,7 +1,7 @@
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
 
-#define LOG_FMT "(%s:%d) %s "
+#define LOG_FMT "(%lu > %s:%d) %s "
 
 #define ERROR_BIT (0x8000000)
 

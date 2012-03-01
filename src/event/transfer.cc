@@ -23,7 +23,7 @@ cobraTransferEvent::serialize(QDataStream& stream)
 int
 cobraTransferEvent::deserialize(QDataStream& stream)
 {
-    return cobraNetEvent::serialize(stream);
+    return cobraNetEvent::deserialize(stream);
 }
 
 cobraNetEvent*

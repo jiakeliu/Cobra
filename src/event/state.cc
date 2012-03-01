@@ -20,17 +20,17 @@ cobraStateEvent::serialize(QDataStream& connection)
     connection << m_iState;
     connection << m_iFlags;
     debug(CRITICAL, "Serialize State: %d\n", m_iState);
-    return (size + sizeof(m_iState));
+    return (size + sizeof(m_iState) + sizeof(m_iFlags));
 }
 
 int
 cobraStateEvent::deserialize(QDataStream& connection)
 {
-    int size = cobraNetEvent::serialize(connection);
+    int size = cobraNetEvent::deserialize(connection);
     connection >> m_iState;
     connection >> m_iFlags;
     debug(CRITICAL, "Deserialize State: %d\n", m_iState);
-    return (size + sizeof(m_iState));
+    return (size + sizeof(m_iState) + sizeof(m_iFlags));
 }
 
 cobraNetEvent*
@@ -70,13 +70,13 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
             QString pwd = cobraNetHandler::instance()->getPassword();
 
             auth->setDestination(SERVER);
+            auth->setResponse(false);
             auth->setUsername(user);
             auth->setPassword(pwd);
 
-            debug(CRITICAL, "Sending Auth Packet\n");
+            debug(CRITICAL, "Sending Auth Event\n");
             handler->setConnectionState(cobraStateEvent::ConnectingState);
-
-            cobraSendEvent(auth);
+            handler->sendEvent(auth);
             break;
         }
 
@@ -114,7 +114,7 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
             chat->setResponse(true);
             chat->setSource(SERVER);
             chat->setDestination(cobraMyId);
-            cobraSendEvent(chat);
+            handler->sendEvent(chat);
 
             chat = new cobraChatEvent();
             chat->setMsg("");
@@ -122,7 +122,7 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
             chat->setResponse(true);
             chat->setSource(SERVER);
             chat->setDestination(cobraMyId);
-            cobraSendEvent(chat);
+            handler->sendEvent(chat);
             break;
         }
 

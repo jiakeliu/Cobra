@@ -1,5 +1,6 @@
 #include <stdarg.h>
 #include <stdio.h>
+#include <time.h>
 #include "debug.h"
 
 
@@ -17,6 +18,7 @@ log(int level, const char *file, int line, const char *fmt, ...)
     int ret = 0;
     bool error = (IS_ERROR(level) == ERROR_BIT);
     FILE* std = (error) ? stderr : stdout;
+    time_t now;
     va_list va;
 
     /* if the log level is greater than this event, return */
@@ -27,9 +29,11 @@ log(int level, const char *file, int line, const char *fmt, ...)
     if (!error && IS_ERROR(g_debug_level))
         return -1;
 
+    now = time(NULL);
+
     /* print the file and line if it exists. */
     if (file && line > 0)
-        ret += fprintf(std, LOG_FMT, file, line, (error)?"!!!":":");
+        ret += fprintf(std, LOG_FMT, (unsigned long)time, file, line, (error)?"!!!":":");
     else if (error)
         fprintf(std, "!!!");
 

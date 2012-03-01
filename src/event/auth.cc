@@ -99,6 +99,7 @@ cobraAuthEventHandler::handleServerEvent(cobraNetEvent* event)
     int authorized = netHandler->isAuthorized(auth->password());
 
     newState->setDestination(auth->source());
+    newState->setResponse(true);
     newState->setSource(SERVER);
 
     if (authorized) {
@@ -109,12 +110,13 @@ cobraAuthEventHandler::handleServerEvent(cobraNetEvent* event)
         debug(HIGH, "Username Authorized: %s\n", qPrintable(user));
         debug(HIGH, "ID: %d\n", event->source());
 
+        newState->setState(cobraStateEvent::ConnectedState);
+        netHandler->sendEvent(static_cast<cobraNetEvent*>(newState));
+
         netHandler->setIdUsername(event->source(), user);
         netHandler->setIdAuthorization(event->source(), authorized);
         netHandler->broadcastUserlist();
 
-        newState->setState(cobraStateEvent::ConnectedState);
-        cobraSendEvent(newState);
     } else {
         newState->setFlag(cobraStateEvent::AuthenticationFailure);
         newState->setState(cobraStateEvent::ConnectionRefused);

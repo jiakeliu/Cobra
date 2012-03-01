@@ -49,7 +49,7 @@
 #define cobraNetEventCnxPerThread   (2)
 #define cobraNetEventThreadCount    (4)
 
-#define cobraStreamMagic            (0x31337313)
+extern uint8_t cobraStreamMagic[sizeof(uint32_t)]; //{0x31, 0x33, 0x73, 0x13};
 
 /**
  * @def AUTHORIZATION
@@ -165,20 +165,20 @@ public:
     bool connect(QString ip, int port);
 
     /**
-     * @fn bool broadcastSeverEvent(cobraNetEvent* event)
+     * @fn bool broadcastEvent(cobraNetEvent* event)
      * Sends the specified event to all systems connected.
      * @param event cobraNetEvent* to send.
      * @return true on successful send; false if send failed immediately.
      */
-    bool broadcastServerEvent(cobraNetEvent* event);
+    bool broadcastEvent(cobraNetEvent* event);
 
     /**
-     * @fn bool sendSeverEvent(cobraNetEvent* event)
+     * @fn bool sendEvent(cobraNetEvent* event)
      * Sends the specified event to the requested destination.
      * @param event cobraNetEvent* to send.
      * @return true on successful send; false if send failed immediately.
      */
-    bool sendServerEvent(cobraNetEvent* event);
+    bool sendEvent(cobraNetEvent* event);
 
     /**
      * @fn bool triggerErrorEvent(cobraNetEvent* event)

@@ -11,6 +11,12 @@
 #define cobraAuthEventType          (cobraNetEventType+2)
 #define cobraChatEventType          (cobraNetEventType+3)
 #define cobraTransferEventType      (cobraNetEventType+4)
+#define cobraNetEventTypeMax        (cobraNetEventType+5)
+
+inline bool
+validEvent(int type) {
+    return (type > cobraNetEventType && type < cobraNetEventTypeMax);
+}
 
 /**
  * @typedef cobraId event.h "event.h"

@@ -1,6 +1,8 @@
 #include "debug.h"
 #include "net.h"
 
+uint8_t cobraStreamMagic[sizeof(uint32_t)] = {0x31, 0x33, 0x73, 0x13};
+
 cobraNetHandler::cobraNetHandler(QObject* parent, int cnt)
     :QTcpServer(parent), m_iThreadCnt(cnt)
 {
@@ -51,7 +53,7 @@ cobraNetHandler::instance()
 }
 
 bool
-cobraNetHandler::sendServerEvent(cobraNetEvent *event)
+cobraNetHandler::sendEvent(cobraNetEvent *event)
 {
     if (!event)
         return false;
@@ -61,12 +63,12 @@ cobraNetHandler::sendServerEvent(cobraNetEvent *event)
     cobraId dest = event->destination();
 
     if (dest == BROADCAST) {
-        return false;
+        return broadcastEvent(event);
     }
 
     QReadLocker locker(&m_cidLock);
     if (!m_cIds.contains(dest)) {
-        debug(ERROR(CRITICAL), "Unknown Outbound Destination: %lu\n", (unsigned long)QThread::currentThreadId());
+        debug(ERROR(CRITICAL), "Unknown Outbound Destination: %d\n", dest);
         return false;
     }
 
@@ -86,7 +88,7 @@ cobraNetHandler::sendServerEvent(cobraNetEvent *event)
 }
 
 bool
-cobraNetHandler::broadcastServerEvent(cobraNetEvent *event)
+cobraNetHandler::broadcastEvent(cobraNetEvent *event)
 {
     event->setDestination(BROADCAST);
 
@@ -119,7 +121,7 @@ cobraNetHandler::event(QEvent* event)
 
     if (pevent->isRequest() && !isServing()) {
         debug(CRITICAL, "Sending event to Server!\n");
-        return sendServerEvent(pevent);
+        return sendEvent(pevent);
     }
 
     /* If this is a broadcast message, fall through: we want it locally as well! */
@@ -128,7 +130,7 @@ cobraNetHandler::event(QEvent* event)
             && pevent->source() == SERVER
             && pevent->destination() == BROADCAST) {
         debug(CRITICAL, "Broadcast message for send!\n");
-        broadcastServerEvent(pevent);
+        broadcastEvent(pevent);
 
         /* Update the previous event to go to our chat client */
         cevent->setDestination(m_idMine);
@@ -145,7 +147,7 @@ cobraNetHandler::event(QEvent* event)
     handler->handleEvent(pevent);
     handler->put();
 
-    debug(LOW, "Loval Event: %d\n", pevent->type());
+    debug(LOW, "Local Event: %d\n", pevent->type());
     return true;
 }
 
@@ -210,9 +212,7 @@ cobraNetHandler::getEvent(int type)
     cobraNetEvent* event = NULL;
     cobraNetEventHandler* handler = getEventHandler(type);
 
-    debug(CRITICAL, "Pre-Event Genesis!\n");
     event = handler->eventGenesis();
-    debug(CRITICAL, "Post-Event Genesis!\n");
 
     handler->put();
     return event;
@@ -704,7 +704,7 @@ cobraNetHandler::incomingConnection(int desc)
         return;
     }
 
-    debug(LOW, "Connection Request: %lu\n", (unsigned long)QThread::currentThreadId());
+    debug(LOW, "Connection Request: %d\n", desc);
 
     cobraId id = cobraNetConnection::getNewId();
     addId(id);
