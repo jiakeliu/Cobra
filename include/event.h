@@ -53,6 +53,14 @@ public:
     void setDestination(cobraId id) { m_idDestination = id; }
     cobraId destination() const { return m_idDestination; }
 
+    bool handled() const {
+        return m_bHandled;
+    }
+
+    void setHandled(bool set) {
+        m_bHandled = set;
+    }
+
     /**
      * @fn bool isResponse() const
      * Used to determine if a given event is directed toward a client or server.
@@ -105,6 +113,7 @@ public:
     virtual cobraNetEvent* duplicate() = 0;
 
 protected:
+    bool    m_bHandled;
     bool    m_bResponse;
     cobraId m_idDestination;    /* Server ID */
     cobraId m_idSource;         /* My ID */

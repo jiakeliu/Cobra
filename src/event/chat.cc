@@ -105,41 +105,30 @@ cobraChatEventHandler::handleEvent(cobraNetEvent* event)
             QStringList userlist = ev->msg().split(" ");
             m_lwUserlist->clear();
 
-            for (int x=0; x<userlist.count(); x++)
-            {
-                if (userlist.at(x).isEmpty())
-                {
+            for (int x=0; x<userlist.count(); x++) {
+                if (userlist.at(x).isEmpty()) {
                     continue;
                 }
 
                 QChar userType = userlist.at(x)[0];
 
-                if(userType == '*')
-                {
+                if(userType == '*') {
                     QString userDisplayed = userlist.at(x);
                     userDisplayed.remove(0,1);
 
-                    if (userDisplayed == cobraNetHandler::instance()->getUsername())
-                    {
-
+                    if (userDisplayed == cobraNetHandler::instance()->getUsername()) {
                         (new QListWidgetItem(QPixmap(":/images/userGuest.png"), userDisplayed,m_lwUserlist))->setForeground(Qt::blue);
-                    }
-                    else
-                    {
+                    } else {
                         new QListWidgetItem(QPixmap(":/images/userGuest.png"), userDisplayed, m_lwUserlist);
                     }
                 }
 
-                if(userType == '!')
-                {
+                if(userType == '!') {
                     QString userDisplayed = userlist.at(x);
                     userDisplayed.remove(0,1);
-                    if (userDisplayed == cobraNetHandler::instance()->getUsername())
-                    {
+                    if (userDisplayed == cobraNetHandler::instance()->getUsername()) {
                         (new QListWidgetItem(QPixmap(":/images/userAdmin.png"), userDisplayed, m_lwUserlist))->setForeground(Qt::blue);
-                    }
-                    else
-                    {
+                    } else {
                         new QListWidgetItem(QPixmap(":/images/userAdmin.png"), userDisplayed, m_lwUserlist);
                     }
                 }

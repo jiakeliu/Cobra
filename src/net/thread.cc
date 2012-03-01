@@ -100,7 +100,6 @@ cobraNetEventThread::removeConnection(int id)
 {
     /* Iterate through all connections and remove all that match ID (may be BROADCAST) */
     QVector<cobraNetConnection*>::iterator iter = m_cncConnections.begin();
-    QVector<cobraNetConnection*>::iterator delete_me;
     while (iter != m_cncConnections.end()) {
         if (!*iter) {
             debug(ERROR(CRITICAL), "Null connection encountered in connection list.\n");
@@ -114,8 +113,9 @@ cobraNetEventThread::removeConnection(int id)
             continue;
         }
 
-        cobraStateEvent event;
+        (*iter)->setConnected(false);
 
+        cobraStateEvent event;
         event.setSource(SERVER);
         event.setResponse(true);
         event.setDestination((cobraId)id);
@@ -129,11 +129,9 @@ cobraNetEventThread::removeConnection(int id)
             event.serialize(stream);
         }
 
-        //delete_me = iter;
-        //iter = m_cncConnections.erase(iter);
-        //m_semAvailableConnections.release();
-        //(*delete_me)->deleteLater();
-        iter++;
+        (*iter)->deleteLater();
+        iter = m_cncConnections.erase(iter);
+        m_semAvailableConnections.release();
     }
 }
 
@@ -149,7 +147,7 @@ cobraNetEventThread::disconnect()
     }
 
     /* We only want ot send out a disconnect signal if we are still connected... */
-    if (cnx->isEncrypted()) {
+    if (cnx->isConnected()) {
         if (cnx->is(SERVER)) {
             debug(LOW, "Disconnecting from client.\n");
             event->setSource(SERVER);
@@ -164,6 +162,7 @@ cobraNetEventThread::disconnect()
 
         event->setState(cobraStateEvent::DisconnectedState);
         cobraSendEvent(event);
+        cnx->setConnected(false);
     }
 }
 
@@ -178,6 +177,7 @@ cobraNetEventThread::serverReady()
         return;
     }
 
+    cnx->setConnected(true);
     m_cncConnections.append(cnx);
 }
 
@@ -196,6 +196,8 @@ cobraNetEventThread::clientReady()
         debug(ERROR(HIGH), "Uh, we connected to a server without setting its ID?\nThis should never happen ^_^.\n");
         exit(1);
     }
+
+    cnx->setConnected(true);
     m_cncConnections.append(cnx);
 
     event->setSource(SERVER);
@@ -211,7 +213,7 @@ cobraNetEventThread::readyRead()
 {
     debug(LOW, "Ready Read\n");
     cobraNetConnection* cnx = qobject_cast<cobraNetConnection*>(sender());
-    if (!cnx)
+    if (!cnx || !cnx->isConnected())
         return 0;
 
     QDataStream stream(cnx);
@@ -286,16 +288,9 @@ cobraNetEventThread::connectionRefused()
         return;
     }
 
-    if (cnx->is(SERVER)) {
-        event->setSource(SERVER);
-        event->setResponse(true);
-        event->setDestination(cnx->id());
-    } else {
-        event->setSource(cnx->id());
-        event->setResponse(false);
-        event->setDestination(SERVER);
-    }
-
+    event->setSource(cnx->id());
+    event->setResponse(false);
+    event->setDestination(SERVER);
     event->setState(cobraStateEvent::ConnectionRefused);
     cobraSendEvent(event);
 }

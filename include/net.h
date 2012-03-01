@@ -120,14 +120,23 @@ public:
    void setId(cobraId id);
    static cobraId getNewId();
 
+   bool isConnected() const {
+       return m_bConnected;
+   }
+
+   void setConnected(bool cnx) {
+       m_bConnected = cnx;
+   }
+
 public:
     cobraId id() const;
 
     bool is(cobraId id);
 
 protected:
-    cobraId     m_Id;
-    static cobraId currentId;
+    bool            m_bConnected;
+    cobraId         m_Id;
+    static cobraId  currentId;
 };
 
 /**
@@ -491,12 +500,13 @@ public:
     QString guestPassword() const;
 
     /**
-     * @fn void chatNotify(cobraId, QString msg)
+     * @fn void chatNotify(cobraId, cobraId, QString msg)
      * Sends a notification to the specified user via the chat window.
+     * @param id The ID of the user to send it from.
      * @param id The ID of the user to send it to.
      * @param msg The Message to send
      */
-    void chatNotify(cobraId id, QString msg);
+    void chatNotify(cobraId src, cobraId dest, QString msg);
 
 
 public slots:
@@ -602,6 +612,7 @@ protected:
  * Helper function used to send an event.
  */
 inline void cobraSendEvent(cobraNetEvent* event) {
+    event->setHandled(true);
     QApplication::postEvent(cobraNetHandler::instance(), event);
 }
 

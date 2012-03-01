@@ -107,9 +107,10 @@ cobraStateEventHandler::handleEvent(cobraNetEvent* event)
             cobraChatEvent* chat = new cobraChatEvent();
 
             if (wasConnected)
-                handler->chatNotify(cobraMyId, CHAT_NOTIFY("Disconnected from server!"));
+                handler->chatNotify(SERVER, cobraMyId, CHAT_NOTIFY("Disconnected from server!"));
             else
-                handler->chatNotify(cobraMyId, CHAT_NOTIFY("Failed to connect to server!"));
+                handler->chatNotify(SERVER,
+                                    cobraMyId, CHAT_NOTIFY("Failed to connect to server!"));
 
             chat->setResponse(true);
             chat->setSource(SERVER);

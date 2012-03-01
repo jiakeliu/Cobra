@@ -2,7 +2,7 @@
 #include "net.h"
 
 cobraNetConnection::cobraNetConnection(QObject *parent)
-    :QSslSocket(parent)
+    :QSslSocket(parent), m_bConnected(false)
 {
     memset(&m_Id, 0, sizeof(m_Id));
 
@@ -13,6 +13,7 @@ cobraNetConnection::cobraNetConnection(QObject *parent)
 
 cobraNetConnection::~cobraNetConnection()
 {
+    debug(ERROR(CRITICAL), "Connection destroyed: %d\n", m_Id);
 }
 
 void

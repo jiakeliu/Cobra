@@ -2,14 +2,14 @@
 #include "net.h"
 
 cobraNetEvent::cobraNetEvent(int type)
-    :QEvent((QEvent::Type)type), m_bResponse(false)
+    :QEvent((QEvent::Type)type), m_bHandled(false), m_bResponse(false)
 {
     m_idSource = cobraNetHandler::instance()->myId();
     m_idDestination = SERVER;
 }
 
 cobraNetEvent::cobraNetEvent(cobraNetEvent& event)
-    :QEvent(event), m_bResponse(event.m_bResponse),
+    :QEvent(event), m_bHandled(false), m_bResponse(event.m_bResponse),
       m_idDestination(event.m_idDestination),
       m_idSource(event.m_idSource)
 {}
