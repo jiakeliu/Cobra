@@ -104,7 +104,7 @@ public slots:
     bool waitForMagic(QDataStream& stream);
 
  protected:
-    //cobraTransferTimer              m_cttTimer;
+    cobraTransferController         m_ctcTransferController;
     QVector<cobraNetConnection*>    m_cncConnections;
     QSemaphore                      m_semAvailableConnections;
     int                             m_iMaxConnections;

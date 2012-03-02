@@ -34,11 +34,12 @@ cobraTransferEvent::duplicate()
 }
 
 cobraTransferEventHandler::cobraTransferEventHandler()
-    :cobraNetEventHandler("FileTransfer", cobraTransferEventType)
+    :cobraNetEventHandler("Transfer", cobraTransferEventType),
+      cobraTransferController(cobraConcurrentTransfers)
 {}
 
 cobraTransferEventHandler::cobraTransferEventHandler(cobraTransferEventHandler& event)
-    :cobraNetEventHandler(event)
+    :cobraNetEventHandler(event), cobraTransferController(cobraConcurrentTransfers)
 {}
 
 cobraTransferEventHandler::~cobraTransferEventHandler()

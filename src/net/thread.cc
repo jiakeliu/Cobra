@@ -2,7 +2,8 @@
 #include "net.h"
 
 cobraNetEventThread::cobraNetEventThread(QObject* parent, int cnx)
-    :QObject(parent), m_semAvailableConnections(cnx), m_iMaxConnections(cnx)
+    :QObject(parent), m_ctcTransferController(cobraConcurrentTransfers),
+      m_semAvailableConnections(cnx), m_iMaxConnections(cnx)
 {
 }
 

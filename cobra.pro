@@ -16,7 +16,8 @@ SOURCES = src/main.cc \
     src/filevalidator.cc \
     src/event/auth.cc \
     src/preferences.cc \
-    src/event/transfer.cc
+    src/event/transfer.cc \
+    src/event/transfer_controller.cc
 
 INCLUDEPATH = include
 
