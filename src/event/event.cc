@@ -2,20 +2,68 @@
 #include "net.h"
 
 cobraNetEvent::cobraNetEvent(int type)
-    :QEvent((QEvent::Type)type), m_bHandled(false), m_bResponse(false)
+    :QEvent((QEvent::Type)type), m_semRefcount(1),
+     m_bHandled(false), m_bResponse(false)
 {
     m_idSource = cobraNetHandler::instance()->myId();
     m_idDestination = SERVER;
 }
 
 cobraNetEvent::cobraNetEvent(cobraNetEvent& event)
-    :QEvent(event), m_bHandled(false), m_bResponse(event.m_bResponse),
+    :QEvent(event), m_semRefcount(1),
+      m_bHandled(false), m_bResponse(event.m_bResponse),
       m_idDestination(event.m_idDestination),
       m_idSource(event.m_idSource)
 {}
 
 cobraNetEvent::~cobraNetEvent()
 {
+}
+
+int
+cobraNetEvent::get(int cnt)
+{
+    if (m_bHandled)
+        return -1;
+
+    m_semRefcount.release(cnt);
+    int ret = m_semRefcount.available();
+
+    return ret;
+}
+
+int
+cobraNetEvent::put()
+{
+    int ret = 0;
+
+    if (m_bHandled)
+        return -1;
+
+    m_semRefcount.acquire();
+    ret = m_semRefcount.available();
+
+    /* If we are not being handled already by QT, delete it */
+    if (!ret)
+        delete this;
+
+    return ret;
+}
+
+bool
+cobraNetEvent::handled() const
+{
+    return m_bHandled;
+}
+
+void
+cobraNetEvent::setHandled(bool set)
+{
+    debug(LOW, "Setting Handled: %d\n", type());
+    /* Here we want to zero out the semaphore so we don't assert on
+     * deletion of this object. */
+    while (m_semRefcount.tryAcquire()) {/* Do Nothing! */};
+    m_bHandled = set;
 }
 
 int cobraNetEvent::serialize(QDataStream& connection)
@@ -47,12 +95,10 @@ int cobraNetEventHandler::put() {
         return 0;
     }
 
-    //debug(CRITICAL, "put! %s %d\n", qPrintable(m_sName),m_semRef.available());
     return avail;
 }
 
 int cobraNetEventHandler::get() {
-    //debug(CRITICAL, "get! %s %d\n", qPrintable(m_sName), m_semRef.available());
     m_semRef.release();
     return m_semRef.available();
 }

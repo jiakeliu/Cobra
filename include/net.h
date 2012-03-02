@@ -100,6 +100,11 @@ public slots:
     }
 
  protected:
+    QDataStream& magic(QDataStream& stream);
+    bool waitForMagic(QDataStream& stream);
+
+ protected:
+    //cobraTransferTimer              m_cttTimer;
     QVector<cobraNetConnection*>    m_cncConnections;
     QSemaphore                      m_semAvailableConnections;
     int                             m_iMaxConnections;
@@ -188,6 +193,15 @@ public:
      * @return true on successful send; false if send failed immediately.
      */
     bool sendEvent(cobraNetEvent* event);
+
+    /**
+     * @fn bool sendToWorker(cobraNetHandlerThread* worker, cobraNetEvent* event);
+     * This function is used to send an event to the specified worker.
+     * @param worker The thread worked to send the event to.
+     * @param event The event to send
+     * @return True if send event returned success (does not guarantee delivery).
+     */
+    bool sendToWorker(cobraNetEventThread* worker, cobraNetEvent* event);
 
     /**
      * @fn bool triggerErrorEvent(cobraNetEvent* event)
@@ -440,6 +454,14 @@ public:
     bool setIdUsername(cobraId id, QString& user);
 
     /**
+     * @fn bool userExists(QString& user) const
+     * Determine if this user exists in the user list.
+     * @param user The username to look for.
+     * @return True if the user exists; False otherwise.
+     */
+    bool userExists(QString& username) const;
+
+    /**
      * @fn bool getIdUsername(cobraId id, QString& user)
      * Get the association between the specified id and username.
      * @param id The id to associate.
@@ -591,6 +613,9 @@ protected:
         int authorization;
         QString username;
     };
+
+    typedef QMap<cobraId, clientId>::Iterator         cidIterator;
+    typedef QMap<cobraId, clientId>::ConstIterator    constCidIterator;
 
     QMap<cobraId, clientId>             m_cIds;
     cobraId                             m_idMine;

@@ -35,13 +35,11 @@ cobraTransferEvent::duplicate()
 
 cobraTransferEventHandler::cobraTransferEventHandler()
     :cobraNetEventHandler("FileTransfer", cobraTransferEventType)
-{
-}
+{}
 
 cobraTransferEventHandler::cobraTransferEventHandler(cobraTransferEventHandler& event)
     :cobraNetEventHandler(event)
-{
-}
+{}
 
 cobraTransferEventHandler::~cobraTransferEventHandler()
 {}

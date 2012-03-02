@@ -58,12 +58,15 @@ cobraNetHandler::sendEvent(cobraNetEvent *event)
     if (!event)
         return false;
 
+    bool ret = false;
+
     debug(CRITICAL, "Attempting to send event\n");
 
     cobraId dest = event->destination();
-
     if (dest == BROADCAST) {
-        return broadcastEvent(event);
+        ret = broadcastEvent(event);
+        event->put();
+        return ret;
     }
 
     QReadLocker locker(&m_cidLock);
@@ -79,12 +82,7 @@ cobraNetHandler::sendEvent(cobraNetEvent *event)
         return false;
     }
 
-    debug(CRITICAL, "Sending event...\n");
-
-    qRegisterMetaType<cobraNetEvent*>("cobraNetEvent*");
-    QMetaObject::invokeMethod(m_cnetWorkers[idx], "sendEvent", Qt::QueuedConnection, Q_ARG(cobraNetEvent*, event));
-
-    return true;
+    return sendToWorker(m_cnetWorkers[idx], event);
 }
 
 bool
@@ -92,16 +90,31 @@ cobraNetHandler::broadcastEvent(cobraNetEvent *event)
 {
     event->setDestination(BROADCAST);
 
+    bool ret = true;
     cobraNetHandler::workerIterator iter;
     for (iter=m_cnetWorkers.begin(); iter != m_cnetWorkers.end(); iter++) {
         if (!*iter) {
             debug(ERROR(CRITICAL), "Null worker in list!\n");
             continue;
         }
-
-        qRegisterMetaType<cobraNetEvent*>("cobraNetEvent*");
-        QMetaObject::invokeMethod(*iter, "sendEvent", Qt::QueuedConnection, Q_ARG(cobraNetEvent*, event));
+        ret &= sendToWorker(*iter, event);
     }
+
+    return true;
+}
+
+bool
+cobraNetHandler::sendToWorker(cobraNetEventThread *worker, cobraNetEvent *event)
+{
+    if (!worker || !event)
+        return false;
+
+    /* Increment the reference counter. If this event is handled, duplicate it (we can't send handled events). */
+    if (event->get() < 0)
+        event = event->duplicate();
+
+    qRegisterMetaType<cobraNetEvent*>("cobraNetEvent*");
+    QMetaObject::invokeMethod(worker, "sendEvent", Qt::QueuedConnection, Q_ARG(cobraNetEvent*, event));
 
     return true;
 }
@@ -117,41 +130,50 @@ cobraNetHandler::event(QEvent* event)
     if (!cevent)
         return false;
 
-    cobraNetEvent* pevent = cevent->duplicate();
+    bool ret = true;
 
-    if (pevent->isRequest() && !isServing()) {
+
+    if (cevent->isRequest() && !isServing()) {
+        cobraNetEvent* pevent = cevent->duplicate();
         debug(CRITICAL, "Sending event to Server!\n");
-        return sendEvent(pevent);
+        ret = sendEvent(pevent);
+        pevent->put();
+        return ret;
     }
 
-    /* If this is a broadcast message, fall through: we want it locally as well! */
-    if (isServing()
-            && pevent->isResponse()
-            && pevent->source() == SERVER
-            && pevent->destination() == BROADCAST) {
-        debug(CRITICAL, "Broadcast message for send!\n");
-        broadcastEvent(pevent);
+    if (isServing() &&
+        cevent->isResponse() &&
+        cevent->source() == SERVER &&
+        cevent->destination() == BROADCAST) {
+        cobraNetEvent* pevent = cevent->duplicate();
 
-        /* Update the previous event to go to our chat client */
+        debug(CRITICAL, "Broadcast message for send!\n");
+        ret = broadcastEvent(pevent);
+        pevent->put();
+
+        /* Update the previous event to go to us. */
         cevent->setDestination(m_idMine);
         cevent->setSource(SERVER);
-        pevent = cevent;
+        /* If this is a broadcast message, fall through: we want it locally as well! */
     }
 
-    cobraNetEventHandler* handler = getEventHandler(pevent->type());
+    /* Must be intended for our user! */
+    cobraNetEventHandler* handler = getEventHandler(cevent->type());
     if (!handler) {
-        debug(ERROR(CRITICAL), "Failed to find handler for event type! (%d)\n", pevent->type());
+        debug(ERROR(CRITICAL), "Failed to find handler for event type! (%d)\n", cevent->type());
         return false;
     }
 
-    handler->handleEvent(pevent);
+    /* Run the event... Hopefully handlers know that these events are handled events.
+     * e.g., handlers should not be attempting to get the event!
+     */
+    ret |= handler->handleEvent(cevent);
     handler->put();
 
-    if (!pevent->handled())
-        delete pevent;
+    debug(LOW, "Local Event: %d\n", cevent->type());
+    cevent->put();
 
-    debug(LOW, "Local Event: %d\n", pevent->type());
-    return true;
+    return ret;
 }
 
 bool
@@ -325,25 +347,29 @@ cobraNetHandler::cleanup()
     m_cnetWorkers.clear();
 }
 
-QSslCertificate cobraNetHandler::getCaCertificate() const
+QSslCertificate
+cobraNetHandler::getCaCertificate() const
 {
     QReadLocker locker(&m_certLock);
     return m_sslCaCertificate;
 }
 
-QSslCertificate cobraNetHandler::getLocalCertificate() const
+QSslCertificate
+cobraNetHandler::getLocalCertificate() const
 {
     QReadLocker locker(&m_certLock);
     return m_sslLocalCertificate;
 }
 
-QSslKey cobraNetHandler::getPrivateKey() const
+QSslKey
+cobraNetHandler::getPrivateKey() const
 {
     QReadLocker locker(&m_certLock);
     return m_sslPrivateKey;
 }
 
-bool cobraNetHandler::loadCertificate(QString path, QSslCertificate& cert)
+bool
+cobraNetHandler::loadCertificate(QString path, QSslCertificate& cert)
 {
     QFile file(path);
 
@@ -377,7 +403,8 @@ bool cobraNetHandler::loadCertificate(QString path, QSslCertificate& cert)
 }
 
 
-bool cobraNetHandler::loadKey(QString path, QString password, QSslKey& key)
+bool
+cobraNetHandler::loadKey(QString path, QString password, QSslKey& key)
 {
     QFile file(path);
 
@@ -408,7 +435,8 @@ bool cobraNetHandler::loadKey(QString path, QString password, QSslKey& key)
     return true;
 }
 
-bool cobraNetHandler::loadClientCertificates()
+bool
+cobraNetHandler::loadClientCertificates()
 {
     QWriteLocker locker(&m_certLock);
 
@@ -427,7 +455,8 @@ bool cobraNetHandler::loadClientCertificates()
     return true;
 }
 
-bool cobraNetHandler::loadServerCertificates(QString passwd)
+bool
+cobraNetHandler::loadServerCertificates(QString passwd)
 {
     QWriteLocker locker(&m_certLock);
 
@@ -595,6 +624,19 @@ cobraNetHandler::getIdUsername(cobraId id) const
         return "";
 
     return m_cIds[id].username;
+}
+
+bool
+cobraNetHandler::userExists(QString &username) const
+{
+    QReadLocker locker(&m_cidLock);
+    constCidIterator iter = m_cIds.begin();
+
+    while (iter != m_cIds.end())
+        if (iter.value().username == username)
+            return true;
+
+    return false;
 }
 
 bool

@@ -31,10 +31,10 @@ cobraNetEventThread::sendEvent(cobraNetEvent *event)
         QDataStream stream(m_cncConnections[idx]);
 
         debug(CRITICAL, "Sending Event: %d\n", event->type());
-        stream << cobraStreamMagic[0] << cobraStreamMagic[1] << cobraStreamMagic[2] << cobraStreamMagic[3];
-        event->serialize(stream);
+        event->serialize(magic(stream));
     }
 
+    event->put();
     return false;
 }
 
@@ -101,6 +101,7 @@ cobraNetEventThread::removeConnection(int id)
     /* Iterate through all connections and remove all that match ID (may be BROADCAST) */
     QVector<cobraNetConnection*>::iterator iter = m_cncConnections.begin();
     while (iter != m_cncConnections.end()) {
+
         if (!*iter) {
             debug(ERROR(CRITICAL), "Null connection encountered in connection list.\n");
             iter++;
@@ -125,8 +126,7 @@ cobraNetEventThread::removeConnection(int id)
         { /* Make our QDataStream object is destroyed before deleteLater call */
             debug(CRITICAL, "Sending Closing State Message to %d (cnx: %d)!\n", id, (*iter)->id());
             QDataStream stream(*iter);
-            stream << cobraStreamMagic[0] << cobraStreamMagic[1] << cobraStreamMagic[2] << cobraStreamMagic[3];
-            event.serialize(stream);
+            event.serialize(magic(stream));
         }
 
         (*iter)->deleteLater();
@@ -162,6 +162,7 @@ cobraNetEventThread::disconnect()
 
         event->setState(cobraStateEvent::DisconnectedState);
         cobraSendEvent(event);
+
         cnx->setConnected(false);
     }
 }
@@ -208,6 +209,43 @@ cobraNetEventThread::clientReady()
     cobraSendEvent(event);
 }
 
+QDataStream&
+cobraNetEventThread::magic(QDataStream& stream)
+{
+    stream << cobraStreamMagic[0] << cobraStreamMagic[1] << cobraStreamMagic[2] << cobraStreamMagic[3];
+    return stream;
+}
+
+bool
+cobraNetEventThread::waitForMagic(QDataStream& stream)
+{
+    /* Iterate through bytes until all 4 magic bytes are found...
+     * Originally, we read in a uint32_t to test, but this will fuck up
+     * events if we accidently get offset a byte... by reading in the
+     * data a byte at a time, we are more likely to miss less events.
+     */
+    uint8_t x = 0;
+    uint8_t magic = 0;
+
+magic:
+    /* Iterate through the rest of the stream magic. */
+    for (x=0; x<sizeof(uint32_t); x++) {
+        stream >> magic;
+
+        /* If this byte isn't the next byte in the Stream Magic,
+        * then jump back to wait for the next stream magic.
+        */
+        if (magic != cobraStreamMagic[x])
+            goto magic;
+
+        /* If there is no more bytes to be read, exit. */
+        if (stream.atEnd())
+            return false;
+    }
+
+    return true;
+}
+
 int
 cobraNetEventThread::readyRead()
 {
@@ -216,62 +254,41 @@ cobraNetEventThread::readyRead()
     if (!cnx || !cnx->isConnected())
         return 0;
 
-    QDataStream stream(cnx);
-
-    uint8_t magic = 0;
     int type = 0;
     int bytes = 0;
+    QDataStream stream(cnx);
 
-    /* Iterate through bytes until all 4 magic bytes are found...
-     * Originally, we read in a uint32_t to test, but this will fuck up
-     * events if we accidently get offset a byte... by reading in the
-     * data a byte at a time, we are more likely to miss less events.
-     */
-    uint8_t x = 0;
+    do {
+        if (!waitForMagic(stream))
+            return bytes;
 
-magic:
-    /* Iterate through the rest of the stream magic. */
-    for (x=0; x<sizeof(uint32_t); x++) {
-        stream >> magic;
-        bytes++;
+        /* if we've made it here, then we should have a valid event, lets check. */
+        stream >> type;
+        bytes += sizeof(type);
 
-        /* If this byte isn't the next byte in the Stream Magic,
-         * then jump back to wait for the next stream magic.
-         */
-        if (magic != cobraStreamMagic[x])
-            goto magic;
+        if (!validEvent(type)) {
+            debug(ERROR(CRITICAL), "Invalid event after a Magic... what are the odds...\n");
+            continue;
+        }
 
-        /* If there is no more bytes to be read, exit. */
-        if (stream.atEnd())
-            return 0;
+        cobraNetEvent* event = cobraNetHandler::instance()->getEvent(type);
+        if (!event) {
+            debug(ERROR(CRITICAL), "Invalid type (%d) sent?\n", type);
+            continue;
+        }
+
+        bytes = event->deserialize(stream);
+        debug(HIGH, "Bytes read from incoming event: %d\n", bytes);
+
+        if (cnx->id() != event->source())
+            debug(ERROR(CRITICAL), "Incoming event failed source coherenecy check! "
+                  "(Cnx: %d; Source: %d)\n", cnx->id(), event->source());
+
+        event->setSource(cnx->id());
+
+        cobraSendEvent(event);
     }
-
-    /* if we've made it here, then we should have a valid event, lets check. */
-    stream >> type;
-    bytes += sizeof(type);
-
-    if (!validEvent(type)) {
-        debug(CRITICAL, "Invalid event after a Magic... what are the odds...\n");
-        goto magic;
-    }
-
-    cobraNetEvent* event = cobraNetHandler::instance()->getEvent(type);
-    if (!event)
-        return 0;
-
-    bytes = event->deserialize(stream);
-    debug(HIGH, "Bytes read from incoming event: %d\n", bytes);
-
-    if (cnx->id() != event->source())
-        debug(ERROR(CRITICAL), "Incoming event failed source coherenecy check! (Cnx: %d; Source: %d)\n",
-              cnx->id(), event->source());
-
-    event->setSource(cnx->id());
-
-    cobraSendEvent(event);
-
-    if (cnx->bytesAvailable())
-        goto magic;
+    while (cnx->bytesAvailable() > 0);
 
     return bytes;
 }
@@ -292,6 +309,7 @@ cobraNetEventThread::connectionRefused()
     event->setResponse(false);
     event->setDestination(SERVER);
     event->setState(cobraStateEvent::ConnectionRefused);
+
     cobraSendEvent(event);
 }
 

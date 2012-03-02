@@ -53,13 +53,45 @@ public:
     void setDestination(cobraId id) { m_idDestination = id; }
     cobraId destination() const { return m_idDestination; }
 
-    bool handled() const {
-        return m_bHandled;
-    }
+    /**
+     * @fn bool handled()
+     * Indicate whether the event is being processed via QT Event system.  If so,
+     * then the event will be freed automatically at the end of the current event cycle,
+     * otherwise, it will be freed when its reference count reaches 0.
+     * @param set Value to set the handled flag to.
+     */
+    bool handled() const;
 
-    void setHandled(bool set) {
-        m_bHandled = set;
-    }
+    /**
+     * @fn void setHandled(bool set)
+     * Indicate whether the event is being processed via QT Event system.  If so,
+     * then the event will be freed automatically at the end of the current event cycle.
+     * Set to false to indicate that the event should be cleaned up when its reference count
+     * reaches 0.
+     * @param set Value to set the handled flag to.
+     */
+    void setHandled(bool set);
+
+    /**
+     * @fn int get(int cnt)
+     * This is used to get an instance of an event before it has been sent
+     * for handled. This really is only intended for calls which result in
+     * the event getting sent to a thread through an InvokeMethod call.
+     * @param cnt The number of elements to get.
+     * @return The number of elements currently holding the object; -1 if handled.
+     */
+    int get(int cnt = 1);
+
+    /**
+     * @fn int put()
+     * This is used to put an instance of an event after it has been handled.
+     * When handled by the QTEvent system the Event will be cleaned up the
+     * iteration after the current iteration in the main loop.  As a result,
+     * this should really only be used on events which are not passed directly
+     * into the QT Event system!
+     * @return The number of elements currently holding the object; -1 if handled.
+     */
+    int put();
 
     /**
      * @fn bool isResponse() const
@@ -113,10 +145,12 @@ public:
     virtual cobraNetEvent* duplicate() = 0;
 
 protected:
-    bool    m_bHandled;
-    bool    m_bResponse;
-    cobraId m_idDestination;    /* Server ID */
-    cobraId m_idSource;         /* My ID */
+    /* Ref count is only used when m_bHandled is false! */
+    QSemaphore  m_semRefcount;
+    bool        m_bHandled;
+    bool        m_bResponse;
+    cobraId     m_idDestination;    /* Server ID */
+    cobraId     m_idSource;         /* My ID */
 };
 
 /**
@@ -515,12 +549,6 @@ public:
    cobraTransferEvent();
    cobraTransferEvent(cobraTransferEvent& state);
    virtual ~cobraTransferEvent();
-
-   QString username() const;
-   void setUsername(const QString& user);
-
-   QString password() const;
-   void setPassword(const QString& pwd);
 
 public:
 

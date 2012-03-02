@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>images/cobra_ico.png</file>
         <file>images/connect_ico.png</file>
         <file>images/stop_ico.png</file>
         <file>images/preferences.png</file>
@@ -8,5 +7,6 @@
         <file>images/userGuest.png</file>
         <file>images/userAdmin.png</file>
         <file>images/connect.png</file>
+        <file>images/cobra_main.png</file>
     </qresource>
 </RCC>

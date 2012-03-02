@@ -24,7 +24,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="cobra.qrc">
-    <normaloff>:/images/cobra_ico.png</normaloff>:/images/cobra_ico.png</iconset>
+    <normaloff>:/images/cobra_main.png</normaloff>:/images/cobra_main.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
@@ -200,8 +200,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>98</width>
-          <height>28</height>
+          <width>79</width>
+          <height>650</height>
          </rect>
         </property>
         <attribute name="label">

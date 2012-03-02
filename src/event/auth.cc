@@ -89,13 +89,13 @@ cobraAuthEventHandler::handleEvent(cobraNetEvent* event)
 bool
 cobraAuthEventHandler::handleServerEvent(cobraNetEvent* event)
 {
-    debug(CRITICAL, "Handling Client Authorization Request!\n");
+    debug(LOW, "Handling Client Authorization Request!\n");
 
     cobraAuthEvent* auth = static_cast<cobraAuthEvent*>(event);
     cobraNetHandler* netHandler = cobraNetHandler::instance();
     cobraStateEvent* newState = new cobraStateEvent();
 
-    debug(CRITICAL, "Username: %s Password: %s\n", qPrintable(auth->username()), qPrintable(auth->password()));
+    debug(MED, "Username: %s Password: %s\n", qPrintable(auth->username()), qPrintable(auth->password()));
     int authorized = netHandler->isAuthorized(auth->password());
 
     newState->setDestination(auth->source());
@@ -103,18 +103,28 @@ cobraAuthEventHandler::handleServerEvent(cobraNetEvent* event)
     newState->setSource(SERVER);
 
     if (authorized) {
-        debug(HIGH, "User is authorized as a %s\n", authorized&GuestAuth?"Guest":"Participant");
-
         QString user = auth->username();
 
-        debug(HIGH, "Username Authorized: %s\n", qPrintable(user));
-        debug(HIGH, "ID: %d\n", event->source());
+#if 0 /* Lets not do this for now... */
+        int cnt = 1;
+        while (netHandler->userExists(user)) {
+            user = QString("%1%2").arg(auth->username()).arg(cnt++);
+        }
+
+        if (cnt > 1) {
+            /* send a command to update the kernel name */
+        }
+#endif
+
+        debug(HIGH, "User '%s' is authorized as a %s\n", qPrintable(user), authorized&GuestAuth?"Guest":"Participant");
 
         newState->setState(cobraStateEvent::ConnectedState);
         netHandler->sendEvent(static_cast<cobraNetEvent*>(newState));
 
         netHandler->setIdUsername(event->source(), user);
         netHandler->setIdAuthorization(event->source(), authorized);
+
+        netHandler->chatNotify(SERVER, BROADCAST, QString(CHAT_NOTIFY("User '%1' has connected.\n")).arg(user));
         netHandler->broadcastUserlist();
 
     } else {
