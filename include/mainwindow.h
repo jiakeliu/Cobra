@@ -5,6 +5,7 @@
 #include <QSettings>
 
 class Preferences;
+class Transfersdlg;
 
 namespace Ui {
     class MainWindow;
@@ -52,6 +53,8 @@ private slots:
 
     void on_actionFile_Info_toggled(bool );
 
+    void on_actionTransfers_triggered();
+
 protected:
     bool setName(QString);
     bool metaConnect(QString);
@@ -70,6 +73,7 @@ protected:
     Ui::MainWindow *ui;
     QString m_cUsername;
     Preferences* m_pDialog;
+    Transfersdlg* m_dTransfers;
 };
 
 

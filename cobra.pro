@@ -17,7 +17,8 @@ SOURCES = src/main.cc \
     src/event/auth.cc \
     src/preferences.cc \
     src/event/transfer.cc \
-    src/event/transfer_controller.cc
+    src/event/transfer_controller.cc \
+    src/transfersdlg.cc
 
 INCLUDEPATH = include
 
@@ -29,13 +30,15 @@ HEADERS += \
     include/net.h \
     include/event.h \
     include/filevalidator.h \
-    include/preferences.h
+    include/preferences.h \
+    include/transfersdlg.h
 
 FORMS += \
     resources/mainwindow.ui \
     resources/mainwindow_mdi.ui \
     resources/mainwindow_docks.ui \
-    resources/preferences.ui
+    resources/preferences.ui \
+    resources/transfersdlg.ui
 
 TRANSLATIONS = cobratr_cn
 

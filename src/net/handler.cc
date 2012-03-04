@@ -206,7 +206,7 @@ cobraNetHandler::registerEventHandler(cobraNetEventHandler* handler)
 
     m_mihHandlers[handler->type()] = handler;
 
-    debug(LOW, "Handler (%s,%d) Registered\n", CSTR(handler->name()), handler->type());
+    debug(LOW, "Handler (%s,%d) Registered\n", qPrintable(handler->name()), handler->type());
     return true;
 }
 
@@ -219,7 +219,7 @@ cobraNetHandler::getEventHandler(int type)
     QReadLocker locker(&m_eventLock);
 
     if (m_mihHandlers.contains(type))
-        debug(LOW, "Handler (%s,%d) Retrieved\n", CSTR(m_mihHandlers[type]->name()), m_mihHandlers[type]->type());
+        debug(LOW, "Handler (%s,%d) Retrieved\n", qPrintable(m_mihHandlers[type]->name()), m_mihHandlers[type]->type());
     else
         debug(LOW, "NULL Handler Retrieved (%d)\n", type);
 

@@ -33,7 +33,7 @@ log(int level, const char *file, int line, const char *fmt, ...)
 
     /* print the file and line if it exists. */
     if (file && line > 0)
-        ret += fprintf(std, LOG_FMT, (unsigned long)time, file, line, (error)?"!!!":":");
+        ret += fprintf(std, LOG_FMT, (unsigned long)now, file, line, (error)?"!!!":":");
     else if (error)
         fprintf(std, "!!!");
 

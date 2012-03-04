@@ -5,12 +5,13 @@
 #include "net.h"
 #include "filevalidator.h"
 #include "preferences.h"
+#include "transfersdlg.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_pDialog(NULL)
+    m_pDialog(NULL), m_dTransfers(NULL)
 {
     ui->setupUi(this);
 
@@ -293,4 +294,12 @@ MainWindow::on_actionFile_Info_toggled(bool checked)
 {
     ui->fileInfoDock->setVisible(checked);
     checked=!checked;
+}
+
+void MainWindow::on_actionTransfers_triggered()
+{
+    if (!m_dTransfers)
+        m_dTransfers = new Transfersdlg(this);
+
+    m_dTransfers->show();
 }

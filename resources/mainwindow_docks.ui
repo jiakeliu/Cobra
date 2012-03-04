@@ -114,6 +114,7 @@
     <addaction name="actionChat_Window"/>
     <addaction name="actionFile_Info"/>
     <addaction name="actionFile_Management"/>
+    <addaction name="actionTransfers"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -679,6 +680,11 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>File Management</string>
+   </property>
+  </action>
+  <action name="actionTransfers">
+   <property name="text">
+    <string>Transfers</string>
    </property>
   </action>
  </widget>

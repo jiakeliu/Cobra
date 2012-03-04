@@ -5,10 +5,16 @@ cobraNetEventThread::cobraNetEventThread(QObject* parent, int cnx)
     :QObject(parent), m_ctcTransferController(cobraConcurrentTransfers),
       m_semAvailableConnections(cnx), m_iMaxConnections(cnx)
 {
+    /* Set the initial interval... */
+    m_ctcTransferController.setInterval(100);
+
+    if (!m_ctcTransferController.initialize(this))
+        debug(ERROR(CRITICAL), "Failed to initialize the transfer controller!\n");
 }
 
 cobraNetEventThread::~cobraNetEventThread()
 {
+    m_ctcTransferController.cleanup();
 }
 
 bool
@@ -18,6 +24,15 @@ cobraNetEventThread::sendEvent(cobraNetEvent *event)
         return false;
 
     cobraId dest = event->destination();
+
+    /* Eventually this will probably get broken out into a notifier chain...
+     * but only if we have another handler that wants to see out going events.
+     */
+    if (event->type() == cobraTransferEventType) {
+        cobraTransferEvent* tevent = dynamic_cast<cobraTransferEvent*>(event);
+        if (m_ctcTransferController.handleTransfer(tevent))
+            return true;
+    }
 
     debug(CRITICAL, "Destination: %d (isBroadcast: %s)\n", dest, (dest == BROADCAST)?"yes":"no");
     for (int idx=0; idx<m_cncConnections.count(); idx++) {
@@ -36,7 +51,7 @@ cobraNetEventThread::sendEvent(cobraNetEvent *event)
     }
 
     event->put();
-    return false;
+    return true;
 }
 
 bool
