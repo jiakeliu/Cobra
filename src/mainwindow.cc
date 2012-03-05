@@ -296,10 +296,31 @@ MainWindow::on_actionFile_Info_toggled(bool checked)
     checked=!checked;
 }
 
-void MainWindow::on_actionTransfers_triggered()
+void MainWindow::on_actionOpenFile_triggered()
 {
-    if (!m_dTransfers)
-        m_dTransfers = new Transfersdlg(this);
+    QString path = QFileDialog::getOpenFileName(this, tr("Open File"),QDir::homePath(), QString::null);
 
-    m_dTransfers->show();
+    if (!path.isEmpty())
+    {
+        QFile file(path);
+        if (!file.open(QFile::ReadOnly)) {
+            return;
+        }
+        else {
+            QFileInfo file(path);
+            // Place QFile Path into the SQL Database
+            // Load Tagging Dialog
+
+            QString clipTitle;
+            QString clipDesc;
+            QString clipTag;
+
+            // SQL -> setClipTitle(clipTitle) where clipPath = file.absoluteFilePath();
+            // SQL -> setClipDesc(clipDesc) where clipPath = file.absoluteFilePath();
+            // SQL -> setClipTag(clipTag)  where clipPath = file.absoluteFilePath();
+
+            // addClip_toCliplist();
+            qDebug() << file.absoluteFilePath();
+        }
+    }
 }

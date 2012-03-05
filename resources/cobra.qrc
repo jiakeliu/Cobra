@@ -8,5 +8,8 @@
         <file>images/userAdmin.png</file>
         <file>images/connect.png</file>
         <file>images/cobra_main.png</file>
+        <file>images/Folder_FTP.png</file>
+        <file>images/Network_Connections.png</file>
+        <file>images/pref.png</file>
     </qresource>
 </RCC>

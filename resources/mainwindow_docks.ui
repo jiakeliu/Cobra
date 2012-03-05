@@ -68,6 +68,7 @@
     <addaction name="actionPreferences"/>
     <addaction name="separator"/>
     <addaction name="actionConnect"/>
+    <addaction name="actionOpenFile"/>
     <addaction name="actionExport"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
@@ -143,6 +144,9 @@
      <height>32</height>
     </size>
    </property>
+   <property name="allowedAreas">
+    <set>Qt::NoToolBarArea</set>
+   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
@@ -150,6 +154,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionConnect"/>
+   <addaction name="actionOpenFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="fileInfoDock">
@@ -488,6 +493,10 @@ p, li { white-space: pre-wrap; }
    </widget>
   </widget>
   <action name="actionPreferences">
+   <property name="icon">
+    <iconset resource="cobra.qrc">
+     <normaloff>:/images/pref.png</normaloff>:/images/pref.png</iconset>
+   </property>
    <property name="text">
     <string>Preferences...</string>
    </property>
@@ -495,7 +504,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionConnect">
    <property name="icon">
     <iconset resource="cobra.qrc">
-     <normaloff>:/images/connect.png</normaloff>:/images/connect.png</iconset>
+     <normaloff>:/images/Network_Connections.png</normaloff>:/images/Network_Connections.png</iconset>
    </property>
    <property name="text">
     <string>Connect ...</string>
@@ -505,6 +514,9 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
+   </property>
+   <property name="actionConnect" stdset="0">
+    <string/>
    </property>
   </action>
   <action name="actionExport">
@@ -682,9 +694,16 @@ p, li { white-space: pre-wrap; }
     <string>File Management</string>
    </property>
   </action>
-  <action name="actionTransfers">
+  <action name="actionOpenFile">
+   <property name="icon">
+    <iconset resource="cobra.qrc">
+     <normaloff>:/images/Folder_FTP.png</normaloff>:/images/Folder_FTP.png</iconset>
+   </property>
    <property name="text">
-    <string>Transfers</string>
+    <string>Open File ...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
  </widget>

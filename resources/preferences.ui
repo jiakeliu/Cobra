@@ -41,7 +41,7 @@
    <string>Preferences</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="cobra.qrc">
+   <iconset>
     <normaloff>:/images/cobra_tico.png</normaloff>:/images/cobra_tico.png</iconset>
   </property>
   <property name="modal">
@@ -59,7 +59,7 @@
         <enum>QTabWidget::Rounded</enum>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>4</number>
        </property>
        <widget class="QWidget" name="Profile">
         <attribute name="title">
@@ -742,9 +742,7 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="cobra.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>connectButton</sender>

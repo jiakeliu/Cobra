@@ -53,7 +53,7 @@ private slots:
 
     void on_actionFile_Info_toggled(bool );
 
-    void on_actionTransfers_triggered();
+    void on_actionOpenFile_triggered();
 
 protected:
     bool setName(QString);
