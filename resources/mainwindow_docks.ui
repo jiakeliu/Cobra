@@ -706,6 +706,11 @@ p, li { white-space: pre-wrap; }
     <string>Ctrl+O</string>
    </property>
   </action>
+  <action name="actionTransfers">
+   <property name="text">
+    <string>Transfers</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="cobra.qrc"/>

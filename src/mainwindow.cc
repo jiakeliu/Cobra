@@ -324,3 +324,10 @@ void MainWindow::on_actionOpenFile_triggered()
         }
     }
 }
+
+void MainWindow::on_actionTransfers_triggered()
+{
+    if (!m_dTransfers)
+        m_dTransfers = new Transfersdlg;
+    m_dTransfers->show();
+}

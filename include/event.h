@@ -526,6 +526,12 @@ public:
    cobraTransferEvent(cobraTransferEvent& state);
    virtual ~cobraTransferEvent();
 
+   void setCommand(int cmd);
+   int command() const;
+
+   bool setFile(QString file);
+   QString file() const;
+
 public:
 
    /**
@@ -549,7 +555,21 @@ public:
     * @return A pointer to the copied cobra event.
     */
    virtual cobraNetEvent* duplicate();
+
+   enum TransferCommands {
+       Request,
+       Accept,
+       Reject,
+       Chunk
+   };
+
 protected:
+    int             m_iCommand;
+    uint32_t        m_uiUid;
+    QString         m_sFilename;
+    int             m_iSize;
+    int             m_iOffset;
+    QByteArray      m_baFileData;
 };
 
 class cobraNetEventThread;

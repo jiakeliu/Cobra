@@ -55,6 +55,8 @@ private slots:
 
     void on_actionOpenFile_triggered();
 
+    void on_actionTransfers_triggered();
+
 protected:
     bool setName(QString);
     bool metaConnect(QString);
