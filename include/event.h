@@ -532,6 +532,12 @@ public:
    bool setFile(QString file);
    QString file() const;
 
+   void setUid(uint32_t uid);
+   uint32_t uid() const;
+
+   void setData(QByteArray& data);
+   const QByteArray& data() const;
+
 public:
 
    /**
@@ -569,7 +575,7 @@ protected:
     QString         m_sFilename;
     int             m_iSize;
     int             m_iOffset;
-    QByteArray      m_baFileData;
+    QByteArray      m_baData;
 };
 
 class cobraNetEventThread;
