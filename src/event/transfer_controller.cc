@@ -148,8 +148,8 @@ cobraTransferFile::sendChunk(cobraNetEventThread* thread, qint64 chunk, qint64 o
         cobraTransferFile::setDestination(m_idDestination);
         //cobraNetEventThread::sendEvent(chunkArray);
     }
-    else
-        return false;
+
+    return false;
 
 }
 
@@ -250,7 +250,17 @@ cobraTransferController::cleanup()
 }
 
 bool
-cobraTransferController::handleTransfer(cobraTransferEvent* event)
+cobraTransferController::addTransfer(cobraTransferFile* file)
+{
+    if (!file)
+        return false;
+
+    m_vcftTransfers.push_back(file);
+    return true;
+}
+
+bool
+cobraTransferController::recieveChunk(cobraTransferEvent* event)
 {
     /** This function should iterate through the cobraTransferFile list
       * and call the handleTransfer on each one (only the one that matches

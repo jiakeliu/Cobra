@@ -88,6 +88,7 @@ public slots:
     void clientReady();
 
     bool sendEvent(cobraNetEvent* event);
+    bool sendFile(cobraTransferFile* file);
 
  public:
 
@@ -202,6 +203,27 @@ public:
      * @return True if send event returned success (does not guarantee delivery).
      */
     bool sendToWorker(cobraNetEventThread* worker, cobraNetEvent* event);
+
+    /**
+     * @fn bool sendFile(cobraTransferFile* file);
+     * This function is used to send a file to a remote host.
+     * @param file The file to send.
+     *      Note: The sent fiel should not have any remaining
+     *      references upon a call to this function!
+     * @return True if send event returned success (does not guarantee delivery).
+     */
+    bool sendFile(cobraTransferFile* event);
+
+    /**
+     * @fn bool sendToWorker(cobraNetHandlerThread* worker, cobraTransferFile* file);
+     * This function is used to send a file send event to the specified worker.
+     * @param worker The thread worked to send the event to.
+     * @param file The file to send.
+     *      Note: The sent fiel should not have any remaining
+     *      references upon a call to this function!
+     * @return True if send event returned success (does not guarantee delivery).
+     */
+    bool sendToWorker(cobraNetEventThread* worker, cobraTransferFile* file);
 
     /**
      * @fn bool triggerErrorEvent(cobraNetEvent* event)

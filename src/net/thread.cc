@@ -46,6 +46,30 @@ cobraNetEventThread::sendEvent(cobraNetEvent *event)
 }
 
 bool
+cobraNetEventThread::sendFile(cobraTransferFile *file)
+{
+    if (!file)
+        return false;
+
+    cobraId dest = file->destination();
+
+    debug(CRITICAL, "Destination: %d (isBroadcast: %s)\n", dest, (dest == BROADCAST)?"yes":"no");
+    for (int idx=0; idx<m_cncConnections.count(); idx++) {
+        if (!m_cncConnections[idx]) {
+            debug(ERROR(CRITICAL), "Null Connection Found in Connection List! %d\n", idx);
+            continue;
+        }
+
+        if (!m_cncConnections[idx]->is(dest))
+            continue;
+
+        return m_ctcTransferController.addTransfer(file);
+    }
+
+    return false;
+}
+
+bool
 cobraNetEventThread::connectionRequest(int fd, int id)
 {
     if (!m_semAvailableConnections.tryAcquire())

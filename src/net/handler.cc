@@ -53,6 +53,46 @@ cobraNetHandler::instance()
 }
 
 bool
+cobraNetHandler::sendFile(cobraTransferFile *file)
+{
+    if (!file)
+        return false;
+
+    bool ret = false;
+
+    debug(CRITICAL, "Attempting to register a file to send!\n");
+
+    cobraId dest = file->destination();
+
+    QReadLocker locker(&m_cidLock);
+    if (!m_cIds.contains(dest)) {
+        debug(ERROR(CRITICAL), "Unknown Outbound Destination: %d\n", dest);
+        return false;
+    }
+
+    int idx = m_cIds[dest].threadIdx;
+
+    if (!m_cnetWorkers[idx]) {
+        debug(ERROR(CRITICAL), "Failed to resolve the destination worker! (%d -> %d)\n", dest, idx);
+        return false;
+    }
+
+    return sendToWorker(m_cnetWorkers[idx], file);
+}
+
+bool
+cobraNetHandler::sendToWorker(cobraNetEventThread *worker, cobraTransferFile *file)
+{
+    if (!worker || !file)
+        return false;
+
+    qRegisterMetaType<cobraTransferFile*>("cobraTransferFile*");
+    QMetaObject::invokeMethod(worker, "sendFile", Qt::QueuedConnection, Q_ARG(cobraTransferFile*, file));
+
+    return true;
+}
+
+bool
 cobraNetHandler::sendEvent(cobraNetEvent *event)
 {
     if (!event)

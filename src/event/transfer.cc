@@ -3,14 +3,13 @@
 cobraTransferEvent::cobraTransferEvent()
     :cobraNetEvent(cobraTransferEventType),
       m_iCommand(cobraTransferEvent::Request),
-      m_uiUid(~0x0), m_iSize(0), m_iOffset(0)
+      m_uiUid(~0x0), m_iOffset(0)
 {
 }
 
 cobraTransferEvent::cobraTransferEvent(cobraTransferEvent& state)
     :cobraNetEvent(state), m_iCommand(state.m_iCommand),
-      m_uiUid(state.m_uiUid), m_sFilename(state.m_sFilename),
-      m_iSize(state.m_iSize), m_iOffset(state.m_iOffset),
+      m_uiUid(state.m_uiUid), m_iOffset(state.m_iOffset),
       m_baData(state.m_baData)
 {
 }
@@ -25,12 +24,10 @@ cobraTransferEvent::serialize(QDataStream& stream)
     int bytes = cobraNetEvent::serialize(stream);
     stream << m_iCommand;
     stream << m_uiUid;
-    stream << m_sFilename;
-    stream << m_iSize;
     stream << m_iOffset;
     stream << m_baData;
-    return (bytes + sizeof(m_iOffset) + sizeof(m_iSize) + sizeof(m_uiUid) +
-            sizeof(m_iCommand) + m_sFilename.length() + m_baData.length());
+    return (bytes + sizeof(m_iOffset) + sizeof(m_uiUid) +
+            sizeof(m_iCommand) + m_baData.length());
 }
 
 int
@@ -39,12 +36,10 @@ cobraTransferEvent::deserialize(QDataStream& stream)
     int bytes = cobraNetEvent::deserialize(stream);
     stream >> m_iCommand;
     stream >> m_uiUid;
-    stream >> m_sFilename;
-    stream >> m_iSize;
     stream >> m_iOffset;
     stream >> m_baData;
-    return (bytes + sizeof(m_iOffset) + sizeof(m_iSize) + sizeof(m_uiUid) +
-            sizeof(m_iCommand) + m_sFilename.length() + m_baData.length());
+    return (bytes + sizeof(m_iOffset) + sizeof(m_uiUid) +
+            sizeof(m_iCommand) + m_baData.length());
 }
 
 cobraNetEvent*
@@ -67,20 +62,6 @@ cobraTransferEvent::command() const
     return m_iCommand;
 }
 
-bool
-cobraTransferEvent::setFile(QString file)
-{
-    QFile myFile(file);
-    m_sFilename = file;
-    return myFile.exists();
-}
-
-QString
-cobraTransferEvent::file() const
-{
-    return m_sFilename;
-}
-
 void
 cobraTransferEvent::setUid(uint32_t uid)
 {
@@ -91,6 +72,18 @@ uint32_t
 cobraTransferEvent::uid() const
 {
     return m_uiUid;
+}
+
+void
+cobraTransferEvent::setOffset(qint64 offset)
+{
+    m_iOffset = offset;
+}
+
+qint64
+cobraTransferEvent::offset() const
+{
+    return m_iOffset;
 }
 
 void
@@ -135,7 +128,7 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
 
     switch (tevent->command()) {
         case cobraTransferEvent::Chunk:
-            ret = cobraTransferController::handleTransfer(tevent);
+            ret = cobraTransferController::recieveChunk(tevent);
             tevent->put();
             return ret;
 

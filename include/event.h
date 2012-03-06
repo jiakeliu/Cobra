@@ -529,12 +529,13 @@ public:
    void setCommand(int cmd);
    int command() const;
 
-   bool setFile(QString file);
-   QString file() const;
-
    void setUid(uint32_t uid);
    uint32_t uid() const;
 
+   void setOffset(qint64 uid);
+   qint64 offset() const;
+
+   /* This should contain the HASH of the file to be sent. */
    void setData(QByteArray& data);
    const QByteArray& data() const;
 
@@ -566,15 +567,15 @@ public:
        Request,
        Accept,
        Reject,
-       Chunk
+       Chunk,
+       Complete,
+       Resend
    };
 
 protected:
     int             m_iCommand;
     uint32_t        m_uiUid;
-    QString         m_sFilename;
-    int             m_iSize;
-    int             m_iOffset;
+    qint64          m_iOffset;
     QByteArray      m_baData;
 };
 
@@ -623,12 +624,12 @@ public:
 
 protected:
     uint32_t    m_uiUid;
+    QByteArray  m_baHash;
     cobraId     m_idSource;
     cobraId     m_idDestination;
 
     bool        m_bActive;
     bool        m_bSending;
-    QFile       m_fFile;
 };
 
 /**
@@ -664,8 +665,9 @@ public:
    void setInterval(int interval);
    int interval() const;
 
-   bool handleTransfer(cobraTransferEvent* event);
    bool recieveChunk(cobraTransferEvent* event);
+
+   bool addTransfer(cobraTransferFile* file);
 
    bool initialize(cobraNetEventThread* parent = NULL);
    void cleanup();
@@ -680,7 +682,6 @@ protected:
    QTimer                       m_tTransferTimer;
 
    QVector<cobraTransferFile*>  m_vcftTransfers;
-   QVector<cobraTransferFile*>  m_vcftPending;
 };
 
 
