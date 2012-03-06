@@ -580,6 +580,8 @@ protected:
 
 class cobraNetEventThread;
 
+#define CURRENT_OFFSET (-1)
+
 /**
  * @class cobraTransferFile event.h "event.h"
  *
@@ -616,7 +618,7 @@ public:
     cobraId destination() const;
     cobraId source() const;
 
-    bool sendChunk(cobraNetEventThread* thread, int chunk = 1024);
+    bool sendChunk(cobraNetEventThread* thread, qint64 chunk = 1024, qint64 offset = CURRENT_OFFSET);
     bool handleTransfer(cobraTransferEvent* event);
 
 protected:
@@ -656,8 +658,8 @@ public:
    void setTransferCount(int con);
    int transferCount() const;
 
-   void setChunkSize(int chunk);
-   int chunkSize() const;
+   void setChunkSize(qint64 chunk);
+   qint64 chunkSize() const;
 
    void setInterval(int interval);
    int interval() const;
@@ -670,7 +672,7 @@ public:
 protected:
    int                          m_iNextTransfer;
    int                          m_iConcurrentTransfers;
-   int                          m_iChunkSize;
+   qint64                       m_iChunkSize;
 
    cobraNetEventThread*         m_netParent;
 

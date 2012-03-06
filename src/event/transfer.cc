@@ -108,14 +108,20 @@ cobraTransferEvent::data() const
 cobraTransferEventHandler::cobraTransferEventHandler()
     :cobraNetEventHandler("Transfer", cobraTransferEventType),
       cobraTransferController(cobraConcurrentTransfers)
-{}
+{
+    initialize();
+}
 
 cobraTransferEventHandler::cobraTransferEventHandler(cobraTransferEventHandler& event)
     :cobraNetEventHandler(event), cobraTransferController(cobraConcurrentTransfers)
-{}
+{
+    initialize();
+}
 
 cobraTransferEventHandler::~cobraTransferEventHandler()
-{}
+{
+    cleanup();
+}
 
 bool
 cobraTransferEventHandler::handleEvent(cobraNetEvent* event)

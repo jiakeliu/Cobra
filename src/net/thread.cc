@@ -25,15 +25,6 @@ cobraNetEventThread::sendEvent(cobraNetEvent *event)
 
     cobraId dest = event->destination();
 
-    /* Eventually this will probably get broken out into a notifier chain...
-     * but only if we have another handler that wants to see out going events.
-     */
-    if (event->type() == cobraTransferEventType) {
-        cobraTransferEvent* tevent = dynamic_cast<cobraTransferEvent*>(event);
-        if (m_ctcTransferController.handleTransfer(tevent))
-            return true;
-    }
-
     debug(CRITICAL, "Destination: %d (isBroadcast: %s)\n", dest, (dest == BROADCAST)?"yes":"no");
     for (int idx=0; idx<m_cncConnections.count(); idx++) {
         if (!m_cncConnections[idx]) {

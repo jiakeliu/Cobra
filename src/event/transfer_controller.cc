@@ -124,7 +124,7 @@ cobraTransferFile::source() const
 }
 
 bool
-cobraTransferFile::sendChunk(cobraNetEventThread* thread, int chunk)
+cobraTransferFile::sendChunk(cobraNetEventThread* thread, qint64 chunk, qint64 offset)
 {
     /**
      * Here, we want to validate the file has been made active,
@@ -137,6 +137,9 @@ cobraTransferFile::sendChunk(cobraNetEventThread* thread, int chunk)
      *  event->setDestination(m_idDestination);
      *  thread->sendEvent(event);
      */
+
+    if (offset != CURRENT_OFFSET)
+        seek(offset);
 
     QByteArray chunkArray;
 
@@ -181,12 +184,12 @@ cobraTransferController::transferCount() const
 }
 
 void
-cobraTransferController::setChunkSize(int chunk)
+cobraTransferController::setChunkSize(qint64 chunk)
 {
     m_iChunkSize = chunk;
 }
 
-int
+qint64
 cobraTransferController::chunkSize() const
 {
     return m_iChunkSize;
