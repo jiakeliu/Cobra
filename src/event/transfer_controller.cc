@@ -137,7 +137,17 @@ cobraTransferFile::sendChunk(cobraNetEventThread* thread, int chunk)
      *  event->setDestination(m_idDestination);
      *  thread->sendEvent(event);
      */
-    return false;
+
+    QByteArray chunkArray;
+
+    if( isActive() == true) {      
+        cobraTransferFile::setSource(m_idSource);
+        cobraTransferFile::setDestination(m_idDestination);
+        //cobraNetEventThread::sendEvent(chunkArray);
+    }
+    else
+        return false;
+
 }
 
 bool

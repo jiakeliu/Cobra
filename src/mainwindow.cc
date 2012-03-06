@@ -320,6 +320,8 @@ void MainWindow::on_actionOpenFile_triggered()
             // SQL -> setClipTag(clipTag)  where clipPath = file.absoluteFilePath();
 
             // addClip_toCliplist();
+            // refresh_Local_Clip_List();
+
             qDebug() << file.absoluteFilePath();
         }
     }
