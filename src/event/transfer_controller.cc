@@ -154,7 +154,7 @@ cobraTransferFile::sendChunk(cobraNetEventThread* thread, qint64 chunk, qint64 o
 }
 
 bool
-cobraTransferFile::handleTransfer(cobraTransferEvent* event)
+cobraTransferFile::recieveChunk(cobraTransferEvent* event)
 {
     if (!event || m_bSending)
         return false;
@@ -224,7 +224,6 @@ cobraTransferController::processTrigger()
         return true;
     }
 
-    /* Update the statistics list. */
     return false;
 }
 

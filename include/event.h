@@ -619,7 +619,7 @@ public:
     cobraId source() const;
 
     bool sendChunk(cobraNetEventThread* thread, qint64 chunk = 1024, qint64 offset = CURRENT_OFFSET);
-    bool handleTransfer(cobraTransferEvent* event);
+    bool recieveChunk(cobraTransferEvent* event);
 
 protected:
     uint32_t    m_uiUid;
@@ -665,6 +665,7 @@ public:
    int interval() const;
 
    bool handleTransfer(cobraTransferEvent* event);
+   bool recieveChunk(cobraTransferEvent* event);
 
    bool initialize(cobraNetEventThread* parent = NULL);
    void cleanup();
