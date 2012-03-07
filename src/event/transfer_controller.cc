@@ -128,6 +128,12 @@ cobraTransferFile::source() const
 }
 
 bool
+cobraTransferFile::is(uint32_t id) const
+{
+    return (id == m_uiUid);
+}
+
+bool
 cobraTransferFile::sendChunk(cobraNetEventThread* thread, qint64 chunk, qint64 offset)
 {
     /**
@@ -140,6 +146,13 @@ cobraTransferFile::sendChunk(cobraNetEventThread* thread, qint64 chunk, qint64 o
     if (offset != CURRENT_OFFSET)
         seek(offset);
 
+
+    /* this should the next chunk that needs to be sent.....
+     * if the chunk is smaller than the chunk,
+     * just send the size requested, if greater, break it up into chunk sizes...
+     * as chunks are sent, this should be updated to keep track of data which
+     * still needs to be sent
+     */
     QByteArray data = read(chunk);
 
     if(isActive()) {
@@ -152,6 +165,7 @@ cobraTransferFile::sendChunk(cobraNetEventThread* thread, qint64 chunk, qint64 o
 
         return thread->sendEvent(event);
     }
+
 
     return false;
 }
@@ -260,9 +274,8 @@ cobraTransferController::initialize(cobraNetEventThread* parent)
     QObject::connect(&m_tTransferTimer, SIGNAL(timeout()), this, SLOT(processTrigger()));
 
     /* start timer, if we are the transmitter... */
-    if (m_netParent) {
+    if (m_netParent)
         m_tTransferTimer.start();
-    }
 
     return true;
 }
@@ -279,7 +292,6 @@ cobraTransferController::cleanup()
     }
 
     m_vcftTransfers.clear();
-
     m_tTransferTimer.stop();
 }
 
@@ -293,6 +305,30 @@ cobraTransferController::addTransfer(cobraTransferFile* file)
 
     m_vcftTransfers.push_back(file);
     return true;
+}
+
+bool
+cobraTransferController::transferComplete(uint32_t uid)
+{
+    for (int x=0; x<m_vcftTransfers.size(); x++) {
+        cobraTransferFile* file = m_vcftTransfers[x];
+        if (!file)
+            continue;
+
+        if (!file->is(uid))
+            continue;
+
+        /* Here we need to deactivate the file and remove it form the list */
+    }
+
+    return false;
+}
+
+bool
+cobraTransferController::resendChunk(uint32_t uid, qint64 chunk, qint64 offset)
+{
+    /* Here we need up to update the send list of the file to include a gap at the specified range. */
+    return false;
 }
 
 bool

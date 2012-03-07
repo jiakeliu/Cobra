@@ -618,6 +618,8 @@ public:
     bool isSending() const;
     void setSending(bool sending = true);
 
+    bool is(uint32_t id) const;
+
     void setDestination(cobraId dest);
     void setSource(cobraId src);
     cobraId destination() const;
@@ -672,6 +674,8 @@ public:
    bool recieveChunk(cobraTransferEvent* event);
 
    bool addTransfer(cobraTransferFile* file);
+   bool transferComplete(uint32_t uid);
+   bool resendChunk(uint32_t uid, qint64 chunk, qint64 offset);
 
    bool initialize(cobraNetEventThread* parent = NULL);
    void cleanup();
