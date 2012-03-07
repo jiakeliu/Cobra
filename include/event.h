@@ -536,6 +536,9 @@ public:
    qint64 offset() const;
 
    /* This should contain the HASH of the file to be sent. */
+   void setHash(QByteArray& hash);
+   const QByteArray& hash() const;
+
    void setData(QByteArray& data);
    const QByteArray& data() const;
 
@@ -576,6 +579,7 @@ protected:
     int             m_iCommand;
     uint32_t        m_uiUid;
     qint64          m_iOffset;
+    QByteArray      m_baHash;
     QByteArray      m_baData;
 };
 

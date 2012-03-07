@@ -25,6 +25,7 @@ cobraTransferEvent::serialize(QDataStream& stream)
     stream << m_iCommand;
     stream << m_uiUid;
     stream << m_iOffset;
+    stream << m_baHash;
     stream << m_baData;
     return (bytes + sizeof(m_iOffset) + sizeof(m_uiUid) +
             sizeof(m_iCommand) + m_baData.length());
@@ -37,6 +38,7 @@ cobraTransferEvent::deserialize(QDataStream& stream)
     stream >> m_iCommand;
     stream >> m_uiUid;
     stream >> m_iOffset;
+    stream >> m_baHash;
     stream >> m_baData;
     return (bytes + sizeof(m_iOffset) + sizeof(m_uiUid) +
             sizeof(m_iCommand) + m_baData.length());
@@ -96,6 +98,18 @@ const QByteArray&
 cobraTransferEvent::data() const
 {
     return m_baData;
+}
+
+void
+cobraTransferEvent::setHash(QByteArray& hash)
+{
+    m_baHash = hash;
+}
+
+const QByteArray&
+cobraTransferEvent::hash() const
+{
+    return m_baHash;
 }
 
 cobraTransferEventHandler::cobraTransferEventHandler()

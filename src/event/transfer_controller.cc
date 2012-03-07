@@ -1,4 +1,4 @@
-#include "event.h"
+#include "net.h"
 #include "debug.h"
 
 cobraTransferStatistics::cobraTransferStatistics()
@@ -85,6 +85,10 @@ void
 cobraTransferFile::activate(bool enable)
 {
     m_bActive = enable;
+    if (enable)
+        open(ReadOnly);
+    else
+        close();
 }
 
 bool
@@ -131,26 +135,25 @@ cobraTransferFile::sendChunk(cobraNetEventThread* thread, qint64 chunk, qint64 o
      * if so, we want to store the next CHUNK bytes into a QByteArray,
      * create a transfer event, store the QByteArray, and then send it
      * out.
-     *
-     * send:
-     *  event->setSource(m_idSource);
-     *  event->setDestination(m_idDestination);
-     *  thread->sendEvent(event);
      */
 
     if (offset != CURRENT_OFFSET)
         seek(offset);
 
-    QByteArray chunkArray;
+    QByteArray data = read(chunk);
 
-    if( isActive() == true) {      
-        cobraTransferFile::setSource(m_idSource);
-        cobraTransferFile::setDestination(m_idDestination);
-        //cobraNetEventThread::sendEvent(chunkArray);
+    if(isActive()) {
+        cobraTransferEvent* event = new cobraTransferEvent();
+        /*
+          --- set source and destination
+          */
+        event->setData(data);
+        event->setHash(m_baHash);
+
+        return thread->sendEvent(event);
     }
 
     return false;
-
 }
 
 bool
@@ -218,13 +221,35 @@ cobraTransferController::processTrigger()
      * iterate our m_iNextTransfer, and wrap around
      * if m_iNextTransfer == m_iConcurrentTransfers.
      */
+    bool ret = false;
 
     if (m_iNextTransfer < 0) {
         //debug(CRITICAL, "Process Trigger: Nothing to process!\n");
         return true;
     }
 
-    return false;
+    m_iNextTransfer %= (m_vcftTransfers.size()<m_iConcurrentTransfers)?
+                                m_vcftTransfers.size():
+                                m_iConcurrentTransfers;
+
+    cobraTransferFile* file = NULL;
+
+    do {
+        file = m_vcftTransfers.at(m_iNextTransfer);
+
+        if (!file) {
+            m_vcftTransfers.remove(m_iNextTransfer);
+            continue;
+        }
+    } while (!file);
+
+    if (!file->isActive())
+        file->activate(true);
+
+    ret = file->sendChunk(m_netParent, m_iChunkSize);
+
+    m_iNextTransfer++;
+    return ret;
 }
 
 bool
@@ -246,6 +271,15 @@ void
 cobraTransferController::cleanup()
 {
     /* iterate through all open files and close them... */
+    for (int x=0; x<m_vcftTransfers.size(); x++) {
+        cobraTransferFile* file = m_vcftTransfers[x];
+
+        file->activate(false);
+        delete file;
+    }
+
+    m_vcftTransfers.clear();
+
     m_tTransferTimer.stop();
 }
 
@@ -254,6 +288,8 @@ cobraTransferController::addTransfer(cobraTransferFile* file)
 {
     if (!file)
         return false;
+
+    file->activate(false);
 
     m_vcftTransfers.push_back(file);
     return true;
