@@ -1,4 +1,5 @@
 #include "net.h"
+#include "debug.h"
 
 cobraTransferEvent::cobraTransferEvent()
     :cobraNetEvent(cobraTransferEventType),
@@ -25,10 +26,12 @@ cobraTransferEvent::serialize(QDataStream& stream)
     stream << m_iCommand;
     stream << m_uiUid;
     stream << m_iOffset;
+    stream << m_iSize;
     stream << m_baHash;
     stream << m_baData;
     return (bytes + sizeof(m_iOffset) + sizeof(m_uiUid) +
-            sizeof(m_iCommand) + m_baData.length());
+            sizeof(m_iCommand) + m_baData.length() +
+            sizeof(m_iSize) + m_baHash.length());
 }
 
 int
@@ -38,10 +41,12 @@ cobraTransferEvent::deserialize(QDataStream& stream)
     stream >> m_iCommand;
     stream >> m_uiUid;
     stream >> m_iOffset;
+    stream >> m_iSize;
     stream >> m_baHash;
     stream >> m_baData;
     return (bytes + sizeof(m_iOffset) + sizeof(m_uiUid) +
-            sizeof(m_iCommand) + m_baData.length());
+            sizeof(m_iCommand) + m_baData.length() +
+            sizeof(m_iSize) + m_baHash.length());
 }
 
 cobraNetEvent*
@@ -51,6 +56,20 @@ cobraTransferEvent::duplicate()
     return xfer;
 }
 
+bool
+cobraTransferEvent::fromFile(cobraTransferFile* file)
+{
+    if (!file)
+        return false;
+
+    if (!file->exists())
+        return false;
+
+    m_uiUid = file->uid();
+    m_iOffset = 0;
+    m_baHash = file->hash();
+    m_iSize = file->size();
+}
 
 void
 cobraTransferEvent::setCommand(int cmd)
@@ -141,29 +160,50 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
         return false;
 
     switch (tevent->command()) {
-        case cobraTransferEvent::Chunk:
-            ret = cobraTransferController::recieveChunk(tevent);
-            tevent->put();
-            return ret;
-
-        case cobraTransferEvent::Request: {
-            cobraTransferEvent* response = static_cast<cobraTransferEvent*>(tevent->duplicate());
-            response->setDestination(tevent->source());
-            response->setSource(SERVER);
-            response->setCommand(cobraTransferEvent::Reject);
-
-            int auth = handler->getIdAuthorization(event->source());
-            if (auth & ParticipantAuth)
-                response->setCommand(cobraTransferEvent::Accept);
-
-            handler->sendEvent(response);
-            response->put();
+    case cobraTransferEvent::Chunk: {
+        int cmp = cobraTransferController::recieveChunk(tevent);
+        if (cmp == cobraTransferController::TransferComplete) {
+            /* send complete event */
         }
+        tevent->put();
+        return ret;
+    }
 
-        case cobraTransferEvent::Reject:
-            QMessageBox::warning(NULL, "Transfer Rejected",
-                                "The server rejected your file transfer request!\n"
-                                "You probably do not have adequite permissions!");
+    case cobraTransferEvent::Request: {
+        cobraTransferEvent* response = static_cast<cobraTransferEvent*>(tevent->duplicate());
+        response->setDestination(tevent->source());
+        response->setSource(SERVER);
+        response->setCommand(cobraTransferEvent::Reject);
+
+        int auth = handler->getIdAuthorization(event->source());
+        if (auth & ParticipantAuth)
+            response->setCommand(cobraTransferEvent::Accept);
+
+        handler->sendEvent(response);
+        response->put();
+        break;
+    }
+
+    case cobraTransferEvent::Resend:
+    case cobraTransferEvent::Complete:
+        debug(ERROR(CRITICAL), "This should be intercepted!\n");
+        break;
+
+    case cobraTransferEvent::Accept: {
+        //cobraTransferFile* file = new cobraTransferFile();
+
+        //file->setDestination(event->source());
+        //file->setSource(event->destination());
+
+        //handler->sendFile(file);
+        break;
+    }
+
+    case cobraTransferEvent::Reject:
+        QMessageBox::warning(NULL, "Transfer Rejected",
+                             "The server rejected your file transfer request!\n"
+                             "You probably do not have adequite permissions!");
+        break;
     }
 
     tevent->put();
@@ -174,6 +214,8 @@ bool
 cobraTransferEventHandler::handleServerEvent(cobraNetEvent* event)
 {
     (void)event;
+    fprintf(stderr, "Somehow we called into the cobraTransferEvent::handleServerEvent handler...\n");
+    exit(1);
     return false;
 }
 

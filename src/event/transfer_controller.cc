@@ -179,6 +179,26 @@ cobraTransferFile::recieveChunk(cobraTransferEvent* event)
     return true;
 }
 
+bool
+cobraTransferFile::transferComplete()
+{
+    // TODO:
+    return false;
+}
+
+bool
+cobraTransferFile::resendChunk(qint64 chunk, qint64 offset)
+{
+    // TODO:
+    return false;
+}
+
+QByteArray
+cobraTransferFile::hash()
+{
+    QCryptographicHash::hash(readAll(), QCryptographicHash::Md5);
+}
+
 cobraTransferController::cobraTransferController(int concurrent, QObject* parent)
     :QObject(parent), m_iNextTransfer(-1),
       m_iConcurrentTransfers(concurrent), m_iChunkSize(1024),
@@ -296,6 +316,24 @@ cobraTransferController::cleanup()
 }
 
 bool
+cobraTransferController::interceptEvent(cobraTransferEvent *event)
+{
+    if (!event)
+        return false;
+
+    switch (event->command()) {
+        case cobraTransferEvent::Resend:
+            return true;
+
+        case cobraTransferEvent::Complete:
+            return false;
+            /* handle me */
+    }
+
+    return false;
+}
+
+bool
 cobraTransferController::addTransfer(cobraTransferFile* file)
 {
     if (!file)
@@ -307,31 +345,7 @@ cobraTransferController::addTransfer(cobraTransferFile* file)
     return true;
 }
 
-bool
-cobraTransferController::transferComplete(uint32_t uid)
-{
-    for (int x=0; x<m_vcftTransfers.size(); x++) {
-        cobraTransferFile* file = m_vcftTransfers[x];
-        if (!file)
-            continue;
-
-        if (!file->is(uid))
-            continue;
-
-        /* Here we need to deactivate the file and remove it form the list */
-    }
-
-    return false;
-}
-
-bool
-cobraTransferController::resendChunk(uint32_t uid, qint64 chunk, qint64 offset)
-{
-    /* Here we need up to update the send list of the file to include a gap at the specified range. */
-    return false;
-}
-
-bool
+int
 cobraTransferController::recieveChunk(cobraTransferEvent* event)
 {
     /** This function should iterate through the cobraTransferFile list
@@ -351,5 +365,34 @@ cobraTransferController::recieveChunk(cobraTransferEvent* event)
       * entry in the pending list.  Once a accept request is recieved, the
       * cobraTransferFile will be moved to the active list.
       */
+    /* THis function may return
+       ** TransferComplete
+       ** TransferIncomplete (but contiguous)
+       ** TransferIncompleteNoncontiguous
+       */
     return false;
 }
+
+bool
+cobraTransferController::addPendingTransfer(cobraTransferFile* file)
+{
+    if (m_vcftPending.contains(file->uid()))
+        return false;
+
+    m_vcftPending[file->uid()] = file;
+    return true;
+}
+
+cobraTransferFile*
+cobraTransferController::getPendingTransfer(uint32_t uid, QByteArray& hash)
+{
+    cobraTransferFile* file = m_vcftPending[uid];
+    /*if (file->(hash)) {
+        m_vcftPending.remove(uid);
+        return file;
+    }*/
+
+    return NULL;
+}
+
+QMap<uint32_t, cobraTransferFile*> cobraTransferController::m_vcftPending;

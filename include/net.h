@@ -212,7 +212,7 @@ public:
      *      references upon a call to this function!
      * @return True if send event returned success (does not guarantee delivery).
      */
-    bool sendFile(cobraTransferFile* event);
+    bool sendFile(cobraTransferFile* file);
 
     /**
      * @fn bool sendToWorker(cobraNetHandlerThread* worker, cobraTransferFile* file);
