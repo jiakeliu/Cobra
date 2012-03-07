@@ -5,6 +5,7 @@
 #include <QString>
 #include <QtGui>
 #include <QtNetwork/QAbstractSocket>
+#include <stdint.h>
 
 #define cobraNetEventType           (QEvent::User+1)
 #define cobraStateEventType         (cobraNetEventType+1)

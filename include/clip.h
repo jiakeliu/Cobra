@@ -1,6 +1,7 @@
 #ifndef CLIP_H
 #define CLIP_H
 
+#include <QSqlDatabase>
 #include <QtSql>
 
 
@@ -12,11 +13,10 @@
  * This will allow functions to be called and just return file titles and
  * fields.  You can then poopulate the file lists with this information.
  */
-class cobraClip : public QObject {
-    Q_OBJECT
+class cobraClip {
 
 public:
-    cobraClip(QObject* parent = NULL );
+    cobraClip();
     virtual ~cobraClip();
 
     /**
@@ -74,19 +74,75 @@ public:
     int getUID() {
         return(m_iUID);
     }
+
+    /**
+     * @fn QString setTitle() 
+     * sets the title of a Clip
+     */
+    void setTitle(QString title) {
+        m_sTitle = title;
+    }
+
+    /**
+     * @fn void setHash() 
+     * sets the hash of a Clip
+     */
+    void setHash(QString hash) {
+        m_sHash = hash;
+    }
+
+    /**
+     * @fn void setPath() 
+     * sets the path of a Clip
+     */
+    void setPath(QString path) {
+        m_sPath = path;
+    }
+
+    /**
+     * @fn void setTags() 
+     * sets the tag of a Clip
+     */
+    void setTags(QString tags) {
+        m_sTags = tags;
+    }
+
+    /**
+     * @fn void setModifiedTime() 
+     * sets the modification time of a Clip
+     */
+    void setModifiedTime(QString time) {
+        m_sModifiedTime = time;
+    }
+
+    /**
+     * @fn void setSize() 
+     * sets the size of a Clip
+     */
+    void setSize(int size) {
+        m_iSize = size;
+    }
+
+    /**
+     * @fn void setUID() 
+     * sets the unique id of a Clip
+     */
+    void setUID(int uid) {
+        m_iUID = uid;
+    }
  
     /**
      * @fn void addToDatabase(struct fileInfo)
      * addToDatabase will take the extra information as well as the location of the file to the database.
      * @param fileInfo is a struct with the information that will be populated in the database.
      */
-    void addToDatabase(struct fileInfo);
+    void addToDatabase();
 
 
 
-public slots:
+//public slots:
 
-signals:
+//signals:
 
 protected:
 
@@ -109,11 +165,11 @@ protected:
     
 };
 
-class cobraClipList : public cobraClip {
+class cobraClipList : public QObject, public QSqlDatabase {
    Q_OBJECT
 
 public:
-   cobraClipList(QObject* parent = NULL);
+   cobraClipList(QSqlDriver* parent = NULL);
    virtual ~cobraClipList();
 
    void                         enumClips(QVector<int>& );

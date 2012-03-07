@@ -5,6 +5,7 @@
 #include <QThread>
 #include <QStringList>
 #include <QSettings>
+#include <stdint.h>
 
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QSslSocket>
