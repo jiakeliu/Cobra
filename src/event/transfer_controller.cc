@@ -156,9 +156,9 @@ cobraTransferFile::sendChunk(cobraNetEventThread* thread, qint64 chunk)
 
     if(isActive()) {
 
-        m_uiUid = cobraTransferFile::uid();        // Get the files UID
-
         cobraTransferEvent* event = new cobraTransferEvent();
+
+        m_uiUid = uid();                           // Get the files UID
         event->setCommand(3);                      // Set command to chunk
         event->setUid(m_uiUid);
         event->setSource(m_idSource);              // Set source
@@ -176,6 +176,15 @@ cobraTransferFile::recieveChunk(cobraTransferEvent* event)
 {
     if (!event || m_bSending)
         return false;
+
+    if(event->uid() != m_uiUid || event->hash() != m_baHash) {
+        return false;
+    }
+
+    qint64 offset = event->offset();
+
+    seek(offset);
+    write(event->data());
 
     return true;
 }
