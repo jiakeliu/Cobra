@@ -155,6 +155,7 @@
    </attribute>
    <addaction name="actionConnect"/>
    <addaction name="actionOpenFile"/>
+   <addaction name="actionSelectUpload"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="fileInfoDock">
@@ -709,6 +710,17 @@ p, li { white-space: pre-wrap; }
   <action name="actionTransfers">
    <property name="text">
     <string>Transfers</string>
+   </property>
+  </action>
+  <action name="actionSelectUpload">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Upload</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+K</string>
    </property>
   </action>
  </widget>

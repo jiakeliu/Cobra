@@ -33,7 +33,8 @@ HEADERS += \
     include/filevalidator.h \
     include/preferences.h \
     include/transfersdlg.h \
-    include/clip.h
+    include/clip.h \
+    include/transfer.h
 
 FORMS += \
     resources/mainwindow.ui \

@@ -21,7 +21,7 @@ Preferences::Preferences(QWidget *parent) :
     ui->lineEditPass->setText(g_cobra_settings->value("client/password").toString());
     ui->guestPwd->setText(g_cobra_settings->value("server/guest").toString());
     ui->participantPwd->setText(g_cobra_settings->value("server/participant").toString());
-
+    ui->storageDir->setText(g_cobra_settings->value("storage_dir").toString());
 
     QRegExp unameRexp("[a-zA-Z0-9_]+");
     ui->lineEditUser->setValidator(new QRegExpValidator(unameRexp, this));
@@ -158,7 +158,7 @@ Preferences::on_connectButton_clicked()
     bool result = cnd->connect(ui->lineEditIP->text(), ui->lineEditPort->text().toInt());
     debug(CRITICAL, "Connect: %s\n", result ? "Connection Successful!" : "Failed to Connect!");
 
-   setConnectState(true);
+    setConnectState(true);
 }
 
 
@@ -202,4 +202,16 @@ void Preferences::on_participantPwd_textChanged(const QString &pwd)
 void Preferences::restoreConnection()
 {
     setConnectState(false);
+}
+
+void Preferences::on_tbStorageDir_clicked()
+{
+    QString path;
+
+    path = QFileDialog::getExistingDirectory(this,
+                                        "Select Storage Directory",
+                                        QString::null);
+
+    g_cobra_settings->setValue("storage_dir", path);
+    ui->storageDir->setText(path);
 }

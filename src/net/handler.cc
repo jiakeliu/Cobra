@@ -58,15 +58,13 @@ cobraNetHandler::sendFile(cobraTransferFile *file)
     if (!file)
         return false;
 
-    bool ret = false;
-
     debug(CRITICAL, "Attempting to register a file to send!\n");
 
     cobraId dest = file->destination();
 
     QReadLocker locker(&m_cidLock);
     if (!m_cIds.contains(dest)) {
-        debug(ERROR(CRITICAL), "Unknown Outbound Destination: %d\n", dest);
+        debug(ERROR(CRITICAL), "File: Unknown Outbound Destination: %d\n", dest);
         return false;
     }
 
@@ -111,7 +109,7 @@ cobraNetHandler::sendEvent(cobraNetEvent *event)
 
     QReadLocker locker(&m_cidLock);
     if (!m_cIds.contains(dest)) {
-        debug(ERROR(CRITICAL), "Unknown Outbound Destination: %d\n", dest);
+        debug(ERROR(CRITICAL), "Event: Unknown Outbound Destination: %d\n", dest);
         return false;
     }
 
@@ -584,6 +582,8 @@ cobraNetHandler::addId(cobraId id)
     QWriteLocker locker(&m_cidLock);
     if (m_cIds.contains(id))
         return false;
+
+    debug(MED, "Adding ID: %d\n", id);
 
     m_cIds[id].username = "";
     m_cIds[id].authorization = 0;

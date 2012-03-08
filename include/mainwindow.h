@@ -57,6 +57,8 @@ private slots:
 
     void on_actionTransfers_triggered();
 
+    void on_actionSelectUpload_triggered();
+
 protected:
     bool setName(QString);
     bool metaConnect(QString);

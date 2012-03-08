@@ -10,8 +10,8 @@ cobraTransferEvent::cobraTransferEvent()
 
 cobraTransferEvent::cobraTransferEvent(cobraTransferEvent& state)
     :cobraNetEvent(state), m_iCommand(state.m_iCommand),
-      m_uiUid(state.m_uiUid), m_iOffset(state.m_iOffset),
-      m_baData(state.m_baData)
+      m_uiUid(state.m_uiUid), m_iOffset(state.m_iOffset), m_iSize(state.m_iSize),
+      m_baHash(state.m_baHash), m_baData(state.m_baData)
 {
 }
 
@@ -31,7 +31,7 @@ cobraTransferEvent::serialize(QDataStream& stream)
     stream << m_baData;
     return (bytes + sizeof(m_iOffset) + sizeof(m_uiUid) +
             sizeof(m_iCommand) + m_baData.length() +
-            sizeof(m_iSize) + m_baHash.length());
+            sizeof(m_iSize) + sizeof(m_iOffset) + m_baHash.length());
 }
 
 int
@@ -46,7 +46,7 @@ cobraTransferEvent::deserialize(QDataStream& stream)
     stream >> m_baData;
     return (bytes + sizeof(m_iOffset) + sizeof(m_uiUid) +
             sizeof(m_iCommand) + m_baData.length() +
-            sizeof(m_iSize) + m_baHash.length());
+            sizeof(m_iSize) + sizeof(m_iOffset) + m_baHash.length());
 }
 
 cobraNetEvent*
@@ -66,9 +66,14 @@ cobraTransferEvent::fromFile(cobraTransferFile* file)
         return false;
 
     m_uiUid = file->uid();
-    m_iOffset = 0;
     m_baHash = file->hash();
+    m_iOffset = 0;
     m_iSize = file->size();
+
+    setDestination(file->destination());
+    setSource(file->source());
+
+    return true;
 }
 
 void
@@ -152,6 +157,7 @@ cobraTransferEventHandler::~cobraTransferEventHandler()
 bool
 cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
 {
+    debug(ERROR(CRITICAL), "Transfer Handler!\n");
     bool ret = false;
     cobraNetHandler* handler = cobraNetHandler::instance();
     cobraTransferEvent* tevent = dynamic_cast<cobraTransferEvent*>(event);
@@ -161,19 +167,26 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
 
     switch (tevent->command()) {
     case cobraTransferEvent::Chunk: {
+        debug(ERROR(CRITICAL), "Transfer Chunk!\n");
         int cmp = cobraTransferController::recieveChunk(tevent);
         if (cmp == cobraTransferController::TransferComplete) {
-            /* send complete event */
+            cobraTransferEvent* xevent = static_cast<cobraTransferEvent*>(event->duplicate());
+            xevent->setSource(event->destination());
+            xevent->setDestination(event->source());
+            xevent->setCommand(cobraTransferEvent::Complete);
+            handler->sendEvent(xevent);
         }
         tevent->put();
         return ret;
     }
 
     case cobraTransferEvent::Request: {
+        debug(ERROR(CRITICAL), "Transfer Request!\n");
         cobraTransferEvent* response = static_cast<cobraTransferEvent*>(tevent->duplicate());
         response->setDestination(tevent->source());
-        response->setSource(SERVER);
+        response->setSource(tevent->destination());
         response->setCommand(cobraTransferEvent::Reject);
+        response->setResponse(true);
 
         int auth = handler->getIdAuthorization(event->source());
         if (auth & ParticipantAuth)
@@ -184,25 +197,29 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
         break;
     }
 
-    case cobraTransferEvent::Resend:
-    case cobraTransferEvent::Complete:
-        debug(ERROR(CRITICAL), "This should be intercepted!\n");
-        break;
-
     case cobraTransferEvent::Accept: {
-        //cobraTransferFile* file = new cobraTransferFile();
+        debug(ERROR(CRITICAL), "Transfer Accept!\n");
+        cobraTransferFile* file = cobraTransferController::getPendingTransfer(tevent->uid(), tevent->hash());
+        if (!file)
+            break;
 
-        //file->setDestination(event->source());
-        //file->setSource(event->destination());
-
-        //handler->sendFile(file);
+        file->setDestination(event->source());
+        file->setSource(event->destination());
+        handler->sendFile(file);
         break;
     }
 
     case cobraTransferEvent::Reject:
+        debug(ERROR(CRITICAL), "Transfer Rejected!\n");
         QMessageBox::warning(NULL, "Transfer Rejected",
                              "The server rejected your file transfer request!\n"
                              "You probably do not have adequite permissions!");
+        break;
+
+
+    case cobraTransferEvent::Resend:
+    case cobraTransferEvent::Complete:
+        debug(ERROR(CRITICAL), "This should be intercepted!\n");
         break;
     }
 

@@ -317,6 +317,14 @@ cobraNetEventThread::readyRead()
 
         event->setSource(cnx->id());
 
+        if (event->type() == cobraTransferEventType) {
+            cobraTransferEvent* xevent = static_cast<cobraTransferEvent*>(event);
+            if (m_ctcTransferController.interceptEvent(xevent)) {
+                xevent->put();
+                continue;
+            }
+        }
+
         cobraSendEvent(event);
     }
     while (cnx->bytesAvailable() > 0);

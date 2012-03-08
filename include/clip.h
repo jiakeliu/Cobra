@@ -9,7 +9,7 @@
 /**
  * @class cobraClip clip.h "clip."
  *
- * The cobraClip handles all underlying sqllite and obfuscates it.
+ * The cobraClip handles all underlying sqllite and abstracts it.
  * This will allow functions to be called and just return file titles and
  * fields.  You can then poopulate the file lists with this information.
  */

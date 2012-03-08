@@ -101,7 +101,9 @@ void
 cobraTransferFile::setSending(bool sending)
 {
     m_bSending = sending;
-}
+    if (sending)
+        m_baHash = hash();
+ }
 
 void
 cobraTransferFile::setDestination(cobraId dest)
@@ -134,7 +136,7 @@ cobraTransferFile::is(uint32_t id) const
 }
 
 bool
-cobraTransferFile::sendChunk(cobraNetEventThread* thread, qint64 chunk, qint64 offset)
+cobraTransferFile::sendChunk(cobraNetEventThread* thread, qint64 chunk)
 {
     /**
      * Here, we want to validate the file has been made active,
@@ -142,10 +144,6 @@ cobraTransferFile::sendChunk(cobraNetEventThread* thread, qint64 chunk, qint64 o
      * create a transfer event, store the QByteArray, and then send it
      * out.
      */
-
-    if (offset != CURRENT_OFFSET)
-        seek(offset);
-
 
     /* this should the next chunk that needs to be sent.....
      * if the chunk is smaller than the chunk,
@@ -182,21 +180,27 @@ cobraTransferFile::recieveChunk(cobraTransferEvent* event)
 bool
 cobraTransferFile::transferComplete()
 {
-    // TODO:
+    // TODO: This needs to close the file and do anything else necessary
     return false;
 }
 
 bool
 cobraTransferFile::resendChunk(qint64 chunk, qint64 offset)
 {
-    // TODO:
+    // TODO: This needs to update the chunk list to allow for this chunk to be hte next
+    // one sent on the next sendChunk call..
     return false;
 }
 
 QByteArray
 cobraTransferFile::hash()
 {
-    QCryptographicHash::hash(readAll(), QCryptographicHash::Md5);
+    if (m_bSending) {
+        if (m_baHash.isEmpty() || m_baHash.isNull())
+           m_baHash = QCryptographicHash::hash(readAll(), QCryptographicHash::Md5);
+        return m_baHash;
+    }
+    return m_baHash;
 }
 
 cobraTransferController::cobraTransferController(int concurrent, QObject* parent)
@@ -384,13 +388,13 @@ cobraTransferController::addPendingTransfer(cobraTransferFile* file)
 }
 
 cobraTransferFile*
-cobraTransferController::getPendingTransfer(uint32_t uid, QByteArray& hash)
+cobraTransferController::getPendingTransfer(uint32_t uid, const QByteArray& hash)
 {
     cobraTransferFile* file = m_vcftPending[uid];
-    /*if (file->(hash)) {
+    if (file->hash() == hash) {
         m_vcftPending.remove(uid);
         return file;
-    }*/
+    }
 
     return NULL;
 }

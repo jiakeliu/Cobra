@@ -333,3 +333,26 @@ void MainWindow::on_actionTransfers_triggered()
         m_dTransfers = new Transfersdlg;
     m_dTransfers->show();
 }
+
+void MainWindow::on_actionSelectUpload_triggered()
+{
+    QString path;
+    path = QFileDialog::getOpenFileName(this, "Send File");
+    cobraTransferFile* file = new cobraTransferFile(path);
+
+    if (!file->exists()) {
+        delete file;
+        return;
+    }
+
+    file->setDestination(SERVER);
+    file->setSource(cobraMyId);
+    file->setSending(true);
+
+    cobraTransferEvent* event = new cobraTransferEvent;
+    event->fromFile(file);
+    event->setResponse(false);
+
+    cobraTransferController::addPendingTransfer(file);
+    cobraSendEvent(event);
+}

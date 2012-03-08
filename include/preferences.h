@@ -42,6 +42,8 @@ private slots:
 
     void restoreConnection();
 
+    void on_tbStorageDir_clicked();
+
 private:
     Ui::Preferences *ui;
 
