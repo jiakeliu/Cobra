@@ -38,7 +38,8 @@ cobraNetEventThread::sendEvent(cobraNetEvent *event)
         QDataStream stream(m_cncConnections[idx]);
 
         debug(CRITICAL, "Sending Event: %d\n", event->type());
-        event->serialize(magic(stream));
+        uint32_t bytes = event->serialize(magic(stream));
+        debug(HIGH, "Sent: 0x%x bytes\n", bytes);
     }
 
     event->put();
@@ -257,21 +258,35 @@ cobraNetEventThread::waitForMagic(QDataStream& stream)
      */
     uint8_t x = 0;
     uint8_t magic = 0;
+    uint32_t missed = 0;
 
-magic:
     /* Iterate through the rest of the stream magic. */
-    for (x=0; x<sizeof(uint32_t); x++) {
+    do {
         stream >> magic;
+
+        /* If there is no more bytes to be read, exit. */
+        if (stream.atEnd()) {
+            debug(ERROR(CRITICAL), "End of stream!!!\n");
+
+            if (missed) {
+                debug(ERROR(LOW), "Missed: 0x%x bytes!\n", missed);
+            }
+            return false;
+        }
 
         /* If this byte isn't the next byte in the Stream Magic,
         * then jump back to wait for the next stream magic.
         */
-        if (magic != cobraStreamMagic[x])
-            goto magic;
+        if (magic != cobraStreamMagic[x++]) {
+            missed++;
+            x=0;
+            continue;
+        }
+    }
+    while (x<sizeof(uint32_t));
 
-        /* If there is no more bytes to be read, exit. */
-        if (stream.atEnd())
-            return false;
+    if (missed) {
+        debug(ERROR(LOW), "Missed: 0x%x bytes!\n", missed);
     }
 
     return true;

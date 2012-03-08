@@ -102,8 +102,10 @@ void
 cobraTransferFile::setSending(bool sending)
 {
     m_bSending = sending;
-    if (sending)
+    if (sending) {
         m_baHash = hash();
+        m_baExpectedHash = m_baHash;
+    }
  }
 
 void
@@ -159,7 +161,7 @@ cobraTransferFile::sendChunk(cobraNetEventThread* thread, qint64 chunk)
         cobraTransferEvent* event = new cobraTransferEvent();
 
         m_uiUid = uid();                           // Get the files UID
-        event->setCommand(3);                      // Set command to chunk
+        event->setCommand(cobraTransferEvent::Chunk);                      // Set command to chunk
         event->setUid(m_uiUid);
         event->setSource(m_idSource);              // Set source
         event->setDestination(m_idDestination);    // Set destination
@@ -209,6 +211,12 @@ void
 cobraTransferFile::setExpectedHash(QByteArray& hash)
 {
     m_baExpectedHash = hash;
+}
+
+QByteArray
+cobraTransferFile::expectedHash() const
+{
+    return m_baExpectedHash;
 }
 
 QByteArray
@@ -281,7 +289,7 @@ cobraTransferController::setInterval(int interval)
 }
 
 cobraTransferFile*
-cobraTransferController::getFile(uint32_t uid, QByteArray& hash)
+cobraTransferController::getFile(uint32_t uid, const QByteArray& hash) const
 {
     for (int x=0; x<m_vcftTransfers.count(); x++) {
         if (!m_vcftTransfers[x]->is(uid))
@@ -367,13 +375,18 @@ cobraTransferController::interceptEvent(cobraTransferEvent *event)
     if (!event)
         return false;
 
+    cobraTransferFile* file = getFile(event->uid(), event->hash());
+    if (!file)
+        return false;
+
     switch (event->command()) {
         case cobraTransferEvent::Resend:
+            file->resendChunk(event->size(), event->offset());
             return true;
 
         case cobraTransferEvent::Complete:
+            file->transferComplete();
             return false;
-            /* handle me */
     }
 
     return false;
@@ -385,7 +398,7 @@ cobraTransferController::addTransfer(cobraTransferFile* file)
     if (!file)
         return false;
 
-    debug(HIGH, "Adding file '%s' to transfer list.\n", qPrintable(file->fileName()));
+    debug(MED, "Adding file '%s' to transfer list.\n", qPrintable(file->fileName()));
     file->activate(false);
 
     if (m_iNextTransfer < 0)
@@ -438,7 +451,9 @@ cobraTransferFile*
 cobraTransferController::getPendingTransfer(uint32_t uid, const QByteArray& hash)
 {
     cobraTransferFile* file = m_vcftPending[uid];
-    if (file->hash() == hash) {
+
+    if (file->expectedHash() == hash) {
+        m_vcftPending[uid] = NULL;
         m_vcftPending.remove(uid);
         return file;
     }

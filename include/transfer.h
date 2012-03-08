@@ -27,6 +27,9 @@ public:
    void setOffset(qint64 uid);
    qint64 offset() const;
 
+   void setSize(qint64 uid);
+   qint64 size() const;
+
    /* This should contain the HASH of the file to be sent. */
    void setHash(QByteArray& hash);
    const QByteArray& hash() const;
@@ -118,6 +121,7 @@ public:
     bool is(uint32_t id) const;
 
     void setExpectedHash(QByteArray& hash);
+    QByteArray expectedHash() const;
     QByteArray hash();
 
     void setDestination(cobraId dest);
@@ -195,7 +199,7 @@ public:
    void cleanup();
 
 protected:
-   cobraTransferFile* getFile(uint32_t uid, QByteArray& hash);
+   cobraTransferFile* getFile(uint32_t uid, const QByteArray& hash) const;
 
 protected:
    int                          m_iNextTransfer;

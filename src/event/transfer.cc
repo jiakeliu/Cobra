@@ -4,7 +4,7 @@
 cobraTransferEvent::cobraTransferEvent()
     :cobraNetEvent(cobraTransferEventType),
       m_iCommand(cobraTransferEvent::Request),
-      m_uiUid(~0x0), m_iOffset(0)
+      m_uiUid(~0x0), m_iOffset(0), m_iSize(0)
 {
 }
 
@@ -113,6 +113,18 @@ cobraTransferEvent::offset() const
 }
 
 void
+cobraTransferEvent::setSize(qint64 size)
+{
+    m_iSize = size;
+}
+
+qint64
+cobraTransferEvent::size() const
+{
+    return m_iSize;
+}
+
+void
 cobraTransferEvent::setData(QByteArray& data)
 {
     m_baData = data;
@@ -157,7 +169,7 @@ cobraTransferEventHandler::~cobraTransferEventHandler()
 bool
 cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
 {
-    debug(ERROR(CRITICAL), "Transfer Handler!\n");
+    debug(MED, "Transfer Handler!\n");
     bool ret = false;
     cobraNetHandler* handler = cobraNetHandler::instance();
     cobraTransferEvent* tevent = dynamic_cast<cobraTransferEvent*>(event);
@@ -167,7 +179,7 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
 
     switch (tevent->command()) {
     case cobraTransferEvent::Chunk: {
-        debug(ERROR(CRITICAL), "Transfer Chunk!\n");
+        debug(LOW, "Transfer Chunk!\n");
         int cmp = cobraTransferController::recieveChunk(tevent);
         if (cmp == cobraTransferFile::TransferComplete) {
             cobraTransferEvent* xevent = static_cast<cobraTransferEvent*>(event->duplicate());
@@ -182,7 +194,7 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
     }
 
     case cobraTransferEvent::Request: {
-        debug(ERROR(CRITICAL), "Transfer Request!\n");
+        debug(LOW, "Transfer Request!\n");
         cobraTransferEvent* response = static_cast<cobraTransferEvent*>(tevent->duplicate());
         response->setDestination(tevent->source());
         response->setSource(tevent->destination());
@@ -199,10 +211,12 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
     }
 
     case cobraTransferEvent::Accept: {
-        debug(ERROR(CRITICAL), "Transfer Accept!\n");
+        debug(LOW, "Transfer Accept!\n");
         cobraTransferFile* file = cobraTransferController::getPendingTransfer(tevent->uid(), tevent->hash());
-        if (!file)
+        if (!file) {
+            debug(ERROR(CRITICAL), "Failed to find valid file!\n");
             break;
+        }
 
         file->setDestination(event->source());
         file->setSource(event->destination());
@@ -211,7 +225,7 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
     }
 
     case cobraTransferEvent::Reject:
-        debug(ERROR(CRITICAL), "Transfer Rejected!\n");
+        debug(LOW, "Transfer Rejected!\n");
         QMessageBox::warning(NULL, "Transfer Rejected",
                              "The server rejected your file transfer request!\n"
                              "You probably do not have adequite permissions!");
@@ -220,7 +234,7 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
 
     case cobraTransferEvent::Resend:
     case cobraTransferEvent::Complete:
-        debug(ERROR(CRITICAL), "This should be intercepted!\n");
+        debug(ERROR(HIGH), "This should be intercepted!\n");
         break;
     }
 
@@ -231,9 +245,9 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
 bool
 cobraTransferEventHandler::handleServerEvent(cobraNetEvent* event)
 {
-    (void)event;
-    fprintf(stderr, "Somehow we called into the cobraTransferEvent::handleServerEvent handler...\n");
+    debug(ERROR(CRITICAL), "Somehow we called into the cobraTransferEvent::handleServerEvent handler...\n");
     exit(1);
+    (void)event;
     return false;
 }
 
