@@ -117,6 +117,7 @@ public:
 
     bool is(uint32_t id) const;
 
+    void setExpectedHash(QByteArray& hash);
     QByteArray hash();
 
     void setDestination(cobraId dest);
@@ -125,14 +126,26 @@ public:
     cobraId source() const;
 
     bool sendChunk(cobraNetEventThread* thread, qint64 chunk = 1024);
-    bool recieveChunk(cobraTransferEvent* event);
+    int recieveChunk(cobraTransferEvent* event);
+
+    enum ChunkReceipt {
+        TransferError = 0,
+        TransferComplete = 1,
+        TransferIncomplete = 2,
+        TransferIncompleteNoncontiguous = 3
+    };
+
+    int isComplete() const;
 
     bool transferComplete();
     bool resendChunk(qint64 chunk, qint64 offset);
 
 protected:
     uint32_t    m_uiUid;
+
     QByteArray  m_baHash;
+    QByteArray  m_baExpectedHash;
+
     cobraId     m_idSource;
     cobraId     m_idDestination;
 
@@ -173,13 +186,6 @@ public:
    void setInterval(int interval);
    int interval() const;
 
-   enum ChunkReceipt {
-       TransferComplete = 1,
-       TransferIncomplete = 2,
-       TransferIncompleteNoncontiguous = 3
-   };
-
-   int isComplete(uint32_t uid) const;
    int recieveChunk(cobraTransferEvent* event);
 
    bool interceptEvent(cobraTransferEvent* event);
@@ -187,6 +193,9 @@ public:
 
    bool initialize(cobraNetEventThread* parent = NULL);
    void cleanup();
+
+protected:
+   cobraTransferFile* getFile(uint32_t uid, QByteArray& hash);
 
 protected:
    int                          m_iNextTransfer;
@@ -249,7 +258,7 @@ public:
     void updateSize(uint32_t uid, unsigned long size);
     void updateCurrent(uint32_t uid, unsigned long current);
     void updateTime(uint32_t uid, unsigned long time);
-    void updateMap(cobraStatMap& map) const;
+    void getStatistics(cobraStatMap& map) const;
 
 protected:
     mutable QReadWriteLock  m_rwlStatLock;

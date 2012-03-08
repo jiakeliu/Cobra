@@ -45,7 +45,7 @@ cobraTransferStatistics::updateTime(uint32_t uid, unsigned long time)
 }
 
 void
-cobraTransferStatistics::updateMap(cobraStatMap& map) const
+cobraTransferStatistics::getStatistics(cobraStatMap& map) const
 {
     QReadLocker lock(&m_rwlStatLock);
     map = m_mumMetrics;
@@ -168,14 +168,15 @@ cobraTransferFile::sendChunk(cobraNetEventThread* thread, qint64 chunk)
 
         return thread->sendEvent(event);           // Send the chunk event
     }
+
     return false;
 }
 
-bool
+int
 cobraTransferFile::recieveChunk(cobraTransferEvent* event)
 {
     if (!event || m_bSending)
-        return false;
+        return cobraTransferFile::TransferError;
 
     if(event->uid() != m_uiUid || event->hash() != m_baHash) {
         return false;
@@ -186,7 +187,7 @@ cobraTransferFile::recieveChunk(cobraTransferEvent* event)
     seek(offset);
     write(event->data());
 
-    return true;
+    return cobraTransferFile::TransferIncomplete;
 }
 
 bool
@@ -204,6 +205,12 @@ cobraTransferFile::resendChunk(qint64 chunk, qint64 offset)
     return false;
 }
 
+void
+cobraTransferFile::setExpectedHash(QByteArray& hash)
+{
+    m_baExpectedHash = hash;
+}
+
 QByteArray
 cobraTransferFile::hash()
 {
@@ -212,7 +219,20 @@ cobraTransferFile::hash()
            m_baHash = QCryptographicHash::hash(readAll(), QCryptographicHash::Md5);
         return m_baHash;
     }
-    return m_baHash;
+
+    return m_baExpectedHash;
+}
+
+int
+cobraTransferFile::isComplete() const
+{
+    if (pos() >= size())
+        return cobraTransferFile::TransferComplete;
+
+    if (pos() < size())
+        return cobraTransferFile::TransferIncomplete;
+
+    return cobraTransferFile::TransferIncomplete;
 }
 
 cobraTransferController::cobraTransferController(int concurrent, QObject* parent)
@@ -260,21 +280,31 @@ cobraTransferController::setInterval(int interval)
     m_tTransferTimer.setInterval(interval);
 }
 
+cobraTransferFile*
+cobraTransferController::getFile(uint32_t uid, QByteArray& hash)
+{
+    for (int x=0; x<m_vcftTransfers.count(); x++) {
+        if (!m_vcftTransfers[x]->is(uid))
+            continue;
+
+        if (m_vcftTransfers[x]->hash() == hash)
+            return m_vcftTransfers[x];
+    }
+    return NULL;
+}
+
 bool
 cobraTransferController::processTrigger()
 {
-    /** Send the next file chunk and increment.
-     * If we reach the end of the file, then
-     * we need to remove that file from the queue,
-     * activate and activate the first inactive one
-     * in the list.  If we did not reach the end,
-     * iterate our m_iNextTransfer, and wrap around
-     * if m_iNextTransfer == m_iConcurrentTransfers.
-     */
     bool ret = false;
 
     if (m_iNextTransfer < 0) {
         //debug(CRITICAL, "Process Trigger: Nothing to process!\n");
+        return true;
+    }
+
+    if (!m_vcftTransfers.size()) {
+        m_iNextTransfer = -1;
         return true;
     }
 
@@ -355,7 +385,11 @@ cobraTransferController::addTransfer(cobraTransferFile* file)
     if (!file)
         return false;
 
+    debug(HIGH, "Adding file '%s' to transfer list.\n", qPrintable(file->fileName()));
     file->activate(false);
+
+    if (m_iNextTransfer < 0)
+        m_iNextTransfer = 0;
 
     m_vcftTransfers.push_back(file);
     return true;
@@ -386,7 +420,8 @@ cobraTransferController::recieveChunk(cobraTransferEvent* event)
        ** TransferIncomplete (but contiguous)
        ** TransferIncompleteNoncontiguous
        */
-    return false;
+    //return file->isComplete();
+    return cobraTransferFile::TransferIncomplete;
 }
 
 bool

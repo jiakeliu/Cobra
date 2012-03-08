@@ -20,7 +20,7 @@ Transfersdlg::~Transfersdlg()
 void
 Transfersdlg::updateList(void)
 {
-    m_ctsStats->updateMap(m_mumTransferList);
+    m_ctsStats->getStatistics(m_mumTransferList);
 
     ui->listWidget->clear();
 

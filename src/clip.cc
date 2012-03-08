@@ -25,4 +25,3 @@ cobraClipList::~cobraClipList()
     debug(LOW, "cobraClipList dieing...\n");
 
 }
-

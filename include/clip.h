@@ -152,7 +152,7 @@ protected:
      * @param desc databaseName is the sqllite database to connect to.
      */
     void connetToDatabase(QString databaseName);
-   
+
 
     QString                             m_sDataBaseLocation;
     QString                             m_sTitle;
