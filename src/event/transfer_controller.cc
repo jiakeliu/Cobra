@@ -239,8 +239,8 @@ cobraTransferFile::hash()
 QByteArray
 cobraTransferFile::currentHash()
 {
-    m_baCurrentHash = QCryptographicHash::hash(readAll(), QCryptographicHash::Md5);
-    return m_baCurrentHash;
+    m_baHash = QCryptographicHash::hash(readAll(), QCryptographicHash::Md5);
+    return m_baHash;
 }
 
 int

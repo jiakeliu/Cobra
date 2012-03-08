@@ -151,9 +151,6 @@ protected:
     QByteArray  m_baHash;
     QByteArray  m_baExpectedHash;
 
-    QByteArray  m_baCurrentHash;
-    QByteArray m_baExpectedCurrentHash;
-
     cobraId     m_idSource;
     cobraId     m_idDestination;
 
