@@ -123,6 +123,7 @@ public:
     void setExpectedHash(QByteArray& hash);
     QByteArray expectedHash() const;
     QByteArray hash();
+    QByteArray currentHash();
 
     void setDestination(cobraId dest);
     void setSource(cobraId src);
@@ -150,11 +151,15 @@ protected:
     QByteArray  m_baHash;
     QByteArray  m_baExpectedHash;
 
+    QByteArray  m_baCurrentHash;
+    QByteArray m_baExpectedCurrentHash;
+
     cobraId     m_idSource;
     cobraId     m_idDestination;
 
     bool        m_bActive;
     bool        m_bSending;
+    bool        m_bSent;
 };
 
 /**

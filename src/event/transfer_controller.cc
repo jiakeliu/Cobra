@@ -1,6 +1,5 @@
 #include "net.h"
 #include "debug.h"
-#include "net.h"
 
 cobraTransferStatistics::cobraTransferStatistics()
 {}
@@ -187,9 +186,15 @@ cobraTransferFile::recieveChunk(cobraTransferEvent* event)
     qint64 offset = event->offset();
 
     seek(offset);
-    write(event->data());
+    if(write(event->data()))
+        m_bSent = true;
 
-    return cobraTransferFile::TransferIncomplete;
+    if(expectedHash() == currentHash()) {
+        return cobraTransferFile::TransferComplete;
+    }
+    else {
+        return cobraTransferFile::TransferIncomplete;
+    }
 }
 
 bool
@@ -229,6 +234,13 @@ cobraTransferFile::hash()
     }
 
     return m_baExpectedHash;
+}
+
+QByteArray
+cobraTransferFile::currentHash()
+{
+    m_baCurrentHash = QCryptographicHash::hash(readAll(), QCryptographicHash::Md5);
+    return m_baCurrentHash;
 }
 
 int
