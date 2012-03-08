@@ -11,5 +11,6 @@
         <file>images/Folder_FTP.png</file>
         <file>images/Network_Connections.png</file>
         <file>images/pref.png</file>
+        <file>images/upload.png</file>
     </qresource>
 </RCC>

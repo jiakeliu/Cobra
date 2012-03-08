@@ -1,5 +1,6 @@
 #include "net.h"
 #include "debug.h"
+#include "net.h"
 
 cobraTransferStatistics::cobraTransferStatistics()
 {}
@@ -154,17 +155,19 @@ cobraTransferFile::sendChunk(cobraNetEventThread* thread, qint64 chunk)
     QByteArray data = read(chunk);
 
     if(isActive()) {
+
+        m_uiUid = cobraTransferFile::uid();        // Get the files UID
+
         cobraTransferEvent* event = new cobraTransferEvent();
-        /*
-          --- set source and destination
-          */
-        event->setData(data);
-        event->setHash(m_baHash);
+        event->setCommand(3);                      // Set command to chunk
+        event->setUid(m_uiUid);
+        event->setSource(m_idSource);              // Set source
+        event->setDestination(m_idDestination);    // Set destination
+        event->setData(data);                      // Set data to be sent
+        event->setHash(m_baHash);                  // Set hash
 
-        return thread->sendEvent(event);
+        return thread->sendEvent(event);           // Send the chunk event
     }
-
-
     return false;
 }
 
