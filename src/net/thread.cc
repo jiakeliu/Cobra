@@ -7,7 +7,7 @@ cobraNetEventThread::cobraNetEventThread(QObject* parent, int cnx)
       m_uiLastMagic(0)
 {
     /* Set the initial interval... */
-    m_ctcTransferController.setInterval(100);
+    m_ctcTransferController.setInterval(10);
 
     if (!m_ctcTransferController.initialize(this))
         debug(ERROR(CRITICAL), "Failed to initialize the transfer controller!\n");

@@ -37,8 +37,7 @@ cobraClipList::cobraClipList(QString dbName) :QSqlDatabase()
     if (!query.exec("SELECT * FROM cobraClips"))
     {
         query.exec("CREATE TABLE  cobraClips  (uid int, path blob, hash varchar(32), size int, modtime varchar(40), title varchar(40), tags varchar(160), description blob )");
-    } 
-    
+    }    
 }
 
 cobraClipList::~cobraClipList()

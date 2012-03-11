@@ -187,6 +187,7 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
         debug(LOW, "Transfer Chunk!\n");
 
         int cmp = cobraTransferController::recieveChunk(tevent);
+
         switch (cmp) {
         case cobraTransferFile::TransferComplete: {
             cobraTransferEvent* xevent = static_cast<cobraTransferEvent*>(event->duplicate());

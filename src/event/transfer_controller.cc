@@ -165,7 +165,12 @@ cobraTransferFile::sendChunk(cobraNetEventThread* thread, qint64 chunk)
          return false;
      }
 
+     qint64 offset = pos();
      QByteArray data = read(chunk);
+     if (pos() != offset + data.size())
+        seek(offset + data.size());
+
+     debug(ERROR(CRITICAL), "Current file sent: %llu ? %llu\n", pos(), size());
 
      cobraTransferEvent* event = new cobraTransferEvent();
 
@@ -173,6 +178,7 @@ cobraTransferFile::sendChunk(cobraNetEventThread* thread, qint64 chunk)
      event->setUid(m_uiUid);
      event->setSource(m_idSource);              // Set source
      event->setDestination(m_idDestination);    // Set destination
+     event->setOffset(offset);                  // Set the infile offset
      event->setData(data);                      // Set data to be sent
      event->setHash(m_baHash);                  // Set hash
 
@@ -391,6 +397,8 @@ cobraTransferController::transferTrigger()
 
         if (!file->sendChunk(m_netParent, m_iChunkSize))
             file->activate(false);
+    } else {
+        debug(ERROR(CRITICAL), "Pending Mother Fucking Completion!\n");
     }
 
     m_iNextTransfer++;
@@ -443,8 +451,7 @@ cobraTransferController::interceptEvent(cobraTransferEvent *event)
 
         case cobraTransferEvent::Complete:
             file->transferComplete();
-
-            return false;
+            return removeTransfer(file);
     }
 
     return false;
@@ -480,17 +487,18 @@ cobraTransferController::removeTransfer(cobraTransferFile* file)
             continue;
         }
 
-        if (!m_vcftTransfers[x]->is(getuid()))
+        if (!m_vcftTransfers[x]->is(file->uid()))
             continue;
 
         if (m_vcftTransfers[x]->expectedHash() == file->currentHash()) {
             cobraTransferFile* delete_me = m_vcftTransfers[x];
             m_vcftTransfers.remove(x);
             delete delete_me;
+            return true;
         }
     }
 
-    return true;
+    return false;
 }
 
 
