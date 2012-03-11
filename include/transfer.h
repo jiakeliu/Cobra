@@ -207,6 +207,7 @@ public:
 
    bool interceptEvent(cobraTransferEvent* event);
    bool addTransfer(cobraTransferFile* file);
+   bool removeTransfer(cobraTransferFile* file);
 
    bool initialize(cobraNetEventThread* parent = NULL);
    void cleanup();

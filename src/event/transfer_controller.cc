@@ -196,8 +196,9 @@ cobraTransferFile::recieveChunk(cobraTransferEvent* event)
     debug(LOW, "Written: %d \n",write(event->data()));
     flush();
 
-    if(expectedHash() == currentHash())
+    if(expectedHash() == currentHash()) {
         return cobraTransferFile::TransferComplete;
+    }
     else
         return cobraTransferFile::TransferIncomplete;
 }
@@ -267,10 +268,7 @@ cobraTransferFile::isComplete() const
 {
     if (pos() >= size())
         return cobraTransferFile::TransferComplete;
-
-    if (pos() < size())
-        return cobraTransferFile::TransferIncomplete;
-
+\
     return cobraTransferFile::TransferIncomplete;
 }
 
@@ -444,6 +442,7 @@ cobraTransferController::interceptEvent(cobraTransferEvent *event)
 
         case cobraTransferEvent::Complete:
             file->transferComplete();
+
             return false;
     }
 
@@ -466,6 +465,33 @@ cobraTransferController::addTransfer(cobraTransferFile* file)
     m_vcftTransfers.push_back(file);
     return true;
 }
+
+bool
+cobraTransferController::removeTransfer(cobraTransferFile* file)
+{
+    debug(MED, "Removing file from transfer list.\n");
+
+    for (int x=0; x<m_vcftTransfers.count(); x++) {
+        if (!m_vcftTransfers[x]) {
+            m_vcftTransfers.remove(x);
+            x--;
+            debug(ERROR(CRITICAL), "Null file found at %d\n", x);
+            continue;
+        }
+
+        if (!m_vcftTransfers[x]->is(getuid()))
+            continue;
+
+        if (m_vcftTransfers[x]->expectedHash() == file->currentHash()) {
+            cobraTransferFile* delete_me = m_vcftTransfers[x];
+            m_vcftTransfers.remove(x);
+            delete delete_me;
+        }
+    }
+
+    return true;
+}
+
 
 int
 cobraTransferController::recieveChunk(cobraTransferEvent* event)

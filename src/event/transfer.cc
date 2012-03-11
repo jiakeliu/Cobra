@@ -197,6 +197,9 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
             xevent->setCommand(cobraTransferEvent::Complete);
 
             handler->sendEvent(xevent);
+
+            //chatNotify(SERVER, BROADCAST, QString(CHAT_NOTIFY("User '%1' has disconnected.\n")).arg(username));
+
             debug(HIGH, "Transfer Complete: %d\n", tevent->uid());
             break;
         }
