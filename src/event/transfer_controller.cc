@@ -51,8 +51,10 @@ cobraTransferStatistics::getStatistics(cobraStatMap& map) const
 }
 
 cobraTransferFile::cobraTransferFile(QString& path)
-    :QFile(path)
-{}
+    :QFile(path), m_bPendingCompletion(false)
+{
+    m_uiUid = cobraTransferFile::nextUid();
+}
 
 cobraTransferFile::~cobraTransferFile()
 {}
@@ -86,16 +88,14 @@ cobraTransferFile::activate(bool enable)
 {
     m_bActive = enable;
 
-    QString filePath = g_cobra_settings->value("storage_dir").toString();
-    filePath += "/" + m_baExpectedHash;
-
-    setFileName(filePath);
-
-    if (m_bSending && enable)
+    if (m_bSending && enable) {
         open(ReadOnly);
-    else if (!m_bSending && enable)
+    } else if (!m_bSending && enable) {
+        QString filePath = g_cobra_settings->value("storage_dir").toString();
+        filePath += "/" + m_baExpectedHash;
+        setFileName(filePath);
         open(ReadWrite);
-    else
+    } else
         close();
 }
 
@@ -160,20 +160,6 @@ cobraTransferFile::is(uint32_t id) const
 bool
 cobraTransferFile::sendChunk(cobraNetEventThread* thread, qint64 chunk)
 {
-    /**
-     * Here, we want to validate the file has been made active,
-     * if so, we want to store the next CHUNK bytes into a QByteArray,
-     * create a transfer event, store the QByteArray, and then send it
-     * out.
-     */
-
-    /* this should the next chunk that needs to be sent.....
-     * if the chunk is smaller than the chunk,
-     * just send the size requested, if greater, break it up into chunk sizes...
-     * as chunks are sent, this should be updated to keep track of data which
-     * still needs to be sent
-     */
-
      if(!isActive())
          return false;
 
@@ -228,6 +214,8 @@ cobraTransferFile::transferComplete()
 bool
 cobraTransferFile::resendChunk(qint64 chunk, qint64 offset)
 {
+    setPendingCompletion(false);
+
     // TODO: This needs to update the chunk list to allow for this chunk to 
     // be hte next one sent on the next sendChunk call..
     return false;
@@ -275,6 +263,20 @@ cobraTransferFile::isComplete() const
         return cobraTransferFile::TransferIncomplete;
 
     return cobraTransferFile::TransferIncomplete;
+}
+
+uint32_t
+cobraTransferFile::nextUid()
+{
+    return cobraTransferFile::m_uiBaseUid++;
+}
+
+uint32_t cobraTransferFile::m_uiBaseUid = 0;
+
+void
+cobraTransferFile::setBaseUid(uint32_t base)
+{
+    cobraTransferFile::m_uiBaseUid = base;
 }
 
 cobraTransferController::cobraTransferController(int concurrent, QObject* parent)
@@ -365,7 +367,7 @@ cobraTransferController::processTrigger()
         }
     } while (!file);
 
-    if (!file->isActive())
+    if (!file->isActive() && !file->isPendingCompletion())
         file->activate(true);
 
     if (!file->sendChunk(m_netParent, m_iChunkSize)) {
@@ -467,12 +469,13 @@ cobraTransferController::recieveChunk(cobraTransferEvent* event)
       */
     cobraTransferFile* file = getFile(event->uid(), event->hash());
 
+    if (!file)
+        return cobraTransferFile::TransferError;
+
     if (!file->isActive())
         file->activate(true);
 
     file->recieveChunk(event);
-
-
 
     /* THis function may return
        ** TransferComplete

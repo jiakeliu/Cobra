@@ -184,8 +184,8 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
     switch (tevent->command()) {
     case cobraTransferEvent::Chunk: {
         debug(LOW, "Transfer Chunk!\n");
-        int cmp = cobraTransferController::recieveChunk(tevent);
 
+        int cmp = cobraTransferController::recieveChunk(tevent);
         if (cmp == cobraTransferFile::TransferComplete) {
             cobraTransferEvent* xevent = static_cast<cobraTransferEvent*>(event->duplicate());
 
@@ -202,8 +202,10 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
         return ret;
     }
 
-    case cobraTransferEvent::Request: {
+    case cobraTransferEvent::Request:
+    {
         debug(LOW, "Transfer Request!\n");
+
         cobraTransferEvent* response = static_cast<cobraTransferEvent*>(tevent->duplicate());
         response->setDestination(tevent->source());
         response->setSource(tevent->destination());
@@ -219,8 +221,10 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
         break;
     }
 
-    case cobraTransferEvent::Accept: {
+    case cobraTransferEvent::Accept:
+    {
         debug(LOW, "Transfer Accept!\n");
+
         cobraTransferFile* file = cobraTransferController::getPendingTransfer(tevent->uid(), tevent->hash());
         if (!file) {
             debug(ERROR(CRITICAL), "Failed to find valid file!\n");

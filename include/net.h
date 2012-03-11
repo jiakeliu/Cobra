@@ -512,6 +512,7 @@ public:
      */
     void setId(cobraId id) {
         m_idMine = id;
+        cobraTransferFile::setBaseUid(m_idMine*10E6);
     }
 
     /**

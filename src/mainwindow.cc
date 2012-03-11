@@ -336,15 +336,15 @@ void MainWindow::on_actionTransfers_triggered()
 
 void MainWindow::on_actionSelectUpload_triggered()
 {
-    QString path;
-    path = QFileDialog::getOpenFileName(this, "Send File");
-    cobraTransferFile* file = new cobraTransferFile(path);
+    if (cobraNetHandler::instance()->isServing())
+        return;
 
-    if (!file->exists()) {
-        delete file;
+    QString path = QFileDialog::getOpenFileName(this, "Send File");
+    if (!QFile::exists(path)) {
         return;
     }
 
+    cobraTransferFile* file = new cobraTransferFile(path);
     file->setDestination(SERVER);
     file->setSource(cobraMyId);
     file->setSending(true);

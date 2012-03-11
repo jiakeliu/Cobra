@@ -147,6 +147,10 @@ public:
     bool transferComplete();
     bool resendChunk(qint64 chunk, qint64 offset);
 
+
+    static uint32_t nextUid();
+    static void setBaseUid(uint32_t base);
+
 protected:
     void setPendingCompletion(bool pending = true);
 
@@ -162,6 +166,8 @@ protected:
     bool        m_bActive;
     bool        m_bPendingCompletion;
     bool        m_bSending;
+
+    static uint32_t m_uiBaseUid;
 };
 
 /**
