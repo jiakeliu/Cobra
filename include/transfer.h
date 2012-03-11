@@ -36,6 +36,7 @@ public:
 
    void setData(QByteArray& data);
    const QByteArray& data() const;
+   void clearData();
 
    bool fromFile(cobraTransferFile* file);
 

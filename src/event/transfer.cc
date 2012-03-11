@@ -151,6 +151,12 @@ cobraTransferEvent::setData(QByteArray& data)
     m_baData = data;
 }
 
+void
+cobraTransferEvent::clearData()
+{
+    m_baData.clear();
+}
+
 const QByteArray&
 cobraTransferEvent::data() const
 {
@@ -209,16 +215,17 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
         case cobraTransferFile::TransferComplete: {
             cobraTransferEvent* xevent = static_cast<cobraTransferEvent*>(event->duplicate());
 
+            xevent->setCommand(cobraTransferEvent::Complete);
             xevent->setSource(event->destination());
             xevent->setDestination(event->source());
-            xevent->setResponse(true);
-            xevent->setCommand(cobraTransferEvent::Complete);
+            xevent->setResponse((event->source()==SERVER));
+            xevent->setOffset(0);
+            xevent->setSize(0);
+            xevent->clearData();
+
+            debug(HIGH, "Transfer Complete: %d\n", xevent->uid());
 
             handler->sendEvent(xevent);
-
-            //chatNotify(SERVER, BROADCAST, QString(CHAT_NOTIFY("User '%1' has disconnected.\n")).arg(username));
-
-            debug(HIGH, "Transfer Complete: %d\n", tevent->uid());
             break;
         }
         case cobraTransferFile::TransferError: {
@@ -232,8 +239,7 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
         return ret;
     }
 
-    case cobraTransferEvent::Request:
-    {
+    case cobraTransferEvent::Request: {
         debug(LOW, "Transfer Request!\n");
 
         cobraTransferEvent* response = static_cast<cobraTransferEvent*>(tevent->duplicate());
@@ -270,8 +276,7 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
         break;
     }
 
-    case cobraTransferEvent::Accept:
-    {
+    case cobraTransferEvent::Accept: {
         debug(LOW, "Transfer Accept!\n");
 
         cobraTransferFile* file = cobraTransferController::getPendingTransfer(tevent->uid(), tevent->hash());
@@ -295,6 +300,7 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
 
 
     case cobraTransferEvent::Resend:
+        //fall-through
     case cobraTransferEvent::Complete:
         debug(ERROR(HIGH), "This should be intercepted!\n");
         break;

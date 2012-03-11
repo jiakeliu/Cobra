@@ -460,7 +460,7 @@ cobraTransferController::interceptEvent(cobraTransferEvent *event)
 bool
 cobraTransferController::addTransfer(cobraTransferFile* file)
 {
-    if (!file || file->uid() == ~0x0)
+    if (!file || file->is(~0x0UL))
         return false;
 
     debug(MED, "Adding file '%s' to transfer list.\n", 
