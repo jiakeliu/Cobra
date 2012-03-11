@@ -38,6 +38,7 @@ typedef unsigned int cobraId;
 class cobraNetConnection;
 
 #define CHAT_NOTIFY(x) "<font color=grey>" x "</font>"
+#define CHAT_MESSAGE(x) "<font color=black>" x "</font>"
 
  /**
   * @class cobraNetEvent event.h "event.h"

@@ -156,7 +156,10 @@ cobraChatEventHandler::handleServerEvent(cobraNetEvent* event)
             msg += ": ";
             msg += chat->msg();
 
-            chat->setMsg(msg);
+            chat->setMsg(CHAT_MESSAGE(+msg+));
+
+            //cobraNetHandler::instance()->getUsername()
+
             chat->setResponse(true);
             chat->setDestination(BROADCAST);
             chat->setSource(SERVER);
