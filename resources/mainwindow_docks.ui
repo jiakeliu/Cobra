@@ -207,8 +207,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>100</width>
-          <height>30</height>
+          <width>80</width>
+          <height>645</height>
          </rect>
         </property>
         <attribute name="label">
@@ -242,8 +242,8 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>623</width>
-     <height>285</height>
+     <width>519</width>
+     <height>260</height>
     </size>
    </property>
    <property name="baseSize">
@@ -392,6 +392,12 @@ p, li { white-space: pre-wrap; }
      </item>
      <item>
       <widget class="QListWidget" name="userList">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="maximumSize">
         <size>
          <width>164</width>

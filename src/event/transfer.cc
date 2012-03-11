@@ -222,8 +222,29 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
         response->setResponse(true);
 
         int auth = handler->getIdAuthorization(event->source());
-        if (auth & ParticipantAuth)
-            response->setCommand(cobraTransferEvent::Accept);
+        if (auth & ParticipantAuth) {
+
+            QString filePath = g_cobra_settings->value("storage_dir").toString();
+
+            QByteArray hash = tevent->hash();
+            filePath += "/" + hash.toHex();
+
+            debug(MED, "Incoming File!!!!!!!!!!!\n");
+            debug(MED, "UID: %d\n", tevent->uid());
+            debug(MED, "Hash: %s\n", hash.toHex().data());
+
+            cobraTransferFile* file = new cobraTransferFile(filePath);
+            file->setUid(tevent->uid());
+            file->setExpectedHash(hash);
+            file->setDestination(tevent->destination());
+            file->setSource(tevent->source());
+            file->setSending(false);
+
+            if (!addTransfer(file))
+                debug(ERROR(CRITICAL), "Invalid file!\n");
+            else
+                response->setCommand(cobraTransferEvent::Accept);
+        }
 
         handler->sendEvent(response);
         response->put();

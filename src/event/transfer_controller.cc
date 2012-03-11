@@ -51,7 +51,7 @@ cobraTransferStatistics::getStatistics(cobraStatMap& map) const
 }
 
 cobraTransferFile::cobraTransferFile(QString& path)
-    :QFile(path), m_bPendingCompletion(false)
+    :QFile(path), m_uiUid(~0x0), m_bPendingCompletion(false)
 {
     m_uiUid = cobraTransferFile::nextUid();
 }
@@ -87,14 +87,9 @@ void
 cobraTransferFile::activate(bool enable)
 {
     m_bActive = enable;
-
-    if (m_bSending && enable) {
+    if (m_bSending && m_bActive) {
         open(ReadOnly);
-    } else if (!m_bSending && enable) {
-        debug(MED, "LOOKKKKK HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n");
-        QString filePath = g_cobra_settings->value("storage_dir").toString();
-        filePath += "/" + m_baExpectedHash;
-        setFileName(filePath);
+    } else if (!m_bSending && m_bActive) {
         open(ReadWrite);
     } else
         close();
@@ -216,7 +211,6 @@ bool
 cobraTransferFile::resendChunk(qint64 chunk, qint64 offset)
 {
     setPendingCompletion(false);
-
     // TODO: This needs to update the chunk list to allow for this chunk to 
     // be hte next one sent on the next sendChunk call..
     return false;
@@ -240,7 +234,7 @@ cobraTransferFile::hash()
     if (m_bSending) {
         if (m_baHash.isEmpty() || m_baHash.isNull())
             return currentHash();
-
+        debug(ERROR(CRITICAL), "Hash: %s\n", m_baHash.toHex().data());
         return m_baHash;
     }
 
@@ -250,7 +244,18 @@ cobraTransferFile::hash()
 QByteArray
 cobraTransferFile::currentHash()
 {
-    m_baHash = QCryptographicHash::hash(readAll(), QCryptographicHash::Md5);
+    QCryptographicHash md5(QCryptographicHash::Md5);
+    QFile reFile(this->fileName());
+
+    reFile.open(QIODevice::ReadOnly);
+
+    while(!reFile.atEnd()) {
+        md5.addData(reFile.read(4096));
+    }
+
+    reFile.close();
+    m_baHash = md5.result();
+
     return m_baHash;
 }
 
@@ -326,13 +331,26 @@ cobraTransferController::setInterval(int interval)
 }
 
 cobraTransferFile*
-cobraTransferController::getFile(uint32_t uid, const QByteArray& hash) const
+cobraTransferController::getFile(uint32_t uid, const QByteArray& hash)
 {
     for (int x=0; x<m_vcftTransfers.count(); x++) {
+        if (!m_vcftTransfers[x]) {
+            m_vcftTransfers.remove(x);
+            x--;
+            debug(ERROR(CRITICAL), "Null file found at %d\n", x);
+            continue;
+        }
+
+        debug(LOW, "UID: %d - %d\n", uid, m_vcftTransfers[x]->uid());
+        debug(LOW, "Hash: %s\n", hash.toHex().data());
+        debug(LOW, "Hash: %s\n", m_vcftTransfers[x]->expectedHash().toHex().data());
+        debug(LOW, "FILE: %d\n", x);
         if (!m_vcftTransfers[x]->is(uid))
             continue;
 
-        if (m_vcftTransfers[x]->hash() == hash)
+        debug(LOW, "Hash: %s\n", hash.toHex().data());
+        debug(LOW, "Hash: %s\n", m_vcftTransfers[x]->expectedHash().toHex().data());
+        if (m_vcftTransfers[x]->expectedHash() == hash)
             return m_vcftTransfers[x];
     }
     return NULL;
@@ -432,7 +450,7 @@ cobraTransferController::interceptEvent(cobraTransferEvent *event)
 bool
 cobraTransferController::addTransfer(cobraTransferFile* file)
 {
-    if (!file)
+    if (!file || file->uid() == ~0x0)
         return false;
 
     debug(MED, "Adding file '%s' to transfer list.\n", 

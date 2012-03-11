@@ -14,7 +14,7 @@
    <string>Cobra - Collaborative Broadcast Application</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="cobra.qrc">
+   <iconset>
     <normaloff>:/images/cobra_tico.png</normaloff>:/images/cobra_tico.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -50,8 +50,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>102</width>
-         <height>102</height>
+         <width>489</width>
+         <height>422</height>
         </rect>
        </property>
        <attribute name="label">
@@ -86,8 +86,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>102</width>
-         <height>102</height>
+         <width>489</width>
+         <height>422</height>
         </rect>
        </property>
        <attribute name="label">
@@ -203,8 +203,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>98</width>
-          <height>28</height>
+          <width>200</width>
+          <height>418</height>
          </rect>
         </property>
         <attribute name="label">
@@ -230,10 +230,16 @@
    </widget>
   </widget>
   <widget class="QDockWidget" name="chatDock">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="minimumSize">
     <size>
-     <width>445</width>
-     <height>276</height>
+     <width>200</width>
+     <height>200</height>
     </size>
    </property>
    <property name="baseSize">
@@ -317,6 +323,12 @@
         <number>4</number>
        </property>
        <widget class="QTextEdit" name="chatText">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -504,8 +516,6 @@
    </property>
   </action>
  </widget>
- <resources>
-  <include location="cobra.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

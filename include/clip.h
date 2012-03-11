@@ -154,8 +154,6 @@ public:
      */
     void addToDatabase();
 
-
-
 //public slots:
 
 //signals:

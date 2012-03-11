@@ -212,7 +212,7 @@ public:
    void cleanup();
 
 protected:
-   cobraTransferFile* getFile(uint32_t uid, const QByteArray& hash) const;
+   cobraTransferFile* getFile(uint32_t uid, const QByteArray& hash);
 
 protected:
    int                          m_iNextTransfer;

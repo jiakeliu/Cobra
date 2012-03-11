@@ -30,9 +30,11 @@ cobraClipList::updateClip(cobraClip& clip)
 bool
 cobraClipList::removeClip(int uid)
 {
+
 }
 
 bool
 cobraClipList::addClip(cobraClip& clip)
 {
+
 }
