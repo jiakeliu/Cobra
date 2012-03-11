@@ -194,6 +194,7 @@ cobraTransferFile::recieveChunk(cobraTransferEvent* event)
     debug(LOW, "Is OPEN %d \n", isOpen());
     debug(LOW, "SIZE OF DATA %d \n", event->data().size());
     debug(LOW, "Written: %d \n",write(event->data()));
+    debug(LOW, "File Size: '%llu'\n",this->size());
     flush();
 
     if(expectedHash() == currentHash()) {
