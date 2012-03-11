@@ -449,32 +449,17 @@ cobraTransferController::addTransfer(cobraTransferFile* file)
 int
 cobraTransferController::recieveChunk(cobraTransferEvent* event)
 {
-    /** This function should iterate through the cobraTransferFile list
-      * and call the handleTransfer on each one (only the one that matches
-      * will return true);
-      * Before actualy passing it on though, the command should be checked,
-      * to properly handle the generation of any new transfers.
-      */
-
-    /** The way I see the transfer init working is that when a file is to be
-      * sent, the cobraTransferEvent containing relevent information is sent
-      * immediately (so, if you wanna send 5 files, but you can only send one
-      * at a time, you send 5 transfer events describing the files, and then
-      * start sending actual data one file at a time). All the transfer stuff
-      * will be triggered by the timer (which should be the 'processTrigger')
-      * This function will intercept the initial transfer request, generate an
-      * entry in the pending list.  Once a accept request is recieved, the
-      * cobraTransferFile will be moved to the active list.
-      */
     cobraTransferFile* file = getFile(event->uid(), event->hash());
 
-    if (!file)
+    if (!file) {
+        debug(ERROR(CRITICAL), "Failed to get associated file!\n");
         return cobraTransferFile::TransferError;
+    }
 
     if (!file->isActive())
         file->activate(true);
 
-    file->recieveChunk(event);
+    return  file->recieveChunk(event);
 }
 
 bool

@@ -182,11 +182,13 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
         return false;
 
     switch (tevent->command()) {
+
     case cobraTransferEvent::Chunk: {
         debug(LOW, "Transfer Chunk!\n");
 
         int cmp = cobraTransferController::recieveChunk(tevent);
-        if (cmp == cobraTransferFile::TransferComplete) {
+        switch (cmp) {
+        case cobraTransferFile::TransferComplete: {
             cobraTransferEvent* xevent = static_cast<cobraTransferEvent*>(event->duplicate());
 
             xevent->setSource(event->destination());
@@ -196,6 +198,13 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
 
             handler->sendEvent(xevent);
             debug(HIGH, "Transfer Complete: %d\n", tevent->uid());
+            break;
+        }
+        case cobraTransferFile::TransferError: {
+            debug(ERROR(CRITICAL), "Error while recieving chunk for file: %d with hash %s\n",
+                  tevent->uid(), tevent->hash().toHex().data());
+            break;
+        }
         }
 
         tevent->put();
