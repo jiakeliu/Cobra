@@ -36,7 +36,7 @@ cobraClipList::cobraClipList(QString dbName) :QSqlDatabase()
     //creates table for new db
     if (!query.exec("SELECT * FROM cobraClips"))
     {
-        query.exec("CREATE TABLE  cobraClips  (uid int, path blob, hash varchar(32), modtime varchar(40), title varchar(40), tags varchar(160), description blob )");
+        query.exec("CREATE TABLE  cobraClips  (uid int, path blob, hash varchar(32), size int, modtime varchar(40), title varchar(40), tags varchar(160), description blob )");
     } 
     
 }
@@ -50,6 +50,15 @@ cobraClip cobraClipList::getClip(int uid)
 {
    cobraClip ccClip;
    QSqlQuery query("SELECT " % QString::number(uid) % "FROM uid", db);
+   QSqlRecord sqlRecord = query.record();
+   ccClip.setUID(sqlRecord.value(0).toInt());
+   ccClip.setPath(sqlRecord.value(1).toString());
+   ccClip.setHash(sqlRecord.value(2).toString());
+   ccClip.setSize(sqlRecord.value(3).toInt());
+   ccClip.setModifiedTime(sqlRecord.value(4).toString());
+   ccClip.setTitle(sqlRecord.value(5).toString());
+   ccClip.setTags(sqlRecord.value(6).toString());
+   ccClip.setDescription(sqlRecord.value(7).toString());
    return ccClip;   
 }
 
