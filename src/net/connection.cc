@@ -74,13 +74,13 @@ cobraNetConnection::readEvents(QByteArray& events)
             debug(ERROR(CRITICAL), "Fuck... Missed an event.\n");
             continue;
         }
+
         QByteArray mid = m_baRead.mid(pos+cobraStreamMagic.size(), sizeof(size));
         QDataStream dstream(&mid, QIODevice::ReadOnly);
         dstream.setByteOrder(QDataStream::LittleEndian);
         dstream >> size;
 
-        debug(HIGH, "Size: %x of %x\n", size, dsize);
-        debug(HIGH, "pos %x npos %x\n", pos, npos);
+        debug(HIGH, "Size: %lx of %llx\n", size, dsize);
 
         if (npos < 0) {
             if (dsize - (cobraStreamMagic.size() + sizeof(size)) == size) {
@@ -89,7 +89,6 @@ cobraNetConnection::readEvents(QByteArray& events)
                 count = 1;
                 break;
             }
-
             npos = dsize;
         }
 
@@ -103,13 +102,12 @@ cobraNetConnection::readEvents(QByteArray& events)
             update_pos = true;
             continue;
         } else if (result < 0) {
-            debug(LOW, "This doesn't make sense: %d -- %d\n", size, dsize);
-            /* size > npos -- invalid magic! */
-            update_pos = false;
-            continue;
+            /* Partial Packet! */
+            break;
         }
 
-        debug(LOW, "This really really doesn't make sense...\n");
+        debug(LOW, "Uuuh, we somehow got a set of packets which had magics followed by numbers that LINED up but"
+              "resulted in a mismatch on the NEXT event!\n");
         /* Serious issues, wipe it all out... */
         valid_offset = npos;
         break;
