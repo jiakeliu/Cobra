@@ -8,7 +8,7 @@ class cobralistwidget : public QTreeWidget, public cobraClipList
 {
     Q_OBJECT
 public:
-    cobralistwidget(QTreeWidget *parent = 0);
+    cobralistwidget(QWidget *parent = 0);
 
     bool updateClip(cobraClip& clip);
     bool removeClip(int uid);

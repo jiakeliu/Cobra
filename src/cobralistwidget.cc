@@ -1,9 +1,8 @@
 #include "cobralistwidget.h"
 
-cobralistwidget::cobralistwidget(QTreeWidget *parent) :
+cobralistwidget::cobralistwidget(QWidget *parent) :
     QTreeWidget(parent)
-{
-}
+{}
 
 bool
 cobralistwidget::updateClip(cobraClip& clip)
@@ -13,9 +12,9 @@ cobralistwidget::updateClip(cobraClip& clip)
     QString cliptitle = clip.getTitle();
     QString cliptags = clip.getTags();
 
-    this->clear();
+    //this->clear();
     //this->addItem();
-    return 1;
+    return true;
 }
 
 bool

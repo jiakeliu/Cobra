@@ -14,6 +14,7 @@ SOURCES = src/main.cc \
     src/event/event.cc \
     src/event/chat.cc \
     src/filevalidator.cc \
+    src/cobralistwidget.cc \
     src/event/auth.cc \
     src/preferences.cc \
     src/event/transfer.cc \
@@ -28,6 +29,7 @@ INCLUDEPATH = include
 HEADERS += \
     include/mainwindow.h \
     include/debug.h \
+    include/cobralistwidget.h \
     include/net.h \
     include/event.h \
     include/filevalidator.h \

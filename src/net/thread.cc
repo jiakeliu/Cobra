@@ -247,6 +247,7 @@ cobraNetEventThread::sendCnxEvent(cobraNetConnection *cnx, cobraNetEvent* event)
     event->serialize(stream);
 
     uint32_t bytes = xmit.size();
+
     if (!bytes)
         return 0;
 

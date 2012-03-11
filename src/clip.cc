@@ -9,9 +9,7 @@ cobraClip::cobraClip()
 cobraClip::~cobraClip()
 {
     debug(LOW, "cobraClip dieing...\n");
-
 }
-
 
 cobraClipList::cobraClipList(QSqlDriver* parent) :QSqlDatabase(parent)
 {
@@ -21,7 +19,6 @@ cobraClipList::cobraClipList(QSqlDriver* parent) :QSqlDatabase(parent)
 cobraClipList::~cobraClipList()
 {
     debug(LOW, "cobraClipList dieing...\n");
-
 }
 
 bool

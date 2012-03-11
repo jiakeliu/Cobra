@@ -190,7 +190,7 @@ public:
    virtual ~cobraTransferController();
 
 public slots:
-   bool processTrigger();
+   bool transferTrigger();
 
 public:
 

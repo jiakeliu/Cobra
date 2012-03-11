@@ -185,7 +185,6 @@ protected:
 };
 
 class cobraClipList :  public QSqlDatabase {
-   //Q_OBJECT
 
 public:
    cobraClipList(QSqlDriver* parent = NULL);
@@ -193,9 +192,9 @@ public:
 
    void                         enumClips(QVector<int>& );
    cobraClip                    getClip(int uid);
-   virtual bool                         updateClip(cobraClip& clip);
-   virtual bool                         removeClip(int uid);
-   virtual bool                         addClip(cobraClip& clip);
+   virtual bool                 updateClip(cobraClip& clip);
+   virtual bool                 removeClip(int uid);
+   virtual bool                 addClip(cobraClip& clip);
 };
 
 #endif // clip_H

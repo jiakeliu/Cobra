@@ -164,6 +164,7 @@ cobraTransferFile::sendChunk(cobraNetEventThread* thread, qint64 chunk)
          return false;
 
      if (pos() == size()) {
+         debug(ERROR(CRITICAL), "At End!\n");
          setPendingCompletion(true);
          return false;
      }
@@ -338,12 +339,9 @@ cobraTransferController::getFile(uint32_t uid, const QByteArray& hash) const
 }
 
 bool
-cobraTransferController::processTrigger()
+cobraTransferController::transferTrigger()
 {
-    bool ret = false;
-
     if (m_iNextTransfer < 0) {
-        //debug(CRITICAL, "Process Trigger: Nothing to process!\n");
         return true;
     }
 
@@ -367,15 +365,16 @@ cobraTransferController::processTrigger()
         }
     } while (!file);
 
-    if (!file->isActive() && !file->isPendingCompletion())
-        file->activate(true);
+    if (!file->isPendingCompletion()) {
+        if (!file->isActive())
+            file->activate(true);
 
-    if (!file->sendChunk(m_netParent, m_iChunkSize)) {
-	file->activate(false);
+        if (!file->sendChunk(m_netParent, m_iChunkSize))
+            file->activate(false);
     }
 
     m_iNextTransfer++;
-    return ret;
+    return true;
 }
 
 bool
@@ -383,7 +382,7 @@ cobraTransferController::initialize(cobraNetEventThread* parent)
 {
     m_netParent = parent;
 
-    QObject::connect(&m_tTransferTimer, SIGNAL(timeout()), this, SLOT(processTrigger()));
+    QObject::connect(&m_tTransferTimer, SIGNAL(timeout()), this, SLOT(transferTrigger()));
 
     /* start timer, if we are the transmitter... */
     if (m_netParent)

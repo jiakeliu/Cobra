@@ -103,7 +103,7 @@ cobraNetConnection::readEvents(QByteArray& events)
             update_pos = true;
             continue;
         } else if (result < 0) {
-            debug(LOW, "This doesn't make sense..\n");
+            debug(LOW, "This doesn't make sense: %d -- %d\n", size, dsize);
             /* size > npos -- invalid magic! */
             update_pos = false;
             continue;
