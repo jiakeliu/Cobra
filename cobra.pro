@@ -20,7 +20,8 @@ SOURCES = src/main.cc \
     src/event/transfer.cc \
     src/event/transfer_controller.cc \
     src/transfersdlg.cc\
-    src/clip.cc
+    src/clip.cc \
+    src/src/clipdialog.cpp
 
 INCLUDEPATH = include
 
@@ -36,14 +37,16 @@ HEADERS += \
     include/preferences.h \
     include/transfersdlg.h \
     include/clip.h \
-    include/transfer.h
+    include/transfer.h \
+    src/include/clipdialog.h
 
 FORMS += \
     resources/mainwindow.ui \
     resources/mainwindow_mdi.ui \
     resources/mainwindow_docks.ui \
     resources/preferences.ui \
-    resources/transfersdlg.ui
+    resources/transfersdlg.ui \
+    src/clipdialog.ui
 
 TRANSLATIONS = cobratr_cn
 
