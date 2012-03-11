@@ -197,10 +197,13 @@ public:
 
 protected:
    bool                         sqlQuery(QString&);
+   static int                   nextList();
 
 protected:
    QString                      m_sDBName;
    QSqlDatabase                 m_dbDatabase;
+
+   static int                   m_iLists;
 };
 
 #endif // clip_H

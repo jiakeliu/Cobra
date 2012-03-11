@@ -18,11 +18,18 @@ cobraClip::~cobraClip()
     debug(LOW, "cobraClip dieing...\n");
 }
 
+int cobraClipList::m_iLists;
+
+int
+cobraClipList::nextList() {
+   return m_iLists++;
+}
+
 cobraClipList::cobraClipList(QString dbName)
 {
     debug(LOW, "cobraClipList initializing using 1 argument, the dbName...\n");
     m_sDBName = dbName;
-    m_dbDatabase = QSqlDatabase::addDatabase("QSQLITE", dbName);
+    m_dbDatabase = QSqlDatabase::addDatabase("QSQLITE", QString("ClipList%1").arg(nextList()));
     m_dbDatabase.setDatabaseName(m_sDBName);
 
     if (!m_dbDatabase.open()) {
@@ -31,12 +38,16 @@ cobraClipList::cobraClipList(QString dbName)
     }
 
     QSqlQuery query(m_dbDatabase);
-    
+    QString select = "SELECT * FROM cobraClips";
+    QString create = "CREATE TABLE  cobraClips"
+            "(uid INTEGER PRIMARY KEY, path blob, hash varchar(32),"
+            "size INTEGER, modtime varchar(40), title varchar(80) NOT NULL,"
+            "tags varchar(140), description varchar(140),"
+            "extension varchar(16))";
+
     //creates table for new db
-    if (!query.exec("SELECT * FROM cobraClips"))
-    {
-        query.exec("CREATE TABLE  cobraClips  (uid int, path blob, hash varchar(32), size int, modtime varchar(40), title varchar(40), tags varchar(160), description blob, extension varchar(16))");
-    }    
+    if (!sqlQuery(select) && !sqlQuery(create))
+            debug(ERROR(CRITICAL), "Failed to create requested database!\n");
 }
 
 cobraClipList::~cobraClipList()
@@ -48,7 +59,7 @@ cobraClipList::~cobraClipList()
 cobraClip cobraClipList::getClip(int uid)
 {
     cobraClip ccClip;
-    QSqlQuery query("SELECT " % QString::number(uid) % "FROM uid", m_dbDatabase);
+    QSqlQuery query("SELECT * FROM cobraClip WHERE uid='" % QString::number(uid) % "';", m_dbDatabase);
     QSqlRecord sqlRecord = query.record();
     ccClip.setUID(sqlRecord.value(0).toInt());
     ccClip.setPath(sqlRecord.value(1).toString());
@@ -65,16 +76,16 @@ cobraClip cobraClipList::getClip(int uid)
 bool
 cobraClipList::updateClip(cobraClip& clip)
 {
-    QString updateString = "UPDATE cobraClips SET path = " % 
-            clip.getPath() % ", hash = " %
-            clip.getHash() % ", size = " %
-            QString::number(clip.getSize()) % ", modtime = " %
-            clip.getModifiedTime() % ", title = " %
-            clip.getTitle() % ", tags = " %
-            clip.getTags() % ", description = " %
-            clip.getDescription() % " WHERE uid = " %
-            clip.getExtension() % " WHERE extension = " %
-            QString::number(clip.getUID());
+    QString updateString = "UPDATE cobraClips SET "
+            "path=" % clip.getPath() % ","
+            "hash=" % clip.getHash() % ","
+            "size=" % QString::number(clip.getSize()) % ","
+            "modtime=" % clip.getModifiedTime() % ","
+            "title=" % clip.getTitle() % ","
+            "tags=" % clip.getTags() % ","
+            "extension=" % clip.getExtension() % ","
+            "description=" % clip.getDescription() %  ","
+            "WHERE uid=" % QString::number(clip.getUID()) % ";";
 
 
     return sqlQuery(updateString);
@@ -83,23 +94,23 @@ cobraClipList::updateClip(cobraClip& clip)
 bool
 cobraClipList::removeClip(int uid)
 {
-    QString deleteString = "DELETE FROM cobraClips WHERE "  % QString::number(uid);
+    QString deleteString = "DELETE FROM cobraClips WHERE uid='" % QString::number(uid) % "';";
     return sqlQuery(deleteString);
 }
 
 bool
 cobraClipList::addClip(cobraClip& clip)
 {
-    QString insertString = "INSERT INTO cobraClips VALUES(" %  
-            QString::number(clip.getUID()) % ", '" %
-            clip.getPath() % "', '" %
-            clip.getHash() % "', " %
-            QString::number(clip.getSize()) % ", '" %
-            clip.getModifiedTime() % "', '" %
-            clip.getTitle() % "', '" %
-            clip.getTags() % "', '" %
-            clip.getDescription() % "')";
-            clip.getExtension() % "')";
+    QString insertString =
+            "INSERT INTO cobraClips (uid,path,hash,size,modtime,title,tags,description,extension) VALUES (NULL,"
+            "'" % clip.getPath() % "',"
+            "'" % clip.getHash() % "',"
+            "'" % QString::number(clip.getSize()) % "',"
+            "'" % clip.getModifiedTime() % "',"
+            "'" % clip.getTitle() % "',"
+            "'" % clip.getTags() % "',"
+            "'" % clip.getDescription() % "',"
+            "'" % clip.getExtension() % "');";
 
     return sqlQuery(insertString);
 }
@@ -107,11 +118,15 @@ cobraClipList::addClip(cobraClip& clip)
 bool
 cobraClipList::sqlQuery(QString& string)
 {
-    qDebug() << "SQL Query: " << string;
     QSqlQuery query(m_dbDatabase);
 
     if (!query.exec(string)) {
-        debug(ERROR(CRITICAL), "Failed to Query Database!\n");
+        QSqlError err = m_dbDatabase.lastError();
+        debug(ERROR(CRITICAL), "Failed to Query Database.\n");
+        if (!err.databaseText().isEmpty())
+            debug(ERROR(CRITICAL),"%s\n", qPrintable(err.databaseText()));
+        if (!err.driverText().isEmpty())
+            debug(ERROR(CRITICAL),"%s\n", qPrintable(err.driverText()));
         return false;
     }
 
