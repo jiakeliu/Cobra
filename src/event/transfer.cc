@@ -22,14 +22,15 @@ cobraTransferEvent::~cobraTransferEvent()
 int
 cobraTransferEvent::serialize(QDataStream& stream)
 {
-    debug(HIGH, "Serialize!\n");
     int bytes = cobraNetEvent::serialize(stream);
+
     stream << m_iCommand;
     stream << m_uiUid;
     stream << m_iOffset;
     stream << m_iSize;
     stream << m_baHash;
     stream << m_baData;
+
     return (bytes + sizeof(m_iOffset) + sizeof(m_uiUid) +
             sizeof(m_iCommand) + m_baData.length() +
             sizeof(m_iSize) + sizeof(m_iOffset) + m_baHash.length());
@@ -39,12 +40,14 @@ int
 cobraTransferEvent::deserialize(QDataStream& stream)
 {
     int bytes = cobraNetEvent::deserialize(stream);
+
     stream >> m_iCommand;
     stream >> m_uiUid;
     stream >> m_iOffset;
     stream >> m_iSize;
     stream >> m_baHash;
     stream >> m_baData;
+
     return (bytes + sizeof(m_iOffset) + sizeof(m_uiUid) +
             sizeof(m_iCommand) + m_baData.length() +
             sizeof(m_iSize) + sizeof(m_iOffset) + m_baHash.length());

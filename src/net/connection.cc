@@ -74,8 +74,8 @@ cobraNetConnection::readEvents(QByteArray& events)
             debug(ERROR(CRITICAL), "Fuck... Missed an event.\n");
             continue;
         }
-
-        QDataStream dstream(&m_baRead.mid(pos+cobraStreamMagic.size(), sizeof(size)), QIODevice::ReadOnly);
+        QByteArray mid = m_baRead.mid(pos+cobraStreamMagic.size(), sizeof(size));
+        QDataStream dstream(&mid, QIODevice::ReadOnly);
         dstream.setByteOrder(QDataStream::LittleEndian);
         dstream >> size;
 

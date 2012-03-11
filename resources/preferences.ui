@@ -741,6 +741,9 @@
          <string>Storage</string>
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_3">
+         <property name="margin">
+          <number>0</number>
+         </property>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_14">
            <item>

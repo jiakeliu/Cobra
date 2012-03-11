@@ -242,7 +242,6 @@ cobraNetEventThread::clientReady()
 int
 cobraNetEventThread::sendCnxEvent(cobraNetConnection *cnx, cobraNetEvent* event)
 {
-    debug(ERROR(LOW), "Transmit: %x\n", m_baTransmitBuffer.count());
     QByteArray xmit;
     QDataStream stream(&xmit, QIODevice::ReadWrite);
     event->serialize(stream);

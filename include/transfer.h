@@ -118,6 +118,8 @@ public:
     bool isSending() const;
     void setSending(bool sending = true);
 
+    bool isPendingCompletion() const;
+
     bool is(uint32_t id) const;
 
     void setExpectedHash(QByteArray& hash);
@@ -146,6 +148,9 @@ public:
     bool resendChunk(qint64 chunk, qint64 offset);
 
 protected:
+    void setPendingCompletion(bool pending = true);
+
+protected:
     uint32_t    m_uiUid;
 
     QByteArray  m_baHash;
@@ -155,6 +160,7 @@ protected:
     cobraId     m_idDestination;
 
     bool        m_bActive;
+    bool        m_bPendingCompletion;
     bool        m_bSending;
 };
 
