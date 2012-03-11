@@ -155,15 +155,6 @@ public:
 
 protected:
 
-    /**
-     * @fn void connectToDatabase(QStrin databaseName)
-     * connect to the database.
-     * @param desc databaseName is the sqllite database to connect to.
-     */
-    void connetToDatabase(QString databaseName);
-
-
-    QString                             m_sDataBaseLocation;
     QString                             m_sTitle;
     QString                             m_sHash;
     QString                             m_sPath;
@@ -175,7 +166,7 @@ protected:
     
 };
 
-class cobraClipList :  public QSqlDatabase {
+class cobraClipList {
 
 public:
     cobraClipList(QString dbName = ":memory:");
@@ -187,11 +178,12 @@ public:
    virtual bool                 removeClip(int uid);
    virtual bool                 addClip(cobraClip& clip);
 
-private:
+protected:
+   bool                         sqlQuery(QString&);
+
+protected:
    QString                      m_sDBName;
-
-
-   void                         sqlQuery(QString&);
+   QSqlDatabase                 m_dbDatabase;
 };
 
 #endif // clip_H

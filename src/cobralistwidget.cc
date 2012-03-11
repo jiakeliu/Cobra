@@ -12,17 +12,33 @@ cobralistwidget::cobralistwidget(QWidget *parent) :
 bool
 cobralistwidget::updateClip(cobraClip& clip)
 {
-   //@todo call parent function here to refresh database
-    //if we add another dialog to update clip, should we still implement function here?
+    bool ret = cobraClipList::updateClip(clip);
+    if (!ret)
+        return ret;
 
-   /* int clipid = clip.getUID();
+    /**
+     * This just updates the clip in teh database --
+     *
+     * This should NOT be the function called when a user selected to edit a Clip's information,
+     * this SHOULD be the function called AFTER the user has selected to SAVE the clip information.
+     */
+    int clipid = clip.getUID();
     QString cliptitle = clip.getTitle();
     QString clipdesc = clip.getDescription();
     QString cliptime = clip.getModifiedTime();
     QString cliptags = clip.getTags();
-    QTreeWidgetItem *itm = new QTreeWidgetItem(this);*/
 
-    return 1;
+    /**
+      Do no create  new item here...
+      I would recommend making a hidden column to containt th eclipid
+      then you shoul dbe able to do something along the lines of
+
+      QList<QTreeWidgetItem*> clip = this->findItem(QString("%1").arg(clipid), ID_COLUMN);
+      at that point, fi the clipid exists, clip should contain it..
+      and you can just modify the item that exists in the tree...
+      */
+
+    return true;
 }
 
 bool
@@ -34,6 +50,9 @@ cobralistwidget::removeClip(int uid)
     // OR
     //this->takeTopLevelItem(uid);
 
+    /**
+       See update clip comments for insight...
+       */
     return 1;
 }
 

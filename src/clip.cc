@@ -18,20 +18,19 @@ cobraClip::~cobraClip()
     debug(LOW, "cobraClip dieing...\n");
 }
 
-cobraClipList::cobraClipList(QString dbName) :QSqlDatabase()
+cobraClipList::cobraClipList(QString dbName)
 {
     debug(LOW, "cobraClipList initializing using 1 argument, the dbName...\n");
     m_sDBName = dbName;
-    this->addDatabase("QSQLITE", "new");
-    this->setDatabaseName(dbName);
-    if (!this->open())
-    {
-       QMessageBox::critical(0, qApp->tr("Cannot open database"),
-          qApp->tr("Unable to establish a database connection.\n"
-                  "Please Make sure you entered all your data correctly\n\n"
-                  "Click Cancel to exit."), QMessageBox::Cancel);
+    m_dbDatabase = QSqlDatabase::addDatabase("QSQLITE", dbName);
+    m_dbDatabase.setDatabaseName(m_sDBName);
+
+    if (!m_dbDatabase.open()) {
+        debug(ERROR(CRITICAL), "Failed to open DATABASE!\n");
+        return;
     }
-    QSqlQuery query(*this);
+
+    QSqlQuery query(m_dbDatabase);
     
     //creates table for new db
     if (!query.exec("SELECT * FROM cobraClips"))
@@ -42,13 +41,14 @@ cobraClipList::cobraClipList(QString dbName) :QSqlDatabase()
 
 cobraClipList::~cobraClipList()
 {
+    m_dbDatabase.close();
     debug(LOW, "cobraClipList dieing...\n");
 }
 
 cobraClip cobraClipList::getClip(int uid)
 {
     cobraClip ccClip;
-    QSqlQuery query("SELECT " % QString::number(uid) % "FROM uid", *this);
+    QSqlQuery query("SELECT " % QString::number(uid) % "FROM uid", m_dbDatabase);
     QSqlRecord sqlRecord = query.record();
     ccClip.setUID(sqlRecord.value(0).toInt());
     ccClip.setPath(sqlRecord.value(1).toString());
@@ -65,62 +65,52 @@ bool
 cobraClipList::updateClip(cobraClip& clip)
 {
     QString updateString = "UPDATE cobraClips SET path = " % 
-        clip.getPath() % ", hash = " % 
-        clip.getHash() % ", size = " % 
-        QString::number(clip.getSize()) % ", modtime = " % 
-        clip.getModifiedTime() % ", title = " % 
-        clip.getTitle() % ", tags = " % 
-        clip.getTags() % ", description = " % 
-        clip.getDescription() % " WHERE uid = " % 
-        QString::number(clip.getUID());
+            clip.getPath() % ", hash = " %
+            clip.getHash() % ", size = " %
+            QString::number(clip.getSize()) % ", modtime = " %
+            clip.getModifiedTime() % ", title = " %
+            clip.getTitle() % ", tags = " %
+            clip.getTags() % ", description = " %
+            clip.getDescription() % " WHERE uid = " %
+            QString::number(clip.getUID());
 
-    sqlQuery(updateString);
-    
-    return true;
+    return sqlQuery(updateString);
 }
 
 bool
 cobraClipList::removeClip(int uid)
 {
     QString deleteString = "DELETE FROM cobraClips WHERE "  % QString::number(uid);
-
-    sqlQuery(deleteString);
-
-    return true;
+    return sqlQuery(deleteString);
 }
 
 bool
 cobraClipList::addClip(cobraClip& clip)
 {
     QString insertString = "INSERT INTO cobraClips VALUES(" %  
-         QString::number(clip.getUID()) % ", '" % 
-         clip.getPath() % "', '" % 
-         clip.getHash() % "', " % 
-         QString::number(clip.getSize()) % ", '" % 
-         clip.getModifiedTime() % "', '" % 
-         clip.getTitle() % "', '" % 
-         clip.getTags() % "', '" % 
-         clip.getDescription() % "')";
+            QString::number(clip.getUID()) % ", '" %
+            clip.getPath() % "', '" %
+            clip.getHash() % "', " %
+            QString::number(clip.getSize()) % ", '" %
+            clip.getModifiedTime() % "', '" %
+            clip.getTitle() % "', '" %
+            clip.getTags() % "', '" %
+            clip.getDescription() % "')";
 
-   sqlQuery(insertString);
-
-   return true;
+    return sqlQuery(insertString);
 }
 
-void cobraClipList::sqlQuery(QString& string)
+bool
+cobraClipList::sqlQuery(QString& string)
 {
-    QSqlQuery query(*this);
-    if (!query.exec(string))
-    {
-        qDebug() << "Last Error" << query.lastError().text();
-        QMessageBox::critical(0, qApp->tr("Cannot open database"),
-            qApp->tr("Unable to process your request.\n"
-                 "Please Make sure you entered all your data correctly\n\n"
-                 "Click Cancel to exit."), QMessageBox::Cancel);
+    QSqlQuery query(m_dbDatabase);
+
+    if (!query.exec(string)) {
+        debug(ERROR(CRITICAL), "Failed to Query Database!\n");
+        return false;
     }
-    else
-    {
-        debug(LOW,"This is the string that was submitted for the SqlQuery: %s\n", string.data());
-    }
+
+    debug(LOW,"This is the string that was submitted for the SqlQuery: %s\n", string.data());
+    return true;
 }
 

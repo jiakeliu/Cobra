@@ -19,6 +19,7 @@ signals:
 
 public slots:
 
+protected:
 };
 
 #endif // COBRALISTWIDGET_H
