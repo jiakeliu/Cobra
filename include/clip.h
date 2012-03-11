@@ -83,8 +83,6 @@ public:
         return(m_iUID);
     }
 
-
-
     /**
      * @fn QString setTitle() 
      * sets the title of a Clip

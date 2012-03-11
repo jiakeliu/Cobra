@@ -155,11 +155,7 @@ cobraChatEventHandler::handleServerEvent(cobraNetEvent* event)
             QString msg = cobraNetHandler::instance()->getIdUsername(chat->source());
             msg += ": ";
             msg += chat->msg();
-
             chat->setMsg(CHAT_MESSAGE(+msg+));
-
-            //cobraNetHandler::instance()->getUsername()
-
             chat->setResponse(true);
             chat->setDestination(BROADCAST);
             chat->setSource(SERVER);

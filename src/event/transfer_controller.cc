@@ -91,6 +91,7 @@ cobraTransferFile::activate(bool enable)
     if (m_bSending && enable) {
         open(ReadOnly);
     } else if (!m_bSending && enable) {
+        debug(MED, "LOOKKKKK HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n");
         QString filePath = g_cobra_settings->value("storage_dir").toString();
         filePath += "/" + m_baExpectedHash;
         setFileName(filePath);
@@ -197,18 +198,17 @@ cobraTransferFile::recieveChunk(cobraTransferEvent* event)
     seek(offset);
     write(event->data());
 
-    if(expectedHash() == currentHash()) {
+    if(expectedHash() == currentHash())
         return cobraTransferFile::TransferComplete;
-    }
-    else {
+    else
         return cobraTransferFile::TransferIncomplete;
-    }
 }
 
 bool
 cobraTransferFile::transferComplete()
 {
-    // TODO: This needs to close the file and do anything else necessary
+    debug(MED, "Completed Transfer of file... \n");
+    activate(false);
     return false;
 }
 
@@ -475,14 +475,6 @@ cobraTransferController::recieveChunk(cobraTransferEvent* event)
         file->activate(true);
 
     file->recieveChunk(event);
-
-    /* THis function may return
-       ** TransferComplete
-       ** TransferIncomplete (but contiguous)
-       ** TransferIncompleteNoncontiguous
-       */
-    //return file->isComplete();
-    return cobraTransferFile::TransferIncomplete;
 }
 
 bool
