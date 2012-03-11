@@ -36,7 +36,7 @@ cobraClipList::cobraClipList(QString dbName) :QSqlDatabase()
     //creates table for new db
     if (!query.exec("SELECT * FROM cobraClips"))
     {
-        query.exec("CREATE TABLE  cobraClips  (uid int, path varchar(80), hash varchar(32), modtime(40), title(40), tags(160))");
+        query.exec("CREATE TABLE  cobraClips  (uid int, path blob, hash varchar(32), modtime varchar(40), title varchar(40), tags varchar(160), description blob )");
     } 
     
 }
@@ -49,7 +49,7 @@ cobraClipList::~cobraClipList()
 cobraClip cobraClipList::getClip(int uid)
 {
    cobraClip ccClip;
-
+   QSqlQuery query("SELECT " % QString::number(uid) % "FROM uid", db);
    return ccClip;   
 }
 
