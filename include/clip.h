@@ -88,7 +88,7 @@ public:
      * @return the unique id of a Clip
      */
     int getUID() {
-        return(m_iUID);
+        return(m_iUid);
     }
 
     /**
@@ -156,11 +156,11 @@ public:
     }
 
     /**
-     * @fn void setUID() 
+     * @fn void setUid()
      * sets the unique id of a Clip
      */
-    void setUID(int uid) {
-        m_iUID = uid;
+    void setUid(int uid) {
+        m_iUid = uid;
     }
 
 
@@ -179,12 +179,11 @@ protected:
     QString                             m_sDescription;
     QString                             m_sExtension;
     int                                 m_iSize;
-    int                                 m_iUID;
+    int                                 m_iUid;
     
 };
 
 class cobraClipList {
-
 public:
     cobraClipList(QString dbName = ":memory:");
     virtual ~cobraClipList();

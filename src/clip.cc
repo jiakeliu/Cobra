@@ -9,6 +9,7 @@
 #include <QTableView>
 
 cobraClip::cobraClip()
+    :m_iUid(0)
 {
     debug(LOW, "cobraClip initializing...\n");
 }
@@ -61,7 +62,7 @@ cobraClip cobraClipList::getClip(int uid)
     cobraClip ccClip;
     QSqlQuery query("SELECT * FROM cobraClip WHERE uid='" % QString::number(uid) % "';", m_dbDatabase);
     QSqlRecord sqlRecord = query.record();
-    ccClip.setUID(sqlRecord.value(0).toInt());
+    ccClip.setUid(sqlRecord.value(0).toInt());
     ccClip.setPath(sqlRecord.value(1).toString());
     ccClip.setHash(sqlRecord.value(2).toString());
     ccClip.setSize(sqlRecord.value(3).toInt());
@@ -101,6 +102,7 @@ cobraClipList::removeClip(int uid)
 bool
 cobraClipList::addClip(cobraClip& clip)
 {
+    QSqlQuery query(m_dbDatabase);
     QString insertString =
             "INSERT INTO cobraClips (uid,path,hash,size,modtime,title,tags,description,extension) VALUES (NULL,"
             "'" % clip.getPath() % "',"
@@ -112,7 +114,19 @@ cobraClipList::addClip(cobraClip& clip)
             "'" % clip.getDescription() % "',"
             "'" % clip.getExtension() % "');";
 
-    return sqlQuery(insertString);
+    if (!query.exec(insertString)) {
+        QSqlError err = m_dbDatabase.lastError();
+        debug(ERROR(CRITICAL), "Failed to Query Database (%s).\n", qPrintable(m_dbDatabase.connectionName()));
+        if (!err.databaseText().isEmpty())
+            debug(ERROR(CRITICAL),"%s\n", qPrintable(err.databaseText()));
+        if (!err.driverText().isEmpty())
+            debug(ERROR(CRITICAL),"%s\n", qPrintable(err.driverText()));
+        return false;
+    }
+
+    bool ok = false;
+    clip.setUid(query.lastInsertId().toInt(&ok));
+    return ok;
 }
 
 bool
@@ -130,7 +144,7 @@ cobraClipList::sqlQuery(QString& string)
         return false;
     }
 
-    debug(LOW,"This is the string that was submitted for the SqlQuery: %s\n", string.data());
+    debug(LOW,"This is the string that was submitted for the SqlQuery: %s\n", qPrintable(string));
     return true;
 }
 
