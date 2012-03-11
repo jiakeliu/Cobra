@@ -5,6 +5,7 @@
 #include "mainwindow.h"
 #include <QtNetwork/QSslSocket>
 #include "net.h"
+#include "clip.h"
 
 /**
  * @fn void handleArgs(QApplication& app)
@@ -39,6 +40,35 @@ main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
     handleArgs(app);
+
+    cobraClipList myList;
+
+    cobraClip myClip;
+    myClip.setTitle("Test");
+    myClip.setDescription("Testing Clips");
+    myClip.setUID(1234);
+    myList.addClip(myClip);
+
+    cobraClip myClip2;
+    myClip2.setTitle("Test");
+    myClip2.setDescription("Testing Clips");
+    myClip2.setUID(5678);
+    myList.addClip(myClip2);
+
+    cobraClip myClip3;
+    myClip3.setTitle("Test");
+    myClip3.setDescription("Testing Clips");
+    myClip3.setUID(9876);
+    myList.addClip(myClip3);
+
+    QVector<int> myVector;
+    myList.enumClips(myVector);
+
+    qDebug() << "My Vector";
+    for (int i = 0; i<myVector.size(); i++)
+    {
+        qDebug() << myVector[i];
+    }
 
     QApplication::setWindowIcon(QIcon(":images/cobra_main.png"));
 

@@ -74,7 +74,6 @@ void cobraTransferEvent::setExtension(QString fileName)
         m_sExtension = fileName;
     else
         m_sExtension = fileName.remove(0, index+1);
-
 }
 
 bool

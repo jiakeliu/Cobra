@@ -44,6 +44,14 @@ public:
     }
 
     /**
+     * @fn QString getExtension()
+     * @return the extension of a Clip
+     */
+    QString getExtension() {
+        return(m_sExtension);
+    }
+
+    /**
      * @fn QString getTags() 
      * @return the tag of a Clip
      */
@@ -108,6 +116,14 @@ public:
     }
 
     /**
+     * @fn void setExtension()
+     * sets the extension of a Clip
+     */
+    void setExtension(QString extension) {
+        m_sExtension = extension;
+    }
+
+    /**
      * @fn void setTags() 
      * sets the tag of a Clip
      */
@@ -161,6 +177,7 @@ protected:
     QString                             m_sTags;
     QString                             m_sModifiedTime;
     QString                             m_sDescription;
+    QString                             m_sExtension;
     int                                 m_iSize;
     int                                 m_iUID;
     
@@ -172,7 +189,7 @@ public:
     cobraClipList(QString dbName = ":memory:");
     virtual ~cobraClipList();
 
-   void                         enumClips(QVector<int>& );
+   void                         enumClips(QVector<int>& vector);
    cobraClip                    getClip(int uid);
    virtual bool                 updateClip(cobraClip& clip);
    virtual bool                 removeClip(int uid);

@@ -35,7 +35,7 @@ cobraClipList::cobraClipList(QString dbName)
     //creates table for new db
     if (!query.exec("SELECT * FROM cobraClips"))
     {
-        query.exec("CREATE TABLE  cobraClips  (uid int, path blob, hash varchar(32), size int, modtime varchar(40), title varchar(40), tags varchar(160), description blob )");
+        query.exec("CREATE TABLE  cobraClips  (uid int, path blob, hash varchar(32), size int, modtime varchar(40), title varchar(40), tags varchar(160), description blob, extension varchar(16))");
     }    
 }
 
@@ -58,6 +58,7 @@ cobraClip cobraClipList::getClip(int uid)
     ccClip.setTitle(sqlRecord.value(5).toString());
     ccClip.setTags(sqlRecord.value(6).toString());
     ccClip.setDescription(sqlRecord.value(7).toString());
+    ccClip.setExtension(sqlRecord.value(8).toString());
     return ccClip;   
 }
 
@@ -72,7 +73,9 @@ cobraClipList::updateClip(cobraClip& clip)
             clip.getTitle() % ", tags = " %
             clip.getTags() % ", description = " %
             clip.getDescription() % " WHERE uid = " %
+            clip.getExtension() % " WHERE extension = " %
             QString::number(clip.getUID());
+
 
     return sqlQuery(updateString);
 }
@@ -96,6 +99,7 @@ cobraClipList::addClip(cobraClip& clip)
             clip.getTitle() % "', '" %
             clip.getTags() % "', '" %
             clip.getDescription() % "')";
+            clip.getExtension() % "')";
 
     return sqlQuery(insertString);
 }
@@ -103,6 +107,7 @@ cobraClipList::addClip(cobraClip& clip)
 bool
 cobraClipList::sqlQuery(QString& string)
 {
+    qDebug() << "SQL Query: " << string;
     QSqlQuery query(m_dbDatabase);
 
     if (!query.exec(string)) {
@@ -112,5 +117,18 @@ cobraClipList::sqlQuery(QString& string)
 
     debug(LOW,"This is the string that was submitted for the SqlQuery: %s\n", string.data());
     return true;
+}
+
+void
+cobraClipList::enumClips(QVector<int>& vector)
+{
+    QSqlQuery query("SELECT uid FROM cobraClips", m_dbDatabase);
+
+    query.exec();
+
+    while (query.next())
+        vector.append(query.value(0).toInt());
+
+    return;
 }
 
