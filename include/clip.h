@@ -147,12 +147,7 @@ public:
         m_iUID = uid;
     }
  
-    /**
-     * @fn void addToDatabase(struct fileInfo)
-     * addToDatabase will take the extra information as well as the location of the file to the database.
-     * @param fileInfo is a struct with the information that will be populated in the database.
-     */
-    void addToDatabase();
+
 
 //public slots:
 
@@ -183,14 +178,18 @@ protected:
 class cobraClipList :  public QSqlDatabase {
 
 public:
-   cobraClipList(QSqlDriver* parent = NULL);
-   virtual ~cobraClipList();
+    cobraClipList(QString dbName = ":memory:");
+    virtual ~cobraClipList();
 
    void                         enumClips(QVector<int>& );
    cobraClip                    getClip(int uid);
    virtual bool                 updateClip(cobraClip& clip);
    virtual bool                 removeClip(int uid);
    virtual bool                 addClip(cobraClip& clip);
+
+private:
+   QString                      m_sDBName;
+   QSqlDatabase                 db;
 };
 
 #endif // clip_H
