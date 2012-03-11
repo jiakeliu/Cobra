@@ -1,8 +1,6 @@
 #include "debug.h"
 #include "net.h"
 
-uint8_t cobraStreamMagic[sizeof(uint32_t)] = {0x31, 0x33, 0x73, 0x13};
-
 cobraNetHandler::cobraNetHandler(QObject* parent, int cnt)
     :QTcpServer(parent), m_iThreadCnt(cnt)
 {

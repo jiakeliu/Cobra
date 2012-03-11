@@ -50,7 +50,7 @@
 #define cobraNetEventCnxPerThread   (2)
 #define cobraNetEventThreadCount    (4)
 
-extern uint8_t cobraStreamMagic[sizeof(uint32_t)]; //{0x31, 0x33, 0x73, 0x13};
+extern QByteArray cobraStreamMagic;
 
 /**
  * @def AUTHORIZATION
@@ -89,6 +89,7 @@ public slots:
     void clientReady();
 
     bool sendEvent(cobraNetEvent* event);
+    int sendCnxEvent(cobraNetConnection* cnx, cobraNetEvent* event);
     bool sendFile(cobraTransferFile* file);
 
  public:
@@ -102,16 +103,17 @@ public slots:
     }
 
  protected:
+    QByteArray                      m_baTransmitBuffer;
     QDataStream& magic(QDataStream& stream);
-    bool waitForMagic(QDataStream& stream);
+    int countMagic() const;
 
  protected:
     cobraTransferController         m_ctcTransferController;
     QVector<cobraNetConnection*>    m_cncConnections;
     QSemaphore                      m_semAvailableConnections;
     int                             m_iMaxConnections;
+    uint32_t                        m_uiLastMagic;
 };
-
 
 /**
  * @class cobraNetConnection net.h "net.h"
@@ -135,6 +137,8 @@ public:
        m_bConnected = cnx;
    }
 
+   int readEvents(QByteArray& data);
+
 public:
     cobraId id() const;
 
@@ -143,6 +147,8 @@ public:
 protected:
     bool            m_bConnected;
     cobraId         m_Id;
+
+    QByteArray      m_baRead;
     static cobraId  currentId;
 };
 

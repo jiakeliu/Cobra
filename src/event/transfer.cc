@@ -22,6 +22,7 @@ cobraTransferEvent::~cobraTransferEvent()
 int
 cobraTransferEvent::serialize(QDataStream& stream)
 {
+    debug(HIGH, "Serialize!\n");
     int bytes = cobraNetEvent::serialize(stream);
     stream << m_iCommand;
     stream << m_uiUid;
@@ -181,14 +182,19 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
     case cobraTransferEvent::Chunk: {
         debug(LOW, "Transfer Chunk!\n");
         int cmp = cobraTransferController::recieveChunk(tevent);
+
         if (cmp == cobraTransferFile::TransferComplete) {
             cobraTransferEvent* xevent = static_cast<cobraTransferEvent*>(event->duplicate());
+
             xevent->setSource(event->destination());
             xevent->setDestination(event->source());
             xevent->setResponse(true);
             xevent->setCommand(cobraTransferEvent::Complete);
+
             handler->sendEvent(xevent);
+            debug(HIGH, "Transfer Complete: %d\n", tevent->uid());
         }
+
         tevent->put();
         return ret;
     }

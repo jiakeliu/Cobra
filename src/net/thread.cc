@@ -3,13 +3,16 @@
 
 cobraNetEventThread::cobraNetEventThread(QObject* parent, int cnx)
     :QObject(parent), m_ctcTransferController(cobraConcurrentTransfers),
-      m_semAvailableConnections(cnx), m_iMaxConnections(cnx)
+      m_semAvailableConnections(cnx), m_iMaxConnections(cnx),
+      m_uiLastMagic(0)
 {
     /* Set the initial interval... */
     m_ctcTransferController.setInterval(100);
 
     if (!m_ctcTransferController.initialize(this))
         debug(ERROR(CRITICAL), "Failed to initialize the transfer controller!\n");
+
+    m_baTransmitBuffer.reserve(4096);
 }
 
 cobraNetEventThread::~cobraNetEventThread()
@@ -35,11 +38,9 @@ cobraNetEventThread::sendEvent(cobraNetEvent *event)
         if (!m_cncConnections[idx]->is(dest))
             continue;
 
-        QDataStream stream(m_cncConnections[idx]);
-
         debug(CRITICAL, "Sending Event: %d\n", event->type());
-        uint32_t bytes = event->serialize(magic(stream));
-        debug(HIGH, "Sent: 0x%x bytes\n", bytes);
+        int bytes = sendCnxEvent(m_cncConnections[idx], event);
+        debug(ERROR(HIGH), "Sent: 0x%x bytes\n", bytes);
     }
 
     event->put();
@@ -155,11 +156,8 @@ cobraNetEventThread::removeConnection(int id)
         event.setFlag(cobraStateEvent::Forced);
         event.setState(cobraStateEvent::ClosingState);
 
-        { /* Make our QDataStream object is destroyed before deleteLater call */
-            debug(CRITICAL, "Sending Closing State Message to %d (cnx: %d)!\n", id, (*iter)->id());
-            QDataStream stream(*iter);
-            event.serialize(magic(stream));
-        }
+        debug(CRITICAL, "Sending Closing State Message to %d (cnx: %d)!\n", id, (*iter)->id());
+        sendCnxEvent(*iter, &event);
 
         (*iter)->deleteLater();
         iter = m_cncConnections.erase(iter);
@@ -241,74 +239,46 @@ cobraNetEventThread::clientReady()
     cobraSendEvent(event);
 }
 
-QDataStream&
-cobraNetEventThread::magic(QDataStream& stream)
+int
+cobraNetEventThread::sendCnxEvent(cobraNetConnection *cnx, cobraNetEvent* event)
 {
-    stream << cobraStreamMagic[0] << cobraStreamMagic[1] << cobraStreamMagic[2] << cobraStreamMagic[3];
-    return stream;
-}
+    debug(ERROR(LOW), "Transmit: %x\n", m_baTransmitBuffer.count());
+    QByteArray xmit;
+    QDataStream stream(&xmit, QIODevice::ReadWrite);
+    event->serialize(stream);
 
-bool
-cobraNetEventThread::waitForMagic(QDataStream& stream)
-{
-    /* Iterate through bytes until all 4 magic bytes are found...
-     * Originally, we read in a uint32_t to test, but this will fuck up
-     * events if we accidently get offset a byte... by reading in the
-     * data a byte at a time, we are more likely to miss less events.
-     */
-    uint8_t x = 0;
-    uint8_t magic = 0;
-    uint32_t missed = 0;
+    uint32_t bytes = xmit.size();
+    if (!bytes)
+        return 0;
 
-    /* Iterate through the rest of the stream magic. */
-    do {
-        stream >> magic;
+    debug(CRITICAL, "Wrote Magic: %ld\n", cnx->write(cobraStreamMagic));
+    debug(CRITICAL, "Wrote Size: %ld\n", cnx->write((char*)&bytes, sizeof(bytes)));
+    debug(CRITICAL, "Wrote Event: %ld\n", cnx->write(xmit));
 
-        /* If there is no more bytes to be read, exit. */
-        if (stream.atEnd()) {
-            debug(ERROR(CRITICAL), "End of stream!!!\n");
-
-            if (missed) {
-                debug(ERROR(LOW), "Missed: 0x%x bytes!\n", missed);
-            }
-            return false;
-        }
-
-        /* If this byte isn't the next byte in the Stream Magic,
-        * then jump back to wait for the next stream magic.
-        */
-        if (magic != cobraStreamMagic[x++]) {
-            missed++;
-            x=0;
-            continue;
-        }
-    }
-    while (x<sizeof(uint32_t));
-
-    if (missed) {
-        debug(ERROR(LOW), "Missed: 0x%x bytes!\n", missed);
-    }
-
-    return true;
+    return bytes;
 }
 
 int
 cobraNetEventThread::readyRead()
 {
-    debug(LOW, "Ready Read\n");
     cobraNetConnection* cnx = qobject_cast<cobraNetConnection*>(sender());
-    if (!cnx || !cnx->isConnected())
+    if (!cnx)
         return 0;
 
     int type = 0;
     int bytes = 0;
-    QDataStream stream(cnx);
+    uint32_t size = 0;
 
-    do {
-        if (!waitForMagic(stream))
-            return bytes;
+    QByteArray events;
+    int count = cnx->readEvents(events);
+    QDataStream stream(&events, QIODevice::ReadWrite);
 
+    debug(ERROR(LOW), "Ready Read: %d\n", count);
+    for (int x=0; x<count; x++) {
+
+        stream.skipRawData(cobraStreamMagic.count() + sizeof(size));
         /* if we've made it here, then we should have a valid event, lets check. */
+
         stream >> type;
         bytes += sizeof(type);
 
@@ -323,8 +293,8 @@ cobraNetEventThread::readyRead()
             continue;
         }
 
-        bytes = event->deserialize(stream);
-        debug(HIGH, "Bytes read from incoming event: %d\n", bytes);
+        bytes += event->deserialize(stream);
+        debug(ERROR(HIGH), "Bytes read from incoming event: %d\n", bytes);
 
         if (cnx->id() != event->source())
             debug(ERROR(CRITICAL), "Incoming event failed source coherenecy check! "
@@ -342,7 +312,6 @@ cobraNetEventThread::readyRead()
 
         cobraSendEvent(event);
     }
-    while (cnx->bytesAvailable() > 0);
 
     return bytes;
 }

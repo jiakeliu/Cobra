@@ -229,7 +229,8 @@ cobraTransferFile::hash()
 {
     if (m_bSending) {
         if (m_baHash.isEmpty() || m_baHash.isNull())
-           m_baHash = QCryptographicHash::hash(readAll(), QCryptographicHash::Md5);
+            return currentHash();
+
         return m_baHash;
     }
 

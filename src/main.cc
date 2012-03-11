@@ -19,15 +19,15 @@ handleArgs(QApplication& app)
     QStringList strs = app.arguments();
     for (int x=0; x<strs.count(); x++) {
         QString lower = strs.at(x).toLower();
-        if (lower.compare("low")) {
+        if (!lower.compare("low")) {
             level = LOW;
-        } else if (lower.compare("med")) {
+        } else if (!lower.compare("med")) {
             level = MED;
-        } else if (lower.compare("high")) {
+        } else if (!lower.compare("high")) {
             level = HIGH;
-        } else if (lower.compare("crit")) {
+        } else if (!lower.compare("crit")) {
             level = CRITICAL;
-        } else if (lower.compare("err")) {
+        } else if (!lower.compare("err")) {
             level = ERROR(level);
         }
     }
