@@ -39,6 +39,9 @@ public:
 
    bool fromFile(cobraTransferFile* file);
 
+   QString extension();
+   void setExtension(QString path);
+
 public:
 
    /**
@@ -79,6 +82,7 @@ protected:
     qint64          m_iSize;
     QByteArray      m_baHash;
     QByteArray      m_baData;
+    QString         m_sExtension;
 };
 
 class cobraNetEventThread;
@@ -129,6 +133,9 @@ public:
 
     void setDestination(cobraId dest);
     void setSource(cobraId src);
+
+    void setPath(QString path);
+
     cobraId destination() const;
     cobraId source() const;
 

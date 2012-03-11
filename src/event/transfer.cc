@@ -11,7 +11,7 @@ cobraTransferEvent::cobraTransferEvent()
 cobraTransferEvent::cobraTransferEvent(cobraTransferEvent& state)
     :cobraNetEvent(state), m_iCommand(state.m_iCommand),
       m_uiUid(state.m_uiUid), m_iOffset(state.m_iOffset), m_iSize(state.m_iSize),
-      m_baHash(state.m_baHash), m_baData(state.m_baData)
+      m_baHash(state.m_baHash), m_baData(state.m_baData), m_sExtension(state.m_sExtension)
 {
 }
 
@@ -30,6 +30,7 @@ cobraTransferEvent::serialize(QDataStream& stream)
     stream << m_iSize;
     stream << m_baHash;
     stream << m_baData;
+    stream << m_sExtension;
 
     return (bytes + sizeof(m_iOffset) + sizeof(m_uiUid) +
             sizeof(m_iCommand) + m_baData.length() +
@@ -47,6 +48,7 @@ cobraTransferEvent::deserialize(QDataStream& stream)
     stream >> m_iSize;
     stream >> m_baHash;
     stream >> m_baData;
+    stream >> m_sExtension;
 
     return (bytes + sizeof(m_iOffset) + sizeof(m_uiUid) +
             sizeof(m_iCommand) + m_baData.length() +
@@ -58,6 +60,21 @@ cobraTransferEvent::duplicate()
 {
     cobraTransferEvent* xfer = new cobraTransferEvent(*this);
     return xfer;
+}
+
+QString cobraTransferEvent::extension()
+{
+    return m_sExtension;
+}
+
+void cobraTransferEvent::setExtension(QString fileName)
+{
+    int index = fileName.lastIndexOf(".");
+    if (index < 0)
+        m_sExtension = fileName;
+    else
+        m_sExtension = fileName.remove(0, index+1);
+
 }
 
 bool
@@ -227,17 +244,15 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
 
         int auth = handler->getIdAuthorization(event->source());
         if (auth & ParticipantAuth) {
-
             QString filePath = g_cobra_settings->value("storage_dir").toString();
 
-            QByteArray hash = tevent->hash();
-            filePath += "/" + hash.toHex();
 
-            debug(MED, "Incoming File!!!!!!!!!!!\n");
-            debug(MED, "UID: %d\n", tevent->uid());
-            debug(MED, "Hash: %s\n", hash.toHex().data());
+            QString extension = tevent->extension();
+            QByteArray hash = tevent->hash();
+            filePath += "/" + hash.toHex() + "." + extension;
 
             cobraTransferFile* file = new cobraTransferFile(filePath);
+
             file->setUid(tevent->uid());
             file->setExpectedHash(hash);
             file->setDestination(tevent->destination());

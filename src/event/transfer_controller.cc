@@ -501,7 +501,6 @@ cobraTransferController::removeTransfer(cobraTransferFile* file)
     return false;
 }
 
-
 int
 cobraTransferController::recieveChunk(cobraTransferEvent* event)
 {

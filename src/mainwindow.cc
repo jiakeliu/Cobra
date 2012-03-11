@@ -352,6 +352,7 @@ void MainWindow::on_actionSelectUpload_triggered()
     cobraTransferEvent* event = new cobraTransferEvent;
     event->fromFile(file);
     event->setResponse(false);
+    event->setExtension(path);
 
     cobraTransferController::addPendingTransfer(file);
     cobraSendEvent(event);
