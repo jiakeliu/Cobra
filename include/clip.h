@@ -189,7 +189,9 @@ public:
 
 private:
    QString                      m_sDBName;
-   QSqlDatabase                 db;
+
+
+   void                         sqlQuery(QString&);
 };
 
 #endif // clip_H
