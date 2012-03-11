@@ -22,8 +22,8 @@ cobraClipList::cobraClipList(QString dbName) :QSqlDatabase()
 {
     debug(LOW, "cobraClipList initializing using 1 argument, the dbName...\n");
     m_sDBName = dbName;
-    db = addDatabase("QSQLITE", "new");
-    db.setDatabaseName(dbName);
+    this->addDatabase("QSQLITE", "new");
+    this->setDatabaseName(dbName);
     if (!db.open())
     {
        QMessageBox::critical(0, qApp->tr("Cannot open database"),
@@ -31,7 +31,7 @@ cobraClipList::cobraClipList(QString dbName) :QSqlDatabase()
                   "Please Make sure you entered all your data correctly\n\n"
                   "Click Cancel to exit."), QMessageBox::Cancel);
     }
-    QSqlQuery query(db);
+    QSqlQuery query(*this);
     
     //creates table for new db
     if (!query.exec("SELECT * FROM cobraClips"))
@@ -49,7 +49,7 @@ cobraClipList::~cobraClipList()
 cobraClip cobraClipList::getClip(int uid)
 {
    cobraClip ccClip;
-   QSqlQuery query("SELECT " % QString::number(uid) % "FROM uid", db);
+   QSqlQuery query("SELECT " % QString::number(uid) % "FROM uid", *this);
    QSqlRecord sqlRecord = query.record();
    ccClip.setUID(sqlRecord.value(0).toInt());
    ccClip.setPath(sqlRecord.value(1).toString());
@@ -66,16 +66,19 @@ bool
 cobraClipList::updateClip(cobraClip& clip)
 {
 
+   return true;
 }
 
 bool
 cobraClipList::removeClip(int uid)
 {
 
+   return true;
 }
 
 bool
 cobraClipList::addClip(cobraClip& clip)
 {
 
+   return true;
 }
