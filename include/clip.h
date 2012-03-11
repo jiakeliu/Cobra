@@ -4,8 +4,6 @@
 #include <QSqlDatabase>
 #include <QtSql>
 
-
-
 /**
  * @class cobraClip clip.h "clip."
  *

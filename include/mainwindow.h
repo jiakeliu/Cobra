@@ -42,6 +42,7 @@ private slots:
     void on_actionPreferences_triggered();
 
     void on_actionConnect_triggered();
+    //void on_actionDisconnect_triggered();
 
     void on_actionFile_List_toggled(bool );
 

@@ -50,8 +50,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>489</width>
-         <height>422</height>
+         <width>102</width>
+         <height>102</height>
         </rect>
        </property>
        <attribute name="label">
@@ -86,8 +86,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>489</width>
-         <height>422</height>
+         <width>102</width>
+         <height>102</height>
         </rect>
        </property>
        <attribute name="label">
@@ -119,6 +119,7 @@
     <addaction name="actionPreferences"/>
     <addaction name="separator"/>
     <addaction name="actionConnect"/>
+    <addaction name="actionDisconnect"/>
     <addaction name="actionExport"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
@@ -202,8 +203,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>200</width>
-          <height>418</height>
+          <width>98</width>
+          <height>28</height>
          </rect>
         </property>
         <attribute name="label">
@@ -240,6 +241,43 @@
      <width>0</width>
      <height>200</height>
     </size>
+   </property>
+   <property name="palette">
+    <palette>
+     <active>
+      <colorrole role="WindowText">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </active>
+     <inactive>
+      <colorrole role="WindowText">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </inactive>
+     <disabled>
+      <colorrole role="WindowText">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>118</red>
+         <green>116</green>
+         <blue>113</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </disabled>
+    </palette>
    </property>
    <property name="toolTip">
     <string>Chat Window</string>
@@ -458,6 +496,11 @@
   <action name="actionDocumentation">
    <property name="text">
     <string>Documentation</string>
+   </property>
+  </action>
+  <action name="actionDisconnect">
+   <property name="text">
+    <string>Disconnect</string>
    </property>
   </action>
  </widget>

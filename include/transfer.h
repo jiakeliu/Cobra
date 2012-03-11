@@ -156,7 +156,6 @@ protected:
 
     bool        m_bActive;
     bool        m_bSending;
-    bool        m_bSent;
 };
 
 /**

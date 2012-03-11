@@ -85,8 +85,16 @@ void
 cobraTransferFile::activate(bool enable)
 {
     m_bActive = enable;
-    if (enable)
+
+    QString filePath = g_cobra_settings->value("storage_dir").toString();
+    filePath += "/" + m_baExpectedHash;
+
+    setFileName(filePath);
+
+    if (m_bSending && enable)
         open(ReadOnly);
+    else if (!m_bSending && enable)
+        open(ReadWrite);
     else
         close();
 }
@@ -179,15 +187,13 @@ cobraTransferFile::recieveChunk(cobraTransferEvent* event)
     if (!event || m_bSending)
         return cobraTransferFile::TransferError;
 
-    if(event->uid() != m_uiUid || event->hash() != m_baHash) {
-        return false;
-    }
+    if(event->uid() != m_uiUid || event->hash() != m_baHash)
+        return cobraTransferFile::TransferError;
 
     qint64 offset = event->offset();
 
     seek(offset);
-    if(write(event->data()))
-        m_bSent = true;
+    write(event->data());
 
     if(expectedHash() == currentHash()) {
         return cobraTransferFile::TransferComplete;
@@ -441,6 +447,15 @@ cobraTransferController::recieveChunk(cobraTransferEvent* event)
       * entry in the pending list.  Once a accept request is recieved, the
       * cobraTransferFile will be moved to the active list.
       */
+    cobraTransferFile* file = getFile(event->uid(), event->hash());
+
+    if (!file->isActive())
+        file->activate(true);
+
+    file->recieveChunk(event);
+
+
+
     /* THis function may return
        ** TransferComplete
        ** TransferIncomplete (but contiguous)
