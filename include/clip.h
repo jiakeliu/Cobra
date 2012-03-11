@@ -4,6 +4,8 @@
 #include <QSqlDatabase>
 #include <QtSql>
 
+
+
 /**
  * @class cobraClip clip.h "clip."
  *
@@ -58,6 +60,14 @@ public:
     }
 
     /**
+     * @fn QString getDescription()
+     * @return the description of a Clip
+     */
+    QString getDescription() {
+        return(m_sDescription);
+    }
+
+    /**
      * @fn int getSize() 
      * @return the size of a Clip
      */
@@ -72,6 +82,8 @@ public:
     int getUID() {
         return(m_iUID);
     }
+
+
 
     /**
      * @fn QString setTitle() 
@@ -111,6 +123,14 @@ public:
      */
     void setModifiedTime(QString time) {
         m_sModifiedTime = time;
+    }
+
+    /**
+     * @fn void setDescription()
+     * sets the description of a Clip
+     */
+    void setDescription(QString desc) {
+        m_sDescription = desc;
     }
 
     /**
@@ -158,13 +178,14 @@ protected:
     QString                             m_sPath;
     QString                             m_sTags;
     QString                             m_sModifiedTime;
+    QString                             m_sDescription;
     int                                 m_iSize;
     int                                 m_iUID;
     
 };
 
-class cobraClipList : public QObject, public QSqlDatabase {
-   Q_OBJECT
+class cobraClipList :  public QSqlDatabase {
+   //Q_OBJECT
 
 public:
    cobraClipList(QSqlDriver* parent = NULL);
@@ -172,9 +193,9 @@ public:
 
    void                         enumClips(QVector<int>& );
    cobraClip                    getClip(int uid);
-   bool                         updateClip(cobraClip& clip);
-   bool                         removeClip(int uid);
-   bool                         addClip(cobraClip& clip);
+   virtual bool                         updateClip(cobraClip& clip);
+   virtual bool                         removeClip(int uid);
+   virtual bool                         addClip(cobraClip& clip);
 };
 
 #endif // clip_H
