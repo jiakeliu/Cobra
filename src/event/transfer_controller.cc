@@ -185,13 +185,16 @@ cobraTransferFile::recieveChunk(cobraTransferEvent* event)
     if (!event || m_bSending)
         return cobraTransferFile::TransferError;
 
-    if(event->uid() != m_uiUid || event->hash() != m_baHash)
+    if(event->uid() != m_uiUid || event->hash() != expectedHash())
         return cobraTransferFile::TransferError;
 
     qint64 offset = event->offset();
 
     seek(offset);
-    write(event->data());
+    debug(LOW, "Is OPEN %d \n", isOpen());
+    debug(LOW, "SIZE OF DATA %d \n", event->data().size());
+    debug(LOW, "Written: %d \n",write(event->data()));
+    flush();
 
     if(expectedHash() == currentHash())
         return cobraTransferFile::TransferComplete;
