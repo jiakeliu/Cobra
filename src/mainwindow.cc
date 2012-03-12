@@ -29,14 +29,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->serverTree->setColumnHidden(0, true);
     ui->serverTree->setColumnWidth(1, 30);
     ui->serverTree->setColumnWidth(2, 120);
-    ui->serverTree->setColumnWidth(3, 235);
-    ui->serverTree->setColumnWidth(4, 120);
+    ui->serverTree->setColumnWidth(3, 205);
+    ui->serverTree->setColumnWidth(4, 150);
     ui->serverTree->setColumnWidth(5, 90);
     ui->localTree->setColumnWidth(0, 55);
     ui->localTree->setColumnWidth(1, 30);
     ui->localTree->setColumnWidth(2, 120);
-    ui->localTree->setColumnWidth(3, 180);
-    ui->localTree->setColumnWidth(4, 120);
+    ui->localTree->setColumnWidth(3, 150);
+    ui->localTree->setColumnWidth(4, 150);
     ui->localTree->setColumnWidth(5, 90);
 
     QString style =
@@ -440,17 +440,34 @@ MainWindow::on_actionAddClip_triggered()
 void
 MainWindow::on_actionRemoveClip_triggered()
 {
-    cobralistwidget *clw =  dynamic_cast<cobralistwidget*>(m_cclFocused);
+    QMessageBox msgBox;
+    msgBox.setText(trUtf8("Are you sure you want to remove the selected clip?"));
+    msgBox.setWindowTitle(tr("Warning"));
+    msgBox.setModal(true);
+    QPushButton *noButton = msgBox.addButton(trUtf8("     No     "), QMessageBox::YesRole);
+    QPushButton *yesButton = msgBox.addButton(trUtf8(  "    Yes   "), QMessageBox::YesRole);
+    msgBox.setDefaultButton(noButton);
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.exec();
 
-    if (!clw)
-        return;
+    if(msgBox.clickedButton() == noButton) {
+        debug(ERROR(LOW), "Canceled clip removal\n");
+        msgBox.accept();
+    }
+    else if(msgBox.clickedButton() == yesButton) {
+        debug(ERROR(LOW), "Clip removal confirmed\n");
+        cobralistwidget *clw =  dynamic_cast<cobralistwidget*>(m_cclFocused);
 
-    QTreeWidgetItem* ci = clw->currentItem();
-    if (ci!=NULL)
-    {
-        int uid = ci->text(1).toInt(0,10);
-        clw->removeClip(uid);
-    } else return;
+        if (!clw)
+            return;
+
+        QTreeWidgetItem* ci = clw->currentItem();
+        if (ci!=NULL)
+        {
+            int uid = ci->text(1).toInt(0,10);
+            clw->removeClip(uid);
+        } else return;
+    }
 }
 
 void
