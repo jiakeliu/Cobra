@@ -45,13 +45,11 @@ private slots:
     /* Meta Functions */
     void on_actionPreferences_triggered();
     void on_actionConnect_triggered();
-    //void on_actionDisconnect_triggered();
-    void on_actionFile_List_toggled(bool );
-    void on_actionClip_Cue_toggled(bool );
-    void on_actionServer_list_toggled(bool );
-    void on_actionChat_Window_toggled(bool );
-    void on_actionFile_Info_toggled(bool );
-    void on_actionOpenFile_triggered();
+    void on_actionFile_List_toggled(bool);
+    void on_actionClip_Cue_toggled(bool);
+    void on_actionServer_list_toggled(bool);
+    void on_actionChat_Window_toggled(bool);
+    void on_actionFile_Info_toggled(bool);
     void on_actionTransfers_triggered();
     void on_actionSelectUpload_triggered();
     void on_actionAddClip_triggered();

@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     installEventFilter(cobraNetHandler::instance());
 
-    tabifyDockWidget(ui->serverList, ui->fileList);
+    //tabifyDockWidget(ui->serverList, ui->fileList);
     //tabifyDockWidget(ui->fileList, ui->cueList);
     ui->cueList->setVisible(false);
     ui->fileInfoDock->setVisible(false);
@@ -302,37 +302,6 @@ MainWindow::on_actionFile_Info_toggled(bool checked)
     checked=!checked;
 }
 
-void MainWindow::on_actionOpenFile_triggered()
-{
-    QString path = QFileDialog::getOpenFileName(this, tr("Open File"),QDir::homePath(), QString::null);
-
-    if (!path.isEmpty())
-    {
-        QFile file(path);
-        if (!file.open(QFile::ReadOnly)) {
-            return;
-        }
-        else {
-            QFileInfo file(path);
-            // Place QFile Path into the SQL Database
-            // Load Tagging Dialog
-
-            QString clipTitle;
-            QString clipDesc;
-            QString clipTag;
-
-            // SQL -> setClipTitle(clipTitle) where clipPath = file.absoluteFilePath();
-            // SQL -> setClipDesc(clipDesc) where clipPath = file.absoluteFilePath();
-            // SQL -> setClipTag(clipTag)  where clipPath = file.absoluteFilePath();
-
-            // addClip_toCliplist();
-            // refresh_Local_Clip_List();
-
-            qDebug() << file.absoluteFilePath();
-        }
-    }
-}
-
 void MainWindow::on_actionTransfers_triggered()
 {
     if (!m_dTransfers)
@@ -394,7 +363,6 @@ void
 MainWindow::on_actionAddClip_triggered()
 {
     int res = 0;
-    QVector<int> list;
 
     if (!m_cclFocused) {
         debug(ERROR(CRITICAL), "Failed to find associated List!");
@@ -402,18 +370,35 @@ MainWindow::on_actionAddClip_triggered()
         return;
     }
 
+    cobraClipList *list = m_cclFocused;
+
+    QString path = QFileDialog::getOpenFileName(this, tr("Open File"),QDir::homePath(), QString::null);
+
+    if (path.isEmpty() || path.isNull())
+        return;
+
     cobraClip clip;
     clip.setTitle("<title>");
+    clip.setPath(path);
 
-    if (!m_cclFocused->addClip(clip) || clip.getUid() == 0)
-        goto err;
+    if (!list->addClip(clip)) {
+        QMessageBox::critical(this, tr("Unable to Add Clip"), tr("Failed to add the !"));
+        return;
+    }
+
+    if (clip.getUid() == 0) {
+        QMessageBox::critical(this, tr("Unable to Add Clip"), tr("Failed to add the !"));
+        return;
+    }
 
     if (!m_ccdDialog)
         m_ccdDialog = new cobraClipDialog;
 
-    m_ccdDialog->setClipList(m_cclFocused);
-    if (!m_ccdDialog->setClip(clip.getUid()))
-        goto err;
+    m_ccdDialog->setClipList(list);
+    if (!m_ccdDialog->setClip(clip.getUid())) {
+        QMessageBox::critical(this, tr("Unable to Add Clip"), tr("Unable to edit specified clip!"));
+        return;
+    }
 
     m_ccdDialog->setModal(true);
 
@@ -423,9 +408,5 @@ MainWindow::on_actionAddClip_triggered()
     m_ccdDialog->setClipList(NULL);
 
     if (res == QDialog::Rejected)
-        m_cclFocused->removeClip(clip.getUid());
-    return;
-
-err:
-    QMessageBox::critical(this, tr("Unable to Add Clip"), tr("Unable to add a clip to the specified list!!"));
+        list->removeClip(clip.getUid());
 }
