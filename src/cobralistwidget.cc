@@ -80,7 +80,6 @@ cobralistwidget::addClip(cobraClip& clip)
     if (!ret)
         return ret;
 
-
     QTreeWidgetItem *itm = new QTreeWidgetItem(this);
     QString clipid = (QString)clip.getUid();
     QString cliptitle = clip.getTitle();

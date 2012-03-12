@@ -1,9 +1,13 @@
+#include <QtGui>
+
 #include "include/clipdialog.h"
 #include "ui_clipdialog.h"
 
+
 cobraClipDialog::cobraClipDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::cobraClipDialog)
+    ui(new Ui::cobraClipDialog),
+    m_bHasEdits(false)
 {
     ui->setupUi(this);
 }
@@ -81,13 +85,68 @@ cobraClipDialog::updateClip()
     ui->typeLabel->setText(m_ccCurrent.getExtension());
 }
 
-void cobraClipDialog::on_buttonbox_clicked(QAbstractButton* button)
+void
+cobraClipDialog::on_clipSelection_valueChanged(int value)
 {
-    if (!button)
-        return;
+    (void)value;
+    updateClip();
 }
 
-void cobraClipDialog::on_clipSelection_valueChanged(int )
+void
+cobraClipDialog::on_titleEdit_textChanged(QString )
 {
+    updateButtons(true);
+}
 
+void
+cobraClipDialog::on_descEdit_textChanged(QString )
+{
+    updateButtons(true);
+}
+
+void
+cobraClipDialog::on_tagsEdit_textChanged(QString )
+{
+    updateButtons(true);
+}
+
+void
+cobraClipDialog::updateButtons(bool edits)
+{
+    m_bHasEdits = edits;
+
+    if (m_bHasEdits) {
+        ui->clipSelection->setEnabled(false);
+        ui->cancelBtn->setText("Cancel");
+        ui->saveBtn->setEnabled(true);
+        return;
+    }
+
+    ui->clipSelection->setEnabled(true);
+    ui->cancelBtn->setText("Close");
+    ui->saveBtn->setEnabled(false);
+}
+
+void
+cobraClipDialog::on_saveBtn_clicked()
+{
+    if (!m_cclList) {
+        QMessageBox::critical(this, tr("No List Found!"), tr("Unable to save clip!  No list was found!"));
+        return;
+    }
+
+    m_cclList->updateClip(m_ccCurrent);
+}
+
+void
+cobraClipDialog::on_revertBtn_clicked()
+{
+    updateClip();
+    updateButtons(false);
+}
+
+void
+cobraClipDialog::on_cancelBtn_clicked()
+{
+    accept();
 }
