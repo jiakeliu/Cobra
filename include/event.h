@@ -559,6 +559,9 @@ public:
    cobraClip getClip() const;
    void setClip(const cobraClip& clip);
 
+   void setCommand(int x);
+   int getCommand() const;
+
 public:
 
    /**
@@ -584,7 +587,8 @@ public:
    virtual cobraNetEvent* duplicate();
 
 protected:
-   cobraClip clip;
+   int          m_iCommand;
+   cobraClip    m_ccClip;
 };
 
 

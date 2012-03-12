@@ -8,7 +8,7 @@ cobraClipUpdateEvent::cobraClipUpdateEvent()
 {}
 
 cobraClipUpdateEvent::cobraClipUpdateEvent(cobraClipUpdateEvent& event)
-    :cobraNetEvent(event), clip(event.clip)
+    :cobraNetEvent(event), m_ccClip(event.m_ccClip)
 {}
 
 cobraClipUpdateEvent::~cobraClipUpdateEvent()
@@ -17,73 +17,94 @@ cobraClipUpdateEvent::~cobraClipUpdateEvent()
 int cobraClipUpdateEvent::serialize(QDataStream& connection)
 {
     int size = cobraNetEvent::serialize(connection);
-    debug(CRITICAL, "Serializing ClipUpdate Packet! %s:%s\n", qPrintable(QString::number(clip.getUid())), qPrintable(clip.getPath()));
-    connection << QString::number(clip.getUid());
-    connection << clip.getPath();
-    connection << clip.getHash();
-    connection << QString::number(clip.getSize());
-    connection << clip.getModifiedTime();
-    connection << clip.getTitle();
-    connection << clip.getTags();
-    connection << clip.getDescription();
-    return size + QString::number(clip.getUid()).length() + 
-                  clip.getPath().length() +
-                  clip.getHash().length() +
-                  QString::number(clip.getSize()).length() +
-                  clip.getModifiedTime().length() +
-                  clip.getTitle().length() +
-                  clip.getTags().length() +
-                  clip.getDescription().length();
+    debug(CRITICAL, "Serializing ClipUpdate Packet! %s:%s\n", qPrintable(QString::number(m_ccClip.getUid())), qPrintable(m_ccClip.getPath()));
+
+    connection << m_iCommand;
+    connection << QString::number(m_ccClip.getUid());
+    connection << m_ccClip.getPath();
+    connection << m_ccClip.getHash();
+    connection << QString::number(m_ccClip.getSize());
+    connection << m_ccClip.getModifiedTime();
+    connection << m_ccClip.getTitle();
+    connection << m_ccClip.getTags();
+    connection << m_ccClip.getDescription();
+
+    return size + QString::number(m_ccClip.getUid()).length() +
+                  m_ccClip.getPath().length() +
+                  m_ccClip.getHash().length() +
+                  QString::number(m_ccClip.getSize()).length() +
+                  m_ccClip.getModifiedTime().length() +
+                  m_ccClip.getTitle().length() +
+                  m_ccClip.getTags().length() +
+                  m_ccClip.getDescription().length();
 }
 
-int cobraClipUpdateEvent::deserialize(QDataStream& connection)
+int
+cobraClipUpdateEvent::deserialize(QDataStream& connection)
 {
     int size = cobraNetEvent::deserialize(connection);
     QString tmpString;
 
-    connection >> tmpString;
-    size += tmpString.length();
-    clip.setUid(tmpString.toInt());
+    connection >> m_iCommand;
+    size += sizeof(m_iCommand);
 
     connection >> tmpString;
     size += tmpString.length();
-    clip.setPath(tmpString);
+    m_ccClip.setUid(tmpString.toInt());
 
     connection >> tmpString;
     size += tmpString.length();
-    clip.setHash(tmpString);
+    m_ccClip.setPath(tmpString);
 
     connection >> tmpString;
     size += tmpString.length();
-    clip.setSize(tmpString.toInt());
+    m_ccClip.setHash(tmpString);
 
     connection >> tmpString;
     size += tmpString.length();
-    clip.setModifiedTime(tmpString);
+    m_ccClip.setSize(tmpString.toInt());
 
     connection >> tmpString;
     size += tmpString.length();
-    clip.setTitle(tmpString);
+    m_ccClip.setModifiedTime(tmpString);
 
     connection >> tmpString;
     size += tmpString.length();
-    clip.setTags(tmpString);
+    m_ccClip.setTitle(tmpString);
 
     connection >> tmpString;
     size += tmpString.length();
-    clip.setDescription(tmpString);
+    m_ccClip.setTags(tmpString);
+
+    connection >> tmpString;
+    size += tmpString.length();
+    m_ccClip.setDescription(tmpString);
 
     return size;
 }
 
-cobraClip cobraClipUpdateEvent::getClip() const
+cobraClip
+cobraClipUpdateEvent::getClip() const
 {
-    return clip;
+    return m_ccClip;
 }
 
-void cobraClipUpdateEvent::setClip(const cobraClip &newClip)
+void
+cobraClipUpdateEvent::setClip(const cobraClip &newClip)
 {
-    clip = newClip;
+    m_ccClip = newClip;
+}
+
+int
+cobraClipUpdateEvent::getCommand() const
+{
+    return m_iCommand;
+}
+
+void
+cobraClipUpdateEvent::setCommand(int command)
+{
+    m_iCommand = command;
 }
 
 cobraNetEvent*

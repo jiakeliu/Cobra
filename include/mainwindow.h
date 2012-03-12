@@ -55,8 +55,7 @@ private slots:
     void on_actionAddClip_triggered();
     void on_actionRemoveClip_triggered();
     void on_actionEditClip_triggered();
-
-    void on_actionSyncLists_triggered();
+    void on_actionSync_triggered();
 
 protected:
     bool setName(QString);
@@ -70,6 +69,9 @@ protected:
 protected:
     bool registerMetaCommand(metaCmdEntry func, QString cmd);
     bool processMetaCommand(QString cmd);
+
+    void sendLocalUpdates();
+    void refreshServerList();
 
 protected:
     metaCmdMap m_msfMetaMap;

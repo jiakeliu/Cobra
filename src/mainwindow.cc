@@ -76,6 +76,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* Hide the central widget so that the dock widgets take over. */
     ui->centralwidget->hide();
+    m_cclFocused = dynamic_cast<cobralistwidget*>(ui->localTree);
 
     QRect rect = geometry();
     rect.setHeight(500);
@@ -341,14 +342,16 @@ MainWindow::focusFilter(QObject* obj, QEvent* event)
         objName != ui->serverTree->objectName())
         return false;
 
-    cobralistwidget* wdt = qobject_cast<cobralistwidget*>(obj);
+    QTreeWidget* wdt = qobject_cast<QTreeWidget*>(obj);
     if (!wdt)
         return false;
 
-    if (event->type() == QEvent::FocusIn) {
+    if(event->type() == QEvent::FocusOut) {
 
-        m_cclFocused = static_cast<cobraClipList*>(wdt);
-        ui->actionAddClip->setEnabled(true);
+        ui->actionRemoveClip->setEnabled(false);
+        ui->actionEditClip->setEnabled(false);
+
+    } else {
         QList<QTreeWidgetItem*> selection = wdt->selectedItems();
 
         if(selection.size() > 0) {
@@ -359,14 +362,6 @@ MainWindow::focusFilter(QObject* obj, QEvent* event)
             ui->actionEditClip->setEnabled(false);
             ui->actionRemoveClip->setEnabled(false);
         }
-
-    } else if(event->type() == QEvent::FocusOut) {
-
-        m_cclFocused = NULL;
-        ui->actionAddClip->setEnabled(false);
-        ui->actionRemoveClip->setEnabled(false);
-        ui->actionEditClip->setEnabled(false);
-
     }
 
     return false;
@@ -494,8 +489,33 @@ MainWindow::on_actionEditClip_triggered()
     m_ccdDialog->setClipList(NULL);
 }
 
-void MainWindow::on_actionSyncLists_triggered()
+void
+MainWindow::on_actionSync_triggered()
 {
-    QVector<int> list;
-    ui->localTree->getCheckedUids(list);
+    bool localEdits = ui->localTree->syncable();
+    bool wantUpload = false;
+    bool wantDownload = false;
+
+    /** Prompt for upload... */
+
+    wantUpload = localEdits;
+    wantDownload = true;
+
+    if (wantUpload)
+        sendLocalUpdates();
+
+    if (wantDownload)
+        refreshServerList();
+}
+
+void
+MainWindow::sendLocalUpdates()
+{
+
+}
+
+void
+MainWindow::refreshServerList()
+{
+
 }

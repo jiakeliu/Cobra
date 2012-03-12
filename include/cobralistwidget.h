@@ -17,11 +17,19 @@ public:
     void getSelectedUids(QVector<int>& uids);
     void getCheckedUids(QVector<int>& uids);
 
+    void synchronized();
+    bool syncable() const;
+
 signals:
+    void setSyncable(bool cansync);
 
 public slots:
+    void clipItemChanged(QTreeWidgetItem* item, int index);
 
 protected:
+
+    bool    m_bChecked;
+    bool    m_bEdited;
 };
 
 #endif // COBRALISTWIDGET_H

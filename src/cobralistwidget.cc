@@ -5,6 +5,8 @@
 cobralistwidget::cobralistwidget(QWidget *parent) :
     QTreeWidget(parent), cobraClipList()
 {
+
+    connect(this, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(clipItemChanged(QTreeWidgetItem*, int)));
 }
 
 bool
@@ -45,6 +47,8 @@ cobralistwidget::updateClip(cobraClip& clip)
     itm->setText(3, clipdesc);
     itm->setText(4, cliptime);
     itm->setText(5, cliptags);
+
+    m_bEdited = true;
 
     /**
       Do no create  new item here...
@@ -109,6 +113,10 @@ cobralistwidget::getSelectedUids(QVector<int>& uids)
     QList<QTreeWidgetItem *> items = this->selectedItems();
     for(int i = 0; i < items.size(); i++) {
         QTreeWidgetItem *itm = items.at(i);
+
+        if (!itm)
+            continue;
+
         uids.append(itm->text(1).toInt(0,10));
     }
 }
@@ -119,9 +127,60 @@ cobralistwidget::getCheckedUids(QVector<int>& uids)
     QList<QTreeWidgetItem *> items = this->findItems("*", Qt::MatchWildcard);
     for(int i = 0; i < items.size(); i++) {
         QTreeWidgetItem *itm = items.at(i);
+
+        if (!itm)
+            continue;
+
         if (!itm->checkState(0))
             continue;
+
         uids.append(itm->text(1).toInt(0,10));
     }
 }
 
+bool
+cobralistwidget::syncable() const
+{
+    return (m_bChecked | m_bEdited);
+}
+
+void
+cobralistwidget::clipItemChanged(QTreeWidgetItem* item, int index)
+{
+    (void)item; (void)index;
+    QList<QTreeWidgetItem *> items = this->findItems("*", Qt::MatchWildcard);
+
+    m_bChecked = false;
+
+    for(int i = 0; i < items.size(); i++) {
+        QTreeWidgetItem *itm = items.at(i);
+
+        if (!itm)
+            continue;
+
+        if (!itm->checkState(0))
+            continue;
+
+        m_bChecked = true;
+    }
+
+    emit setSyncable(syncable());
+}
+
+void
+cobralistwidget::synchronized()
+{
+    QList<QTreeWidgetItem *> items = this->findItems("*", Qt::MatchWildcard);
+
+    m_bChecked = false;
+    m_bEdited = false;
+
+    for(int i = 0; i < items.size(); i++) {
+        QTreeWidgetItem *itm = items.at(i);
+
+        if (!itm)
+            continue;
+
+        itm->setCheckState(0, Qt::Unchecked);
+    }
+}
