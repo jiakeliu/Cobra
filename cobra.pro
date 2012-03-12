@@ -22,9 +22,7 @@ SOURCES = src/main.cc \
     src/transfersdlg.cc \
     src/clip.cc \
     src/clipdialog.cpp \
-    src/syncprompt.cc \
-    src/event/update_clip.cc \
-    src/removeprompt.cc
+    src/event/update_clip.cc
 
 INCLUDEPATH = include
 
@@ -41,9 +39,7 @@ HEADERS += \
     include/transfersdlg.h \
     include/clip.h \
     include/transfer.h \
-    include/clipdialog.h \
-    include/syncprompt.h \
-    src/removeprompt.h
+    include/clipdialog.h
 
 FORMS += \
     resources/mainwindow.ui \
@@ -51,9 +47,7 @@ FORMS += \
     resources/mainwindow_docks.ui \
     resources/preferences.ui \
     resources/transfersdlg.ui \
-    resources/clipdialog.ui \
-    resources/syncprompt.ui \
-    src/removeprompt.ui
+    resources/clipdialog.ui
 
 TRANSLATIONS = cobratr_cn
 
