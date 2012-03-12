@@ -71,6 +71,7 @@ public:
        Request,
        Accept,
        Reject,
+       Exists,
        Chunk,
        Complete,
        Resend

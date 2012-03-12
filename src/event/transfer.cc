@@ -252,12 +252,18 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
         if (auth & ParticipantAuth) {
             QString filePath = g_cobra_settings->value("storage_dir").toString();
 
-
             QString extension = tevent->extension();
             QByteArray hash = tevent->hash();
             filePath += "/" + hash.toHex() + "." + extension;
 
             cobraTransferFile* file = new cobraTransferFile(filePath);
+
+            QByteArray currentHash = file->currentHash();
+            if (currentHash == tevent->hash()) {
+                delete file;
+                response->setCommand(cobraTransferEvent::Exists);
+                goto out;
+            }
 
             file->setUid(tevent->uid());
             file->setExpectedHash(hash);
@@ -271,6 +277,7 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
                 response->setCommand(cobraTransferEvent::Accept);
         }
 
+out:
         handler->sendEvent(response);
         response->put();
         break;
@@ -287,6 +294,7 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
 
         file->setDestination(event->source());
         file->setSource(event->destination());
+
         handler->sendFile(file);
         break;
     }
@@ -298,6 +306,16 @@ cobraTransferEventHandler::handleEvent(cobraNetEvent* event)
                              "You probably do not have adequite permissions!");
         break;
 
+    case cobraTransferEvent::Exists: {
+        cobraTransferFile* file = cobraTransferController::getPendingTransfer(tevent->uid(), tevent->hash());
+        if (!file) {
+            debug(ERROR(CRITICAL), "Failed to find valid file!\n");
+            break;
+        }
+
+        delete file;
+        break;
+    }
 
     case cobraTransferEvent::Resend:
         //fall-through

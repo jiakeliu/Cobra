@@ -203,9 +203,8 @@ cobraTransferFile::recieveChunk(cobraTransferEvent* event)
     debug(LOW, "File Size: '%llu'\n",this->size());
     flush();
 
-    if(expectedHash() == currentHash()) {
+    if(expectedHash() == currentHash())
         return cobraTransferFile::TransferComplete;
-    }
     else
         return cobraTransferFile::TransferIncomplete;
 }
@@ -548,6 +547,9 @@ cobraTransferFile*
 cobraTransferController::getPendingTransfer(uint32_t uid, const QByteArray& hash)
 {
     cobraTransferFile* file = m_vcftPending[uid];
+
+    if (!file)
+        return NULL;
 
     if (file->expectedHash() == hash) {
         m_vcftPending[uid] = NULL;

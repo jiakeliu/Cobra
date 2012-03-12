@@ -22,7 +22,7 @@ validEvent(int type) {
 }
 
 #define cobraConcurrentTransfers    (5)
-#define cobraChunkSize              (1024)
+#define cobraChunkSize              (4096)
 
 /**
  * @typedef cobraId event.h "event.h"
@@ -517,6 +517,8 @@ protected:
     QListWidget*    m_lwUserlist;
 };
 
+class cobraClipList;
+class cobraClipUpdateEvent;
 
 /**
  * @class cobraClipUpdateEventHandler event.h "event.h"
@@ -530,6 +532,22 @@ public:
     cobraClipUpdateEventHandler(cobraClipUpdateEventHandler& event);
     virtual ~cobraClipUpdateEventHandler();
 
+    void setServerList(cobraClipList* server) {
+        m_cclServer = server;
+    }
+
+    cobraClipList* serverList() const {
+        return m_cclServer;
+    }
+
+    void setLocalList(cobraClipList* local) {
+        m_cclLocal = local;
+    }
+
+    cobraClipList* localList() const {
+        return m_cclLocal;
+    }
+
 public:
     virtual bool handleEvent(cobraNetEvent* event);
 
@@ -541,6 +559,13 @@ public:
 
 protected:
     virtual bool handleServerEvent(cobraNetEvent* event);
+    bool handleAddEvent(cobraClipUpdateEvent* event, cobraClipList*);
+    bool handleUpdateEvent(cobraClipUpdateEvent* event, cobraClipList*);
+    bool handleSyncRequest(cobraClipUpdateEvent* event, cobraClipList*);
+
+protected:
+    cobraClipList*    m_cclServer;
+    cobraClipList*    m_cclLocal;
 };
 
 /**
@@ -556,11 +581,11 @@ public:
    cobraClipUpdateEvent(cobraClipUpdateEvent& state);
    virtual ~cobraClipUpdateEvent();
 
-   cobraClip getClip() const;
+   cobraClip clip() const;
    void setClip(const cobraClip& clip);
 
    void setCommand(int x);
-   int getCommand() const;
+   int command() const;
 
    enum ClipCommands {
        Update, Add, Remove, RequestSync

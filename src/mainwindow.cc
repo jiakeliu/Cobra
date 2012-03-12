@@ -68,12 +68,17 @@ MainWindow::MainWindow(QWidget *parent) :
     cobraChatEventHandler* chatHandler = new cobraChatEventHandler();
     cobraAuthEventHandler* authHandler = new cobraAuthEventHandler();
     cobraTransferEventHandler* xferHandler = new cobraTransferEventHandler();
+    cobraClipUpdateEventHandler* clipupdate = new cobraClipUpdateEventHandler();
+
     chatHandler->setChatDock(ui->chatDock);
+    clipupdate->setLocalList(ui->localTree);
+    clipupdate->setServerList(ui->serverTree);
 
     cobraNetHandler::instance()->registerEventHandler(stateHandler);
     cobraNetHandler::instance()->registerEventHandler(chatHandler);
     cobraNetHandler::instance()->registerEventHandler(authHandler);
     cobraNetHandler::instance()->registerEventHandler(xferHandler);
+    cobraNetHandler::instance()->registerEventHandler(clipupdate);
 
     registerMetaCommand(&MainWindow::setName, "\\name");
     registerMetaCommand(&MainWindow::metaConnect, "\\connect");
@@ -93,7 +98,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QRect rect = geometry();
     rect.setHeight(500);
     setGeometry(rect);
-
 }
 
 bool
@@ -161,7 +165,6 @@ MainWindow::metaConnect(QString cmd)
     handler->setPassword(cmdArgs[3]);
 
     handler->connect(cmdArgs[0], cmdArgs[1].toInt());
-
     return true;
 }
 
@@ -629,10 +632,32 @@ MainWindow::sendLocalUpdates()
         cobraTransferController::addPendingTransfer(file);
         cobraSendEvent(tevent);
     }
+
+    ui->serverTree->synchronized();
+    ui->localTree->synchronized();
 }
 
 void
 MainWindow::refreshServerList()
 {
+    cobraClipUpdateEvent* event = new cobraClipUpdateEvent();
+    event->setSource(cobraMyId);
+    event->setDestination(SERVER);
+    event->setCommand(cobraClipUpdateEvent::RequestSync);
 
+    cobraClipList* hack = dynamic_cast<cobraClipList*>(ui->serverTree);
+
+    if (!hack)
+        return;
+
+    debug(ERROR(CRITICAL), "Synchorinizing!\n");
+
+    QVector<int> list;
+    hack->enumClips(list);
+
+    for (int x=0; x<list.size(); x++) {
+        hack->removeClip(list.at(x));
+    }
+
+    cobraNetHandler::instance()->sendEvent(event);
 }

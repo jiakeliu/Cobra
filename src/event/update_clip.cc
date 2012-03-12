@@ -3,6 +3,8 @@
 
 #include <QApplication>
 
+#include "clip.h"
+
 cobraClipUpdateEvent::cobraClipUpdateEvent()
     :cobraNetEvent(cobraClipUpdateEventType)
 {}
@@ -21,6 +23,11 @@ int cobraClipUpdateEvent::serialize(QDataStream& connection)
           qPrintable(QString::number(m_ccClip.getUid())), qPrintable(m_ccClip.getPath()));
 
     connection << m_iCommand;
+    size += sizeof(m_iCommand);
+
+    if (m_iCommand == cobraClipUpdateEvent::RequestSync)
+        return size;
+
     connection << QString::number(m_ccClip.getUid());
     connection << m_ccClip.getPath();
     connection << m_ccClip.getHash();
@@ -48,6 +55,9 @@ cobraClipUpdateEvent::deserialize(QDataStream& connection)
 
     connection >> m_iCommand;
     size += sizeof(m_iCommand);
+
+    if (m_iCommand == cobraClipUpdateEvent::RequestSync)
+        return size;
 
     connection >> tmpString;
     size += tmpString.length();
@@ -85,7 +95,7 @@ cobraClipUpdateEvent::deserialize(QDataStream& connection)
 }
 
 cobraClip
-cobraClipUpdateEvent::getClip() const
+cobraClipUpdateEvent::clip() const
 {
     return m_ccClip;
 }
@@ -97,7 +107,7 @@ cobraClipUpdateEvent::setClip(const cobraClip &newClip)
 }
 
 int
-cobraClipUpdateEvent::getCommand() const
+cobraClipUpdateEvent::command() const
 {
     return m_iCommand;
 }
@@ -136,62 +146,104 @@ cobraClipUpdateEventHandler::handleEvent(cobraNetEvent* event)
     if (event->type() != cobraClipUpdateEventType)
         return false;
 
+    debug(ERROR(CRITICAL), "Handling CUP Event!\n");
+
     if (event->isRequest())
         return handleServerEvent(event);
 
-    debug(ERROR(CRITICAL), "Shouldn't got an ClipUpdate Response...\n");
+    cobraClipUpdateEvent* cup = static_cast<cobraClipUpdateEvent*>(event);
+
+    switch(cup->command()) {
+    case cobraClipUpdateEvent::Update:
+        return handleUpdateEvent(cup, serverList());
+
+    case cobraClipUpdateEvent::Add:
+        return handleAddEvent(cup, serverList());
+
+    case cobraClipUpdateEvent::Remove:
+        debug(ERROR(CRITICAL), "Not implemented!!!");
+        break;
+
+    }
+
     return true;
 }
 
 bool
 cobraClipUpdateEventHandler::handleServerEvent(cobraNetEvent* event)
 {
-//    debug(LOW, "Handling Client Authorization Request!\n");
-//
-//    cobraClipUpdateEvent* auth = static_cast<cobraClipUpdateEvent*>(event);
-//    cobraNetHandler* netHandler = cobraNetHandler::instance();
-//    cobraStateEvent* newState = new cobraStateEvent();
-//
-//    debug(MED, "Username: %s Password: %s\n", qPrintable(auth->username()), qPrintable(auth->password()));
-//    int authorized = netHandler->isAuthorized(auth->password());
-//
-//    newState->setDestination(auth->source());
-//    newState->setResponse(true);
-//    newState->setSource(SERVER);
-//
-//    if (authorized) {
-//        QString user = auth->username();
+    debug(LOW, "Handling Clip Update Request!\n");
 
-#if 0 /* Lets not do this for now... */
-        int cnt = 1;
-        while (netHandler->userExists(user)) {
-            user = QString("%1%2").arg(auth->username()).arg(cnt++);
-        }
+    cobraClipUpdateEvent* cup = static_cast<cobraClipUpdateEvent*>(event);
 
-        if (cnt > 1) {
-            /* send a command to update the kernel name */
-        }
-#endif
+    switch(cup->command()) {
+    case cobraClipUpdateEvent::Update:
+        return handleUpdateEvent(cup, serverList());
 
-//        debug(HIGH, "User '%s' is authorized as a %s\n", qPrintable(user), authorized&GuestAuth?"Guest":"Participant");
-//
-//        newState->setState(cobraStateEvent::ConnectedState);
-//        netHandler->sendEvent(static_cast<cobraNetEvent*>(newState));
-//
-//        netHandler->setIdUsername(event->source(), user);
-//        netHandler->setIdAuthorization(event->source(), authorized);
-//
-//        netHandler->chatNotify(SERVER, BROADCAST, QString(CHAT_NOTIFY("User '%1' has connected.\n")).arg(user));
-//        netHandler->broadcastUserlist();
-//
-//    } else {
-//        newState->setFlag(cobraStateEvent::AuthenticationFailure);
-//        newState->setState(cobraStateEvent::ConnectionRefused);
-//
-//        cobraSendEvent(newState);
-//        netHandler->removeConnection(auth->source());
-//    }
-//
+    case cobraClipUpdateEvent::Add:
+        return handleAddEvent(cup, serverList());
+
+    case cobraClipUpdateEvent::RequestSync:
+        return handleSyncRequest(cup, serverList());
+
+    case cobraClipUpdateEvent::Remove:
+        debug(ERROR(CRITICAL), "Not implemented!!!");
+        break;
+    }
+
+    return true;
+}
+
+bool
+cobraClipUpdateEventHandler::handleUpdateEvent(cobraClipUpdateEvent* event, cobraClipList* list)
+{
+    if (!list)
+        return false;
+
+    cobraClip clip = event->clip();
+
+    // TODO: This should use the HASH of the file... to ensure that the updates...
+
+    return list->updateClip(clip);
+}
+
+bool
+cobraClipUpdateEventHandler::handleAddEvent(cobraClipUpdateEvent* event, cobraClipList* list)
+{
+    if (!list)
+        return false;
+
+    cobraClip clip = event->clip();
+    return list->addClip(clip);
+}
+
+bool
+cobraClipUpdateEventHandler::handleSyncRequest(cobraClipUpdateEvent* inevent, cobraClipList* clist)
+{
+    cobraClipList* hack = clist;
+
+    if (!hack)
+        return false;
+
+    debug(ERROR(CRITICAL), "Synchorinizing!\n");
+
+    QVector<int> list;
+    hack->enumClips(list);
+
+    for (int x=0; x<list.size(); x++) {
+        cobraClip clip;
+        cobraClipUpdateEvent* event = new cobraClipUpdateEvent();
+
+        clip = clist->getClip(list.at(x));
+        event->setClip(clip);
+        event->setDestination(inevent->source());
+        event->setSource(inevent->destination());
+        event->setResponse(true);
+        event->setCommand(cobraClipUpdateEvent::Add);
+
+        cobraNetHandler::instance()->sendEvent(event);
+    }
+
     return true;
 }
 

@@ -153,7 +153,7 @@ cobralistwidget::clipItemChanged(QTreeWidgetItem* item, int index)
     (void)item; (void)index;
     QList<QTreeWidgetItem *> items = this->findItems("*", Qt::MatchWildcard);
 
-    m_bChecked = false;
+    debug(CRITICAL, "Clip item changes\n");
 
     for(int i = 0; i < items.size(); i++) {
         QTreeWidgetItem *itm = items.at(i);
@@ -161,7 +161,7 @@ cobralistwidget::clipItemChanged(QTreeWidgetItem* item, int index)
         if (!itm)
             continue;
 
-        if (!itm->checkState(Qt::Checked))
+        if (itm->checkState(0) != Qt::Checked)
             continue;
 
         m_bChecked = true;
