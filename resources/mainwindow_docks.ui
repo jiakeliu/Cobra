@@ -651,6 +651,9 @@ p, li { white-space: pre-wrap; }
    <property name="toolTip">
     <string>Show Connection Dialog</string>
    </property>
+   <property name="statusTip">
+    <string>Show Connection Dialog</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
    </property>
@@ -706,6 +709,12 @@ p, li { white-space: pre-wrap; }
   <action name="actionSync">
    <property name="text">
     <string>Sync</string>
+   </property>
+   <property name="toolTip">
+    <string>Sync Lists</string>
+   </property>
+   <property name="statusTip">
+    <string>Sync Lists</string>
    </property>
   </action>
   <action name="actionVerify">
@@ -849,6 +858,9 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>Upload</string>
    </property>
+   <property name="statusTip">
+    <string>Upload</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+K</string>
    </property>
@@ -866,6 +878,9 @@ p, li { white-space: pre-wrap; }
    <property name="toolTip">
     <string>Add a clip to the selected clip list</string>
    </property>
+   <property name="statusTip">
+    <string>Add a clip to the selected clip list</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl++</string>
    </property>
@@ -880,6 +895,9 @@ p, li { white-space: pre-wrap; }
    <property name="toolTip">
     <string>Remove the selected clip from the clip list</string>
    </property>
+   <property name="statusTip">
+    <string>Remove the selected clip from the clip list</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+-</string>
    </property>
@@ -892,6 +910,9 @@ p, li { white-space: pre-wrap; }
     <string>EditClip</string>
    </property>
    <property name="toolTip">
+    <string>Edit the selected clip on the clip list.</string>
+   </property>
+   <property name="statusTip">
     <string>Edit the selected clip on the clip list.</string>
    </property>
    <property name="shortcut">
