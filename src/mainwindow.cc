@@ -20,12 +20,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     installEventFilter(cobraNetHandler::instance());
 
-    //tabifyDockWidget(ui->serverList, ui->fileList);
+    tabifyDockWidget(ui->serverList, ui->fileList);
     //tabifyDockWidget(ui->fileList, ui->cueList);
-    ui->serverList->setVisible(false);
     ui->cueList->setVisible(false);
-    ui->fileList->setVisible(false);
     ui->fileInfoDock->setVisible(false);
+
+    ui->localTree->insertTopLevelItem(0, new QTreeWidgetItem(QStringList("Mah Text!"), 0));
+    ui->serverTree->insertTopLevelItem(0, new QTreeWidgetItem(QStringList("Mah Text!"), 0));
 
     QString style =
             "QDockWidget::title { "
@@ -49,6 +50,8 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     ui->sendText->installEventFilter(this);
+    ui->serverTree->installEventFilter(this);
+    ui->localTree->installEventFilter(this);
 
     cobraStateEventHandler* stateHandler = new cobraStateEventHandler();
     cobraChatEventHandler* chatHandler = new cobraChatEventHandler();
@@ -365,12 +368,20 @@ void MainWindow::on_actionSelectUpload_triggered()
 bool
 MainWindow::focusFilter(QObject* obj, QEvent* event)
 {
+    debug(ERROR(CRITICAL), "made it...\n");
     QString objName = obj->objectName();
     if (objName != ui->localTree->objectName() &&
         objName != ui->serverTree->objectName())
         return false;
 
-    //if (event->type() ==
+    debug(ERROR(CRITICAL), "list or server ..\n");
+    if (event->type() == QEvent::FocusIn) {
+        debug(ERROR(CRITICAL), "focus it...\n");
+        ui->actionAddClip->setEnabled(true);
+    } else if(event->type() == QEvent::FocusOut) {
+        debug(ERROR(CRITICAL), "unfocus it...\n");
+        ui->actionAddClip->setEnabled(false);
+    }
 
     return false;
 }

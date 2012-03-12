@@ -209,8 +209,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>98</width>
-          <height>28</height>
+          <width>80</width>
+          <height>645</height>
          </rect>
         </property>
         <attribute name="label">
@@ -418,6 +418,9 @@ p, li { white-space: pre-wrap; }
      <height>128</height>
     </size>
    </property>
+   <property name="focusPolicy">
+    <enum>Qt::ClickFocus</enum>
+   </property>
    <property name="acceptDrops">
     <bool>true</bool>
    </property>
@@ -431,6 +434,9 @@ p, li { white-space: pre-wrap; }
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
       <widget class="cobralistwidget" name="clipTree">
+       <property name="focusPolicy">
+        <enum>Qt::ClickFocus</enum>
+       </property>
        <property name="columnCount">
         <number>6</number>
        </property>
@@ -482,6 +488,9 @@ p, li { white-space: pre-wrap; }
      <height>128</height>
     </size>
    </property>
+   <property name="focusPolicy">
+    <enum>Qt::ClickFocus</enum>
+   </property>
    <property name="acceptDrops">
     <bool>true</bool>
    </property>
@@ -495,6 +504,9 @@ p, li { white-space: pre-wrap; }
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
       <widget class="cobralistwidget" name="serverTree">
+       <property name="focusPolicy">
+        <enum>Qt::ClickFocus</enum>
+       </property>
        <property name="columnCount">
         <number>6</number>
        </property>
@@ -546,6 +558,9 @@ p, li { white-space: pre-wrap; }
      <height>128</height>
     </size>
    </property>
+   <property name="focusPolicy">
+    <enum>Qt::ClickFocus</enum>
+   </property>
    <property name="acceptDrops">
     <bool>true</bool>
    </property>
@@ -559,6 +574,9 @@ p, li { white-space: pre-wrap; }
     <layout class="QVBoxLayout" name="verticalLayout_4">
      <item>
       <widget class="cobralistwidget" name="localTree">
+       <property name="focusPolicy">
+        <enum>Qt::ClickFocus</enum>
+       </property>
        <property name="columnCount">
         <number>6</number>
        </property>
