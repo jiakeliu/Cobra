@@ -432,8 +432,12 @@ MainWindow::on_actionRemoveClip_triggered()
     if (!clw)
         return;
 
-    int uid = clw->currentItem()->text(1).toInt(0,10);
-    clw->removeClip(uid);
+    QTreeWidgetItem* ci = clw->currentItem();
+    if (ci!=NULL)
+    {
+        int uid = ci->text(1).toInt(0,10);
+        clw->removeClip(uid);
+    } else return;
 }
 
 void
