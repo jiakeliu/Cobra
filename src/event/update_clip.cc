@@ -8,7 +8,8 @@ cobraClipUpdateEvent::cobraClipUpdateEvent()
 {}
 
 cobraClipUpdateEvent::cobraClipUpdateEvent(cobraClipUpdateEvent& event)
-    :cobraNetEvent(event), clip(event.clip)
+    :cobraNetEvent(event), m_sUsername(event.m_sUsername),
+      m_sPassword(event.m_sPassword)
 {}
 
 cobraClipUpdateEvent::~cobraClipUpdateEvent()
@@ -17,26 +18,83 @@ cobraClipUpdateEvent::~cobraClipUpdateEvent()
 int cobraClipUpdateEvent::serialize(QDataStream& connection)
 {
     int size = cobraNetEvent::serialize(connection);
-    debug(CRITICAL, "Serializing ClipUpdate Packet! %s:%s\n", qPrintable(clip));
-    connection << clip;
-    return size + clip.length();
+    debug(CRITICAL, "Serializing ClipUpdate Packet! %s:%s\n", qPrintable(m_sUsername), qPrintable(m_sPassword));
+    connection << QString::number(clip.getUid());
+    connection << clip.getPath();
+    connection << clip.getHash();
+    connection << QString::number(clip.getSize());
+    connection << clip.getModifiedtime();
+    connection << clip.getTitle();
+    connection << clip.getTags();
+    connection << clip.getDescription;
+    return size + QString::number(clip.getUid()).length() + 
+                  clip.getPath().length() +
+                  clip.getHash().length() +
+                  QString::number(clip.getSize()).length() +
+                  clip.getModifiedtime().length +
+                  clip.getTitle().length() +
+                  clip.getTags().length() +
+                  clip.getDescription().length();
 }
 
 int cobraClipUpdateEvent::deserialize(QDataStream& connection)
 {
     int size = cobraNetEvent::deserialize(connection);
-    connection >> clip;
-    return size + clip.length();
+    QString tmpString;
+
+    connection >> tmpString;
+    size += tmpString.length();
+    clip.setUid(tmpString.toInt());
+
+    connection >> tmpString;
+    size += tmpString.length();
+    clip.setPath(tmpString);
+
+    connection >> tmpString;
+    size += tmpString.length();
+    clip.setHash(tmpString);
+
+    connection >> tmpString;
+    size += tmpString.length();
+    clip.setSize(tmpString.toInt());
+
+    connection >> tmpString;
+    size += tmpString.length();
+    clip.setModifiedTime(tmpString);
+
+    connection >> tmpString;
+    size += tmpString.length();
+    clip.setTitle(tmpString);
+
+    connection >> tmpString;
+    size += tmpString.length();
+    clip.setTags(tmpString);
+
+    connection >> tmpString;
+    size += tmpString.length();
+    clip.setDescription(tmpString);
+
+    return size;
 }
 
-cobraClip cobraClipUpdateEvent::getClip() const
+cobraClip cobraClipUpdateEvent::username() const
 {
-    return clip;
+    return m_sUsername;
 }
 
-void cobraClipUpdateEvent::setClip(const cobraClip &clip)
+void cobraClipUpdateEvent::setUsername(const QString &user)
 {
-    clip = user;
+    m_sUsername = user;
+}
+
+QString cobraClipUpdateEvent::password() const
+{
+    return m_sPassword;
+}
+
+void cobraClipUpdateEvent::setPassword(const QString &passwd)
+{
+    m_sPassword = passwd;
 }
 
 cobraNetEvent*
@@ -82,20 +140,20 @@ cobraClipUpdateEventHandler::handleServerEvent(cobraNetEvent* event)
     cobraNetHandler* netHandler = cobraNetHandler::instance();
     cobraStateEvent* newState = new cobraStateEvent();
 
-    debug(MED, "Username: %s Password: %s\n", qPrintable(auth->setClip()));
-//    int authorized = netHandler->isAuthorized(auth->password());
+    debug(MED, "Username: %s Password: %s\n", qPrintable(auth->username()), qPrintable(auth->password()));
+    int authorized = netHandler->isAuthorized(auth->password());
 
     newState->setDestination(auth->source());
     newState->setResponse(true);
     newState->setSource(SERVER);
 
     if (authorized) {
-        QString user = auth->setClip();
+        QString user = auth->username();
 
 #if 0 /* Lets not do this for now... */
         int cnt = 1;
         while (netHandler->userExists(user)) {
-            user = QString("%1%2").arg(auth->setClip()).arg(cnt++);
+            user = QString("%1%2").arg(auth->username()).arg(cnt++);
         }
 
         if (cnt > 1) {
