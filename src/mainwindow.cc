@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //tabifyDockWidget(ui->fileList, ui->cueList);
     ui->cueList->setVisible(false);
     ui->fileInfoDock->setVisible(false);
+    ui->serverTree->setColumnHidden(0, true);
 
     QString style =
             "QDockWidget::title { "
@@ -431,6 +432,8 @@ MainWindow::on_actionRemoveCilp_triggered()
 
     if (!clw)
         return;
+
+    //clw->
 
 
 }

@@ -209,8 +209,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>505</width>
-          <height>645</height>
+          <width>100</width>
+          <height>30</height>
          </rect>
         </property>
         <attribute name="label">
@@ -222,7 +222,7 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>505</width>
+          <width>80</width>
           <height>645</height>
          </rect>
         </property>
@@ -275,7 +275,7 @@
        </property>
        <column>
         <property name="text">
-         <string>Flag</string>
+         <string>Upload</string>
         </property>
        </column>
        <column>
@@ -343,12 +343,15 @@
        <property name="focusPolicy">
         <enum>Qt::ClickFocus</enum>
        </property>
+       <property name="allColumnsShowFocus">
+        <bool>false</bool>
+       </property>
        <property name="columnCount">
         <number>6</number>
        </property>
        <column>
         <property name="text">
-         <string>Flag</string>
+         <string>Upload</string>
         </property>
        </column>
        <column>
@@ -421,7 +424,7 @@
        </property>
        <column>
         <property name="text">
-         <string>Flag</string>
+         <string>Upload</string>
         </property>
        </column>
        <column>
