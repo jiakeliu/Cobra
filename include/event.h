@@ -6,6 +6,7 @@
 #include <QtGui>
 #include <QtNetwork/QAbstractSocket>
 #include <stdint.h>
+#include <clip.h>
 
 #define cobraNetEventType           (QEvent::User+1)
 #define cobraStateEventType         (cobraNetEventType+1)
@@ -514,6 +515,67 @@ protected:
     QTextEdit*      m_teChat;
     QListWidget*    m_lwUserlist;
 };
+
+
+/**
+ * @class cobraClipUpdateEventHandler event.h "event.h"
+ *
+ * The cobraClipUpdateEventHandler is used to handle incoming authorization requests.
+ */
+class cobraClipUpdateEventHandler : public cobraNetEventHandler {
+
+public:
+    cobraClipUpdateEventHandler();
+    cobraClipUpdateEventHandler(cobraClipUpdateEventHandler& event);
+    virtual ~cobraClipUpdateEventHandler();
+
+public:
+    virtual bool handleEvent(cobraNetEvent* event);
+
+    /**
+     * @fn virtual cobraNetEvent* eventGenesis() const;
+     * Generates an event of the type that it handles.
+     */
+    virtual cobraNetEvent* eventGenesis() const;
+
+protected:
+    virtual bool handleServerEvent(cobraNetEvent* event);
+};
+
+/**
+ * @class cobraClipUpdateEvent event.h "event.h"
+ *
+ * The event used to communicate authentication information to the server and other
+ * machines.
+ */
+
+class cobraClipUpdateEvent : public cobraNetEvent {
+public:
+   cobraClipUpdateEvent();
+   cobraClipUpdateEvent(cobraClipUpdateEvent& state);
+   virtual ~cobraClipUpdateEvent();
+
+   cobraClip getClip() const;
+   void setClip(const cobraClip& clip);
+
+public:
+
+   /**
+    * @fn virtual int serialize(QDataStream& stream)
+    * Serialize the data for chats which is pending on the given cobraNetConnection.
+    */
+   virtual int serialize(QDataStream& stream);
+
+   /**
+    * @fn virtual int deserialize(QDataStream& stream)
+    * Deserialize the data for chats which is pending on the given cobraNetConnection.
+    */
+   virtual int deserialize(QDataStream& stream);
+
+protected:
+   cobraClip clip;
+};
+
 
 #include "transfer.h"
 

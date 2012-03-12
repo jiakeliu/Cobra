@@ -11,6 +11,7 @@
 cobraClip::cobraClip()
     :m_iSize(0), m_iUid(0)
 {
+    setSize(-1);
     debug(LOW, "cobraClip initializing...\n");
 }
 

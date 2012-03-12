@@ -19,9 +19,9 @@ SOURCES = src/main.cc \
     src/preferences.cc \
     src/event/transfer.cc \
     src/event/transfer_controller.cc \
-    src/transfersdlg.cc\
+    src/transfersdlg.cc \
     src/clip.cc \
-    src/clipdialog.cpp
+    src/clipdialog.cpp 
 
 INCLUDEPATH = include
 
