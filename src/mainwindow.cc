@@ -103,8 +103,7 @@ MainWindow::eventFilter(QObject *obj, QEvent *event)
         return true;
 
 out:
-    if (event->type() == QEvent::FocusIn || event->type() == QEvent::FocusOut)
-        focusFilter(obj, event);
+    focusFilter(obj, event);
 
     return QMainWindow::eventFilter(obj, event);
 }
@@ -349,7 +348,17 @@ MainWindow::focusFilter(QObject* obj, QEvent* event)
 
         m_cclFocused = static_cast<cobraClipList*>(wdt);
         ui->actionAddClip->setEnabled(true);
-        QList<QTreeWidgetItem*> selection =  ui->localTree->selectedItems();
+
+    } else if(event->type() == QEvent::FocusOut) {
+
+        m_cclFocused = NULL;
+        ui->actionAddClip->setEnabled(false);
+        ui->actionRemoveClip->setEnabled(false);
+        ui->actionEditClip->setEnabled(false);
+
+    } else {
+        QList<QTreeWidgetItem*> selection = wdt->selectedItems();
+
         if(selection.size() > 0) {
             ui->actionEditClip->setEnabled(true);
             ui->actionRemoveClip->setEnabled(true);
@@ -358,12 +367,6 @@ MainWindow::focusFilter(QObject* obj, QEvent* event)
             ui->actionEditClip->setEnabled(false);
             ui->actionRemoveClip->setEnabled(false);
         }
-
-    } else if(event->type() == QEvent::FocusOut) {
-
-        m_cclFocused = NULL;
-        ui->actionAddClip->setEnabled(false);
-        ui->actionRemoveClip->setEnabled(false);
     }
 
     return false;
@@ -424,11 +427,19 @@ MainWindow::on_actionAddClip_triggered()
 void
 MainWindow::on_actionRemoveCilp_triggered()
 {
-    cobralistwidget *clw = new cobralistwidget(ui->localTree);
+    cobralistwidget *clw =  dynamic_cast<cobralistwidget*>(m_cclFocused);
+
+    if (!clw)
+        return;
+
+
 }
 
 void
 MainWindow::on_actionEditCilp_triggered()
 {
-    cobralistwidget *clw = new cobralistwidget(ui->localTree);
+    cobralistwidget *clw =  dynamic_cast<cobralistwidget*>(m_cclFocused);
+
+    if (!clw)
+        return;
 }
