@@ -14,6 +14,7 @@
 #define cobraChatEventType          (cobraNetEventType+3)
 #define cobraTransferEventType      (cobraNetEventType+4)
 #define cobraNetEventTypeMax        (cobraNetEventType+5)
+#define cobraClipUpdateEventType          (cobraNetEventType+6)
 
 inline bool
 validEvent(int type) {
@@ -571,6 +572,16 @@ public:
     * Deserialize the data for chats which is pending on the given cobraNetConnection.
     */
    virtual int deserialize(QDataStream& stream);
+
+   /**
+    * @fn virtual cobraNetEvent* duplicate()
+    * Create a new duplicate event and dump all values to it!
+    * This is called to ensure that the main event loop or thread loop
+    * doesn't delete it while we are using it, as once posted, the event loop
+    * handles deletion.
+    * @return A pointer to the copied cobra event.
+    */
+   virtual cobraNetEvent* duplicate();
 
 protected:
    cobraClip clip;

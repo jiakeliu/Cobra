@@ -22,7 +22,8 @@ SOURCES = src/main.cc \
     src/transfersdlg.cc \
     src/clip.cc \
     src/clipdialog.cpp \
-    src/syncprompt.cc
+    src/syncprompt.cc \
+    src/event/update_clip.cc
 
 INCLUDEPATH = include
 
