@@ -535,43 +535,50 @@ MainWindow::on_actionSync_triggered()
     bool wantUpload = false;
     bool wantDownload = false;
 
-    QMessageBox msgBox;
-    msgBox.setText(trUtf8("You have selected to sync with the server.  "
-                          "Please select whether you wish to upload and/or download Clip Information."));
-    QAbstractButton *cancelButton = msgBox.addButton(trUtf8("     Cancel     "), QMessageBox::YesRole);
-    QAbstractButton *bothButton = msgBox.addButton(trUtf8(  "    Sync Both   "), QMessageBox::YesRole);
-    QAbstractButton *serverButton = msgBox.addButton(trUtf8("Download Changes"), QMessageBox::YesRole);
-    QAbstractButton *localButton = msgBox.addButton(trUtf8( " Upload Changes "), QMessageBox::YesRole);
-    msgBox.setIcon(QMessageBox::Question);
-    msgBox.exec();
+    if (cobraNetHandler::instance()->isConnected() == true) {
+        QMessageBox msgBox;
+        msgBox.setText(trUtf8("You have selected to sync with the server.  "
+                              "Please select whether you wish to upload and/or download Clip Information."));
+        QAbstractButton *cancelButton = msgBox.addButton(trUtf8("     Cancel     "), QMessageBox::YesRole);
+        QAbstractButton *bothButton = msgBox.addButton(trUtf8(  "    Sync Both   "), QMessageBox::YesRole);
+        QAbstractButton *serverButton = msgBox.addButton(trUtf8("Download Changes"), QMessageBox::YesRole);
+        QAbstractButton *localButton = msgBox.addButton(trUtf8( " Upload Changes "), QMessageBox::YesRole);
+        msgBox.setIcon(QMessageBox::Question);
+        msgBox.exec();
 
-    if (!localFiles && !localEdits) {
-        bothButton->setEnabled(false);
-        serverButton->setEnabled(false);
-    }
+        if (!localFiles && !localEdits) {
+            bothButton->setEnabled(false);
+            serverButton->setEnabled(false);
+        }
 
-    if(msgBox.clickedButton() == cancelButton) {
-        debug(ERROR(LOW), "Canceled Sync List\n");
-    }
-    else if(msgBox.clickedButton() == bothButton) {
-        debug(ERROR(LOW), "Sync Both Lists\n");
-        wantUpload = localEdits|localFiles;
-        wantDownload = true;
-    }
-    else if(msgBox.clickedButton() == serverButton) {
-        debug(ERROR(LOW), "Sync From Server List\n");
-        wantDownload = true;
-    }
-    else if(msgBox.clickedButton() == localButton) {
-        debug(ERROR(LOW), "Sync From Local List\n");
-        wantUpload = localEdits|localFiles;
-    }
+        if(msgBox.clickedButton() == cancelButton) {
+            debug(ERROR(LOW), "Canceled Sync List\n");
+        }
+        else if(msgBox.clickedButton() == bothButton) {
+            debug(ERROR(LOW), "Sync Both Lists\n");
+            wantUpload = localEdits|localFiles;
+            wantDownload = true;
+        }
+        else if(msgBox.clickedButton() == serverButton) {
+            debug(ERROR(LOW), "Sync From Server List\n");
+            wantDownload = true;
+        }
+        else if(msgBox.clickedButton() == localButton) {
+            debug(ERROR(LOW), "Sync From Local List\n");
+            wantUpload = localEdits|localFiles;
+        }
 
-    if (wantUpload)
-        sendLocalUpdates();
+        if (wantUpload)
+            sendLocalUpdates();
 
-    if (wantDownload)
-        refreshServerList();
+        if (wantDownload)
+            refreshServerList();
+    } else {
+        QMessageBox msgBox;
+        msgBox.setText("Please Start or Connect to a server before attempting list sync.");
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.exec();
+    }
 }
 
 void
