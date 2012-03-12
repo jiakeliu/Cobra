@@ -24,7 +24,7 @@ cobralistwidget::updateClip(cobraClip& clip)
      * this SHOULD be the function called AFTER the user has selected to SAVE the clip information.
      */
 
-    QString clipid = (QString)clip.getUid();
+    QString clipid = QString::number(clip.getUid());
     QString cliptitle = clip.getTitle();
     QString clipdesc = clip.getDescription();
     QString cliptime = clip.getModifiedTime();
@@ -32,12 +32,12 @@ cobralistwidget::updateClip(cobraClip& clip)
 
     QList<QTreeWidgetItem*> c = this->findItems(clipid, Qt::MatchExactly, 1);
 
-    if(c.size() != 1)
+    if(c.size() != 1) {
+        debug(ERROR(HIGH), "Failed to find specified ID!\n");
         return false;
+    }
 
     QTreeWidgetItem* itm = c.takeFirst();
-
-    debug(CRITICAL, "%d\n", itm->text(1));
 
     itm->setCheckState(0, Qt::Checked);
     itm->setText(1, clipid);
@@ -45,8 +45,6 @@ cobralistwidget::updateClip(cobraClip& clip)
     itm->setText(3, clipdesc);
     itm->setText(4, cliptime);
     itm->setText(5, cliptags);
-
-    this->update();
 
     /**
       Do no create  new item here...
