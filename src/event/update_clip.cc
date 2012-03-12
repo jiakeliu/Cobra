@@ -201,8 +201,10 @@ cobraClipUpdateEventHandler::handleUpdateEvent(cobraClipUpdateEvent* event, cobr
         return false;
 
     cobraClip clip = event->clip();
+    cobraClip clip2 = list->getClip(clip.getUid());
 
-    // TODO: This should use the HASH of the file... to ensure that the updates...
+    if (clip2.getHash() != clip.getHash())
+        list->addClip(clip);
 
     return list->updateClip(clip);
 }

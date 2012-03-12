@@ -113,6 +113,11 @@ cobraNetHandler::sendEvent(cobraNetEvent *event)
 
     int idx = m_cIds[dest].threadIdx;
 
+    if (idx < 0) {
+        debug(ERROR(CRITICAL), "Attempting to send to a thread that is invalid!\n", dest);
+        return false;
+    }
+
     if (!m_cnetWorkers[idx]) {
         debug(ERROR(CRITICAL), "Failed to resolve the destination worker! (%d -> %d)\n", dest, idx);
         return false;

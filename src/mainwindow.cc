@@ -605,7 +605,7 @@ MainWindow::sendLocalUpdates()
         event->setClip(clip);
         event->setCommand(cobraClipUpdateEvent::Update);
 
-        cobraNetHandler::instance()->sendEvent(event);
+        cobraSendEvent(event);
     }
 
     for (int x=0; x<localList.size(); x++)
@@ -623,7 +623,7 @@ MainWindow::sendLocalUpdates()
         event->setClip(clip);
         event->setCommand(cobraClipUpdateEvent::Add);
 
-        cobraNetHandler::instance()->sendEvent(event);
+        cobraSendEvent(event);
 
         QString path = clip.getPath();
         cobraTransferFile* file = new cobraTransferFile(path);
