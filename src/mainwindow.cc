@@ -496,10 +496,34 @@ MainWindow::on_actionSync_triggered()
     bool wantUpload = false;
     bool wantDownload = false;
 
-    /** Prompt for upload... */
+    QMessageBox msgBox;
+    msgBox.setText(trUtf8("You have selected to sync with the server.  Please select whether you wish to upload and/or download Clip Information."));
+    QAbstractButton *cancelButton = msgBox.addButton(trUtf8("     Cancel     "), QMessageBox::YesRole);
+    QAbstractButton *bothButton = msgBox.addButton(trUtf8(  "    Sync Both   "), QMessageBox::YesRole);
+    QAbstractButton *serverButton = msgBox.addButton(trUtf8("Sync from Server"), QMessageBox::YesRole);
+    QAbstractButton *localButton = msgBox.addButton(trUtf8( " Sync from Local"), QMessageBox::YesRole);
+    msgBox.setIcon(QMessageBox::Question);
+    msgBox.exec();
 
-    wantUpload = localEdits;
-    wantDownload = true;
+    if(msgBox.clickedButton() == cancelButton) {
+        debug(ERROR(LOW), "Canceled Sync List");
+    }
+    else if(msgBox.clickedButton() == bothButton) {
+        debug(ERROR(LOW), "Sync Both Lists");
+        wantUpload = localEdits;
+        wantDownload = true;
+    }
+    else if(msgBox.clickedButton() == serverButton) {
+        debug(ERROR(LOW), "Sync From Server List");
+        wantDownload = true;
+    }
+    else if(msgBox.clickedButton() == localButton) {
+        debug(ERROR(LOW), "Sync From Local List");
+        wantUpload = localEdits;
+    }
+    else {
+        //Do nothing in this case
+    }
 
     if (wantUpload)
         sendLocalUpdates();
