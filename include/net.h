@@ -577,6 +577,7 @@ public slots:
     void cleanup();
 
  signals:
+    void connected(bool);
     void rejected();
 
 protected:
@@ -605,6 +606,7 @@ protected:
      */
     void setConnectionState(int state) {
         m_iState = state;
+        emit connected(isConnected());
     }
 
 /**

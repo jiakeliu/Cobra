@@ -43,7 +43,7 @@ cobraClipList::cobraClipList(QString dbName)
     QString select = "SELECT * FROM cobraClips;";
     QString create = "CREATE TABLE  cobraClips "
             "(uid INTEGER PRIMARY KEY, path blob, hash varchar(32), "
-            "size int, modtime varchar(40), title varchar(80), "
+            "size int, modtime datetime, title varchar(80), "
             "tags varchar(140), description varchar(140), "
             "extension varchar(16));";
 
@@ -120,14 +120,14 @@ cobraClipList::updateClip(cobraClip& clip)
             "path='" % clip.getPath() % "',"
             "hash='" % clip.getHash() % "',"
             "size=" % QString::number(clip.getSize()) % ","
-            "modtime='" % clip.getModifiedTime() % "',"
+            "modtime=CURRENT_TIMESTAMP,"
             "title='" % clip.getTitle() % "',"
             "tags='" % clip.getTags() % "',"
             "extension='" % clip.getExtension() % "',"
             "description='" % clip.getDescription() %  "' "
             "WHERE uid=" % QString::number(clip.getUid()) % ";";
 
-
+    debug(LOW, "Updated: %s\n", qPrintable(updateString));
     return sqlQuery(updateString);
 }
 
@@ -148,7 +148,7 @@ cobraClipList::addClip(cobraClip& clip)
             "'" % clip.getPath() % "', "
             "'" % clip.getHash() % "', "
             "'" % QString::number(clip.getSize()) % "', "
-            "'" % clip.getModifiedTime() % "', "
+            "CURRENT_TIMESTAMP, "
             "'" % clip.getTitle() % "', "
             "'" % clip.getTags() % "', "
             "'" % clip.getDescription() % "', "

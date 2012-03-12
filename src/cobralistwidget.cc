@@ -47,6 +47,8 @@ cobralistwidget::updateClip(cobraClip& clip)
     itm->setText(4, cliptime);
     itm->setText(5, cliptags);
 
+    m_bChecked = true;
+
     /**
       Do no create  new item here...
       I would recommend making a hidden column to containt th eclipid
@@ -101,6 +103,8 @@ cobralistwidget::addClip(cobraClip& clip)
     itm->setText(5, cliptags);
     this->addTopLevelItem(itm);
 
+    m_bChecked = true;
+
     return true;
 }
 
@@ -122,13 +126,15 @@ void
 cobralistwidget::getCheckedUids(QVector<int>& uids)
 {
     QList<QTreeWidgetItem *> items = this->findItems("*", Qt::MatchWildcard);
+    debug(LOW, "Checked Items List Size: %d\n", items.size());
+
     for(int i = 0; i < items.size(); i++) {
         QTreeWidgetItem *itm = items.at(i);
 
         if (!itm)
             continue;
 
-        if (!itm->checkState(0))
+        if (itm->checkState(0) != Qt::Checked)
             continue;
 
         uids.append(itm->text(1).toInt(0,10));
@@ -155,7 +161,7 @@ cobralistwidget::clipItemChanged(QTreeWidgetItem* item, int index)
         if (!itm)
             continue;
 
-        if (!itm->checkState(0))
+        if (!itm->checkState(Qt::Checked))
             continue;
 
         m_bChecked = true;

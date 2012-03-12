@@ -17,7 +17,8 @@ cobraClipUpdateEvent::~cobraClipUpdateEvent()
 int cobraClipUpdateEvent::serialize(QDataStream& connection)
 {
     int size = cobraNetEvent::serialize(connection);
-    debug(CRITICAL, "Serializing ClipUpdate Packet! %s:%s\n", qPrintable(QString::number(m_ccClip.getUid())), qPrintable(m_ccClip.getPath()));
+    debug(CRITICAL, "Serializing ClipUpdate Packet! %s:%s\n",
+          qPrintable(QString::number(m_ccClip.getUid())), qPrintable(m_ccClip.getPath()));
 
     connection << m_iCommand;
     connection << QString::number(m_ccClip.getUid());

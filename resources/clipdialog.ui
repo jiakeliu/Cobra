@@ -208,7 +208,7 @@
      <item>
       <widget class="QLabel" name="label_7">
        <property name="text">
-        <string>Type</string>
+        <string>Type:</string>
        </property>
       </widget>
      </item>
@@ -280,6 +280,9 @@
       <widget class="QPushButton" name="saveBtn">
        <property name="text">
         <string>Save</string>
+       </property>
+       <property name="default">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

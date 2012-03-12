@@ -13,8 +13,8 @@
 #define cobraAuthEventType          (cobraNetEventType+2)
 #define cobraChatEventType          (cobraNetEventType+3)
 #define cobraTransferEventType      (cobraNetEventType+4)
-#define cobraNetEventTypeMax        (cobraNetEventType+5)
-#define cobraClipUpdateEventType          (cobraNetEventType+6)
+#define cobraClipUpdateEventType    (cobraNetEventType+5)
+#define cobraNetEventTypeMax        (cobraNetEventType+6)
 
 inline bool
 validEvent(int type) {
@@ -561,6 +561,10 @@ public:
 
    void setCommand(int x);
    int getCommand() const;
+
+   enum ClipCommands {
+       Update, Add, Remove, RequestSync
+   };
 
 public:
 

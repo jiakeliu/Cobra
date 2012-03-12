@@ -67,7 +67,8 @@ QString cobraTransferEvent::extension()
     return m_sExtension;
 }
 
-void cobraTransferEvent::setExtension(QString fileName)
+void
+cobraTransferEvent::setExtension(QString fileName)
 {
     int index = fileName.lastIndexOf(".");
     if (index < 0)

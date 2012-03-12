@@ -109,7 +109,7 @@ cobraTransferFile::setSending(bool sending)
         m_baHash = hash();
         m_baExpectedHash = m_baHash;
     }
- }
+}
 
 bool
 cobraTransferFile::isPendingCompletion() const
@@ -156,33 +156,33 @@ cobraTransferFile::is(uint32_t id) const
 bool
 cobraTransferFile::sendChunk(cobraNetEventThread* thread, qint64 chunk)
 {
-     if(!isActive())
-         return false;
+    if(!isActive())
+        return false;
 
-     if (pos() == size()) {
-         debug(ERROR(CRITICAL), "At End!\n");
-         setPendingCompletion(true);
-         return false;
-     }
+    if (pos() == size()) {
+        debug(ERROR(CRITICAL), "At End!\n");
+        setPendingCompletion(true);
+        return false;
+    }
 
-     qint64 offset = pos();
-     QByteArray data = read(chunk);
-     if (pos() != offset + data.size())
+    qint64 offset = pos();
+    QByteArray data = read(chunk);
+    if (pos() != offset + data.size())
         seek(offset + data.size());
 
-     debug(ERROR(CRITICAL), "Current file sent: %llu ? %llu\n", pos(), size());
+    debug(ERROR(CRITICAL), "Current file sent: %llu ? %llu\n", pos(), size());
 
-     cobraTransferEvent* event = new cobraTransferEvent();
+    cobraTransferEvent* event = new cobraTransferEvent();
 
-     event->setCommand(cobraTransferEvent::Chunk); // Set command to chunk
-     event->setUid(m_uiUid);
-     event->setSource(m_idSource);              // Set source
-     event->setDestination(m_idDestination);    // Set destination
-     event->setOffset(offset);                  // Set the infile offset
-     event->setData(data);                      // Set data to be sent
-     event->setHash(m_baHash);                  // Set hash
+    event->setCommand(cobraTransferEvent::Chunk); // Set command to chunk
+    event->setUid(m_uiUid);
+    event->setSource(m_idSource);              // Set source
+    event->setDestination(m_idDestination);    // Set destination
+    event->setOffset(offset);                  // Set the infile offset
+    event->setData(data);                      // Set data to be sent
+    event->setHash(m_baHash);                  // Set hash
 
-     return thread->sendEvent(event);           // Send the chunk event
+    return thread->sendEvent(event);           // Send the chunk event
 }
 
 int
@@ -221,6 +221,7 @@ cobraTransferFile::transferComplete()
 bool
 cobraTransferFile::resendChunk(qint64 chunk, qint64 offset)
 {
+    (void)chunk; (void)offset;
     setPendingCompletion(false);
     // TODO: This needs to update the chunk list to allow for this chunk to 
     // be hte next one sent on the next sendChunk call..
@@ -270,12 +271,28 @@ cobraTransferFile::currentHash()
     return m_baHash;
 }
 
+QByteArray
+cobraTransferFile::hashFile(QString path)
+{
+    QCryptographicHash md5(QCryptographicHash::Md5);
+    QFile reFile(path);
+
+    if (!reFile.open(QIODevice::ReadOnly))
+        return QByteArray();
+
+    while(!reFile.atEnd())
+        md5.addData(reFile.read(4096));
+
+    reFile.close();
+    return md5.result();
+}
+
 int
 cobraTransferFile::isComplete() const
 {
     if (pos() >= size())
         return cobraTransferFile::TransferComplete;
-\
+
     return cobraTransferFile::TransferIncomplete;
 }
 
@@ -377,8 +394,8 @@ cobraTransferController::transferTrigger()
     }
 
     m_iNextTransfer %= (m_vcftTransfers.size()<m_iConcurrentTransfers)?
-                                m_vcftTransfers.size():
-                                m_iConcurrentTransfers;
+                m_vcftTransfers.size():
+                m_iConcurrentTransfers;
 
     cobraTransferFile* file = NULL;
 
@@ -445,13 +462,13 @@ cobraTransferController::interceptEvent(cobraTransferEvent *event)
         return false;
 
     switch (event->command()) {
-        case cobraTransferEvent::Resend:
-            file->resendChunk(event->size(), event->offset());
-            return true;
+    case cobraTransferEvent::Resend:
+        file->resendChunk(event->size(), event->offset());
+        return true;
 
-        case cobraTransferEvent::Complete:
-            file->transferComplete();
-            return removeTransfer(file);
+    case cobraTransferEvent::Complete:
+        file->transferComplete();
+        return removeTransfer(file);
     }
 
     return false;
@@ -464,7 +481,7 @@ cobraTransferController::addTransfer(cobraTransferFile* file)
         return false;
 
     debug(MED, "Adding file '%s' to transfer list.\n", 
-	qPrintable(file->fileName()));
+          qPrintable(file->fileName()));
     file->activate(false);
 
     if (m_iNextTransfer < 0)

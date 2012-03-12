@@ -80,6 +80,7 @@ MainWindow::MainWindow(QWidget *parent) :
     registerMetaCommand(&MainWindow::setAway, "\\away");
 
     QObject::connect(ui->sendButton, SIGNAL(clicked()), this, SLOT(sendChat()));
+    QObject::connect(cobraNetHandler::instance(), SIGNAL(connected(bool)), ui->actionSync, SLOT(setEnabled(bool)));
 
     stateHandler->put();
     chatHandler->put();
@@ -396,9 +397,15 @@ MainWindow::on_actionAddClip_triggered()
     if (path.isEmpty() || path.isNull())
         return;
 
+    QFileInfo file(path);
+    QByteArray cliphash = cobraTransferFile::hashFile(path);
+
     cobraClip clip;
     clip.setTitle("<title>");
     clip.setPath(path);
+    clip.setHash(cliphash.toHex().data());
+    clip.setSize(file.size());
+    clip.setExtension(file.completeSuffix());
 
     if (!list->addClip(clip)) {
         QMessageBox::critical(this, tr("Unable to Add Clip"), tr("Failed to add the clip!"));
@@ -509,35 +516,38 @@ MainWindow::on_actionSync_triggered()
     bool wantDownload = false;
 
     QMessageBox msgBox;
-    msgBox.setText(trUtf8("You have selected to sync with the server.  Please select whether you wish to upload and/or download Clip Information."));
+    msgBox.setText(trUtf8("You have selected to sync with the server.  "
+                          "Please select whether you wish to upload and/or download Clip Information."));
     QAbstractButton *cancelButton = msgBox.addButton(trUtf8("     Cancel     "), QMessageBox::YesRole);
     QAbstractButton *bothButton = msgBox.addButton(trUtf8(  "    Sync Both   "), QMessageBox::YesRole);
-    QAbstractButton *serverButton = msgBox.addButton(trUtf8("Sync from Server"), QMessageBox::YesRole);
-    QAbstractButton *localButton = msgBox.addButton(trUtf8( " Sync from Local"), QMessageBox::YesRole);
+    QAbstractButton *serverButton = msgBox.addButton(trUtf8("Download Changes"), QMessageBox::YesRole);
+    QAbstractButton *localButton = msgBox.addButton(trUtf8( " Upload Changes "), QMessageBox::YesRole);
     msgBox.setIcon(QMessageBox::Question);
     msgBox.exec();
 
+    if (!localFiles && !localEdits) {
+        bothButton->setEnabled(false);
+        serverButton->setEnabled(false);
+    }
+
     if(msgBox.clickedButton() == cancelButton) {
-        debug(ERROR(LOW), "Canceled Sync List");
+        debug(ERROR(LOW), "Canceled Sync List\n");
     }
     else if(msgBox.clickedButton() == bothButton) {
-        debug(ERROR(LOW), "Sync Both Lists");
-        wantUpload = localEdits;
+        debug(ERROR(LOW), "Sync Both Lists\n");
+        wantUpload = localEdits|localFiles;
         wantDownload = true;
     }
     else if(msgBox.clickedButton() == serverButton) {
-        debug(ERROR(LOW), "Sync From Server List");
+        debug(ERROR(LOW), "Sync From Server List\n");
         wantDownload = true;
     }
     else if(msgBox.clickedButton() == localButton) {
-        debug(ERROR(LOW), "Sync From Local List");
-        wantUpload = localEdits;
-    }
-    else {
-        //Do nothing in this case
+        debug(ERROR(LOW), "Sync From Local List\n");
+        wantUpload = localEdits|localFiles;
     }
 
-    if (wantUpload || localEdits)
+    if (wantUpload)
         sendLocalUpdates();
 
     if (wantDownload)
@@ -547,22 +557,60 @@ MainWindow::on_actionSync_triggered()
 void
 MainWindow::sendLocalUpdates()
 {
+    debug(LOW, "Send local updates!\n");
     QVector<int> localList;
     QVector<int> serverList;
 
     ui->localTree->getCheckedUids(localList);
     ui->serverTree->getCheckedUids(serverList);
 
-    for (int x=0; x<serverList.size(); x++) {
+    for (int x=0; x<serverList.size(); x++)
+    {
+        cobraClip clip = ui->serverTree->getClip(serverList.at(x));
+        if (clip.getUid() != serverList.at(x)) {
+            debug(ERROR(CRITICAL), "Failed to find selected server clip!");
+            continue;
+        }
+
         cobraClipUpdateEvent* event = new cobraClipUpdateEvent();
         event->setSource(cobraMyId);
         event->setDestination(SERVER);
+        event->setClip(clip);
+        event->setCommand(cobraClipUpdateEvent::Update);
 
         cobraNetHandler::instance()->sendEvent(event);
     }
 
-    for (int x=0; x<localList.size(); x++) {
+    for (int x=0; x<localList.size(); x++)
+    {
+        debug(CRITICAL, "Processing UID: %d\n", localList.at(x));
+        cobraClip clip = ui->localTree->getClip(localList.at(x));
+        if (clip.getUid() != localList.at(x)) {
+            debug(ERROR(CRITICAL), "Failed to find selected server clip!");
+            continue;
+        }
 
+        cobraClipUpdateEvent* event = new cobraClipUpdateEvent();
+        event->setSource(cobraMyId);
+        event->setDestination(SERVER);
+        event->setClip(clip);
+        event->setCommand(cobraClipUpdateEvent::Add);
+
+        cobraNetHandler::instance()->sendEvent(event);
+
+        QString path = clip.getPath();
+        cobraTransferFile* file = new cobraTransferFile(path);
+        file->setDestination(SERVER);
+        file->setSource(cobraMyId);
+        file->setSending(true);
+
+        cobraTransferEvent* tevent = new cobraTransferEvent;
+        tevent->fromFile(file);
+        tevent->setResponse(false);
+        tevent->setExtension(path);
+
+        cobraTransferController::addPendingTransfer(file);
+        cobraSendEvent(tevent);
     }
 }
 

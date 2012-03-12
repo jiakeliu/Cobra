@@ -719,6 +719,9 @@ p, li { white-space: pre-wrap; }
    </property>
   </action>
   <action name="actionSync">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Sync</string>
    </property>

@@ -132,6 +132,8 @@ public:
     QByteArray hash();
     QByteArray currentHash();
 
+    static QByteArray hashFile(QString path);
+
     void setDestination(cobraId dest);
     void setSource(cobraId src);
 

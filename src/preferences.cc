@@ -158,7 +158,11 @@ Preferences::on_connectButton_clicked()
     bool result = cnd->connect(ui->lineEditIP->text(), ui->lineEditPort->text().toInt());
     debug(CRITICAL, "Connect: %s\n", result ? "Connection Successful!" : "Failed to Connect!");
 
-    setConnectState(true);
+    if (!result)
+        QMessageBox::critical(this, "Failed to Connect to Server!",
+                         "Failed to properly connect to the server! (Is the port or IP incorrect?)");
+
+    setConnectState(result);
 }
 
 
@@ -184,7 +188,11 @@ Preferences::on_pushButtonStart_clicked()
     bool result = cnd->listen(QHostAddress::Any, ui->lineEditPort_2->text().toInt());
     debug(CRITICAL, "Listen: %s\n", result ? "Listen Successful!" : "Failed to Listen!");
 
-    setConnectState(true);
+    if (!result)
+        QMessageBox::critical(this, "Failed to Start Server!",
+                         "Failed to properly start the server! (Is your port in use?)");
+
+    setConnectState(result);
 }
 
 void Preferences::on_guestPwd_textChanged(const QString &pwd)
