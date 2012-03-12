@@ -29,7 +29,6 @@ public slots:
 protected:
 
     bool    m_bChecked;
-    bool    m_bEdited;
 };
 
 #endif // COBRALISTWIDGET_H

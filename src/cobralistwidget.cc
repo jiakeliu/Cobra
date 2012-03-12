@@ -12,7 +12,6 @@ cobralistwidget::cobralistwidget(QWidget *parent) :
 bool
 cobralistwidget::updateClip(cobraClip& clip)
 {
-    debug(CRITICAL, "%d!\n", clip.getUid());
     bool ret = cobraClipList::updateClip(clip);
     if (!ret) {
         debug(CRITICAL, "Ah, shiznit, clipList rejected out shit!\n");
@@ -47,8 +46,6 @@ cobralistwidget::updateClip(cobraClip& clip)
     itm->setText(3, clipdesc);
     itm->setText(4, cliptime);
     itm->setText(5, cliptags);
-
-    m_bEdited = true;
 
     /**
       Do no create  new item here...
@@ -141,7 +138,7 @@ cobralistwidget::getCheckedUids(QVector<int>& uids)
 bool
 cobralistwidget::syncable() const
 {
-    return (m_bChecked | m_bEdited);
+    return m_bChecked;
 }
 
 void
@@ -173,7 +170,6 @@ cobralistwidget::synchronized()
     QList<QTreeWidgetItem *> items = this->findItems("*", Qt::MatchWildcard);
 
     m_bChecked = false;
-    m_bEdited = false;
 
     for(int i = 0; i < items.size(); i++) {
         QTreeWidgetItem *itm = items.at(i);

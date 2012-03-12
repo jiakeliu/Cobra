@@ -492,7 +492,8 @@ MainWindow::on_actionEditClip_triggered()
 void
 MainWindow::on_actionSync_triggered()
 {
-    bool localEdits = ui->localTree->syncable();
+    bool localFiles = ui->localTree->syncable();
+    bool localEdits = ui->serverTree->syncable();
     bool wantUpload = false;
     bool wantDownload = false;
 
@@ -525,7 +526,7 @@ MainWindow::on_actionSync_triggered()
         //Do nothing in this case
     }
 
-    if (wantUpload)
+    if (wantUpload || localEdits)
         sendLocalUpdates();
 
     if (wantDownload)
@@ -535,7 +536,23 @@ MainWindow::on_actionSync_triggered()
 void
 MainWindow::sendLocalUpdates()
 {
+    QVector<int> localList;
+    QVector<int> serverList;
 
+    ui->localTree->getCheckedUids(localList);
+    ui->serverTree->getCheckedUids(serverList);
+
+    for (int x=0; x<serverList.size(); x++) {
+        cobraClipUpdateEvent* event = new cobraClipUpdateEvent();
+        event->setSource(cobraMyId);
+        event->setDestination(SERVER);
+
+        cobraNetHandler::instance()->sendEvent(event);
+    }
+
+    for (int x=0; x<localList.size(); x++) {
+
+    }
 }
 
 void
