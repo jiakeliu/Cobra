@@ -46,7 +46,7 @@
      <x>0</x>
      <y>0</y>
      <width>625</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -156,6 +156,8 @@
    <addaction name="actionConnect"/>
    <addaction name="actionOpenFile"/>
    <addaction name="actionSelectUpload"/>
+   <addaction name="separator"/>
+   <addaction name="actionAddClip"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="fileInfoDock">
@@ -207,8 +209,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>80</width>
-          <height>662</height>
+          <width>98</width>
+          <height>28</height>
          </rect>
         </property>
         <attribute name="label">
@@ -221,7 +223,7 @@
           <x>0</x>
           <y>0</y>
           <width>80</width>
-          <height>662</height>
+          <height>645</height>
          </rect>
         </property>
         <attribute name="label">
@@ -327,7 +329,7 @@
          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;table border=&quot;0&quot; style=&quot;-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;&quot;&gt;
 &lt;tr&gt;
 &lt;td style=&quot;border: none;&quot;&gt;
@@ -428,7 +430,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QWidget" name="dockWidgetContents">
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <widget class="cobralistwidget" name="treeWidget">
+      <widget class="cobralistwidget" name="clipTree">
        <property name="columnCount">
         <number>6</number>
        </property>
@@ -492,7 +494,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QWidget" name="dockWidgetContents_2">
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
-      <widget class="cobralistwidget" name="treeWidget_2">
+      <widget class="cobralistwidget" name="serverTree">
        <property name="columnCount">
         <number>6</number>
        </property>
@@ -556,7 +558,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QWidget" name="dockWidgetContents_4">
     <layout class="QVBoxLayout" name="verticalLayout_4">
      <item>
-      <widget class="cobralistwidget" name="treeWidget_3">
+      <widget class="cobralistwidget" name="localTree">
        <property name="columnCount">
         <number>6</number>
        </property>
@@ -827,6 +829,17 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="shortcut">
     <string>Ctrl+K</string>
+   </property>
+  </action>
+  <action name="actionAddClip">
+   <property name="text">
+    <string>AddClip</string>
+   </property>
+   <property name="toolTip">
+    <string>Add a clip to the selected clip list</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl++</string>
    </property>
   </action>
  </widget>

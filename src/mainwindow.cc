@@ -101,6 +101,9 @@ MainWindow::eventFilter(QObject *obj, QEvent *event)
         return true;
 
 out:
+    if (event->type() == QEvent::FocusIn || event->type() == QEvent::FocusOut)
+        focusFilter(obj, event);
+
     return QMainWindow::eventFilter(obj, event);
 }
 
@@ -357,4 +360,23 @@ void MainWindow::on_actionSelectUpload_triggered()
 
     cobraTransferController::addPendingTransfer(file);
     cobraSendEvent(event);
+}
+
+bool
+MainWindow::focusFilter(QObject* obj, QEvent* event)
+{
+    QString objName = obj->objectName();
+    if (objName != ui->localTree->objectName() &&
+        objName != ui->serverTree->objectName())
+        return false;
+
+    //if (event->type() ==
+
+    return false;
+}
+
+void
+MainWindow::on_actionAddClip_triggered()
+{
+
 }
