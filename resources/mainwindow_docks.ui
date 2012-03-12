@@ -720,7 +720,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionSync">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
     <string>Sync</string>
@@ -864,7 +864,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionSelectUpload">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="icon">
     <iconset resource="cobra.qrc">
