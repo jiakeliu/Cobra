@@ -15,6 +15,7 @@ public:
     bool addClip(cobraClip& clip);
 
     void getSelectedUids(QVector<int>& uids);
+    void getCheckedUids(QVector<int>& uids);
 
 signals:
 

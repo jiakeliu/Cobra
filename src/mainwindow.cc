@@ -349,15 +349,6 @@ MainWindow::focusFilter(QObject* obj, QEvent* event)
 
         m_cclFocused = static_cast<cobraClipList*>(wdt);
         ui->actionAddClip->setEnabled(true);
-
-    } else if(event->type() == QEvent::FocusOut) {
-
-        m_cclFocused = NULL;
-        ui->actionAddClip->setEnabled(false);
-        ui->actionRemoveClip->setEnabled(false);
-        ui->actionEditClip->setEnabled(false);
-
-    } else {
         QList<QTreeWidgetItem*> selection = wdt->selectedItems();
 
         if(selection.size() > 0) {
@@ -368,6 +359,14 @@ MainWindow::focusFilter(QObject* obj, QEvent* event)
             ui->actionEditClip->setEnabled(false);
             ui->actionRemoveClip->setEnabled(false);
         }
+
+    } else if(event->type() == QEvent::FocusOut) {
+
+        m_cclFocused = NULL;
+        ui->actionAddClip->setEnabled(false);
+        ui->actionRemoveClip->setEnabled(false);
+        ui->actionEditClip->setEnabled(false);
+
     }
 
     return false;
@@ -443,4 +442,10 @@ MainWindow::on_actionEditClip_triggered()
     if (!clw)
         return;
 
+}
+
+void MainWindow::on_actionSyncLists_triggered()
+{
+    QVector<int> list;
+    ui->localTree->getCheckedUids(list);
 }

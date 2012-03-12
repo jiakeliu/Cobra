@@ -21,7 +21,8 @@ SOURCES = src/main.cc \
     src/event/transfer_controller.cc \
     src/transfersdlg.cc \
     src/clip.cc \
-    src/clipdialog.cpp 
+    src/clipdialog.cpp \
+    src/syncprompt.cc
 
 INCLUDEPATH = include
 
@@ -38,7 +39,8 @@ HEADERS += \
     include/transfersdlg.h \
     include/clip.h \
     include/transfer.h \
-    include/clipdialog.h
+    include/clipdialog.h \
+    include/syncprompt.h
 
 FORMS += \
     resources/mainwindow.ui \
@@ -46,7 +48,8 @@ FORMS += \
     resources/mainwindow_docks.ui \
     resources/preferences.ui \
     resources/transfersdlg.ui \
-    resources/clipdialog.ui
+    resources/clipdialog.ui \
+    resources/syncprompt.ui
 
 TRANSLATIONS = cobratr_cn
 

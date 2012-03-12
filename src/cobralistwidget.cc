@@ -107,9 +107,21 @@ void
 cobralistwidget::getSelectedUids(QVector<int>& uids)
 {
     QList<QTreeWidgetItem *> items = this->selectedItems();
-    for(int i = 0; i < items.size(); i++)
-    {
+    for(int i = 0; i < items.size(); i++) {
         QTreeWidgetItem *itm = items.at(i);
         uids.append(itm->text(1).toInt(0,10));
     }
 }
+
+void
+cobralistwidget::getCheckedUids(QVector<int>& uids)
+{
+    QList<QTreeWidgetItem *> items = this->findItems("*", Qt::MatchWildcard);
+    for(int i = 0; i < items.size(); i++) {
+        QTreeWidgetItem *itm = items.at(i);
+        if (!itm->checkState(0))
+            continue;
+        uids.append(itm->text(1).toInt(0,10));
+    }
+}
+

@@ -56,6 +56,8 @@ private slots:
     void on_actionRemoveClip_triggered();
     void on_actionEditClip_triggered();
 
+    void on_actionSyncLists_triggered();
+
 protected:
     bool setName(QString);
     bool metaConnect(QString);
