@@ -23,7 +23,7 @@ cobralistwidget::updateClip(cobraClip& clip)
      * this SHOULD be the function called AFTER the user has selected to SAVE the clip information.
      */
 
-    QString clipid = (QString)clip.getUID();
+    QString clipid = (QString)clip.getUid();
     QString cliptitle = clip.getTitle();
     QString clipdesc = clip.getDescription();
     QString cliptime = clip.getModifiedTime();
@@ -82,7 +82,7 @@ cobralistwidget::addClip(cobraClip& clip)
 
 
     QTreeWidgetItem *itm = new QTreeWidgetItem(this);
-    QString clipid = (QString)clip.getUID();
+    QString clipid = (QString)clip.getUid();
     QString cliptitle = clip.getTitle();
     QString clipdesc = clip.getDescription();
     QString cliptime = clip.getModifiedTime();

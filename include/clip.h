@@ -84,10 +84,10 @@ public:
     }
 
     /**
-     * @fn int getUID() 
+     * @fn int getUid()
      * @return the unique id of a Clip
      */
-    int getUID() {
+    int getUid() {
         return(m_iUid);
     }
 
@@ -159,8 +159,8 @@ public:
      * @fn void setUid()
      * sets the unique id of a Clip
      */
-    void setUid(int uid) {
-        m_iUid = uid;
+    void setUid(int Uid) {
+        m_iUid = Uid;
     }
 
 
@@ -189,10 +189,13 @@ public:
     virtual ~cobraClipList();
 
    void                         enumClips(QVector<int>& vector);
-   cobraClip                    getClip(int uid);
+   cobraClip                    getClip(int Uid);
    virtual bool                 updateClip(cobraClip& clip);
-   virtual bool                 removeClip(int uid);
+   virtual bool                 removeClip(int Uid);
    virtual bool                 addClip(cobraClip& clip);
+
+   virtual bool                 contains(int Uid);
+   bool                         isValid() const;
 
 protected:
    bool                         sqlQuery(QString&);

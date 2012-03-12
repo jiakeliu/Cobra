@@ -57,10 +57,29 @@ cobraClipList::~cobraClipList()
     debug(LOW, "cobraClipList dieing...\n");
 }
 
+
+bool
+cobraClipList::contains(int uid)
+{
+    if (!m_dbDatabase.isOpen())
+        return false;
+
+    QSqlQuery query("SELECT uid FROM cobraClips WHERE uid='" % QString::number(uid) % "';", m_dbDatabase);
+    QSqlRecord res = query.record();
+
+    return (res.value(0).toInt() == uid);
+}
+
+bool
+cobraClipList::isValid() const
+{
+    return m_dbDatabase.isOpen();
+}
+
 cobraClip cobraClipList::getClip(int uid)
 {
     cobraClip ccClip;
-    QSqlQuery query("SELECT * FROM cobraClip WHERE uid='" % QString::number(uid) % "';", m_dbDatabase);
+    QSqlQuery query("SELECT * FROM cobraClips WHERE uid='" % QString::number(uid) % "';", m_dbDatabase);
     QSqlRecord sqlRecord = query.record();
     ccClip.setUid(sqlRecord.value(0).toInt());
     ccClip.setPath(sqlRecord.value(1).toString());
