@@ -1,20 +1,21 @@
 #include "cobralistwidget.h"
 #include <QStandardItem>
+#include "debug.h"
 
 cobralistwidget::cobralistwidget(QWidget *parent) :
-    QTreeWidget(parent)
+    QTreeWidget(parent), cobraClipList()
 {
-    this->setColumnCount(6);
-    this->setHeaderLabels(
-    QStringList()<<"Flag"<<"ID"<<"Title"<<"Description"<<"Modified OMG"<<"Tags");
 }
 
 bool
 cobralistwidget::updateClip(cobraClip& clip)
 {
+    debug(CRITICAL, "%d!\n", clip.getUid());
     bool ret = cobraClipList::updateClip(clip);
-    if (!ret)
+    if (!ret) {
+        debug(CRITICAL, "Ah, shiznit, clipList rejected out shit!\n");
         return ret;
+    }
 
     /**
      * This just updates the clip in teh database --
@@ -35,6 +36,9 @@ cobralistwidget::updateClip(cobraClip& clip)
         return false;
 
     QTreeWidgetItem* itm = c.takeFirst();
+
+    debug(CRITICAL, "%d\n", itm->text(1));
+
     itm->setCheckState(0, Qt::Checked);
     itm->setText(1, clipid);
     itm->setText(2, cliptitle);
@@ -42,6 +46,7 @@ cobralistwidget::updateClip(cobraClip& clip)
     itm->setText(4, cliptime);
     itm->setText(5, cliptags);
 
+    this->update();
 
     /**
       Do no create  new item here...

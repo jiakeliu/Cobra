@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QSettings>
 
+class cobraClipDialog;
+class cobraClipList;
 class Preferences;
 class Transfersdlg;
 
@@ -73,6 +75,8 @@ protected:
     QString m_cUsername;
     Preferences* m_pDialog;
     Transfersdlg* m_dTransfers;
+    cobraClipList* m_cclFocused;
+    cobraClipDialog* m_ccdDialog;
 };
 
 

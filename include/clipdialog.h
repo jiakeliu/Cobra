@@ -21,6 +21,7 @@ public:
     bool setClipList(cobraClipList* list);
     bool setClip(int uid);
     bool setClip(QVector<int> uid);
+    void setVisible(bool vis);
 
 private slots:
     void on_clipSelection_valueChanged(int );

@@ -2,12 +2,13 @@
 
 #include "include/clipdialog.h"
 #include "ui_clipdialog.h"
+#include "debug.h"
 
 
 cobraClipDialog::cobraClipDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::cobraClipDialog),
-    m_bHasEdits(false)
+    m_cclList(NULL), m_bHasEdits(false)
 {
     ui->setupUi(this);
 }
@@ -15,6 +16,17 @@ cobraClipDialog::cobraClipDialog(QWidget *parent) :
 cobraClipDialog::~cobraClipDialog()
 {
     delete ui;
+}
+
+void
+cobraClipDialog::setVisible(bool vis)
+{
+    if (vis && !m_cclList) {
+        QMessageBox::critical(this, tr("No List Found!"), tr("Unable to save clip!  No list was found!"));
+        QDialog::setVisible(false);
+        return;
+    }
+    QDialog::setVisible(vis);
 }
 
 bool
@@ -30,8 +42,14 @@ cobraClipDialog::setClip(int uid)
     m_iClips.clear();
     m_iClips.push_back(uid);
 
-    if (m_cclList && m_cclList->isValid()) {
-        return m_cclList->contains(uid);
+    if (m_cclList && !m_cclList->isValid()) {
+        debug(ERROR(CRITICAL), "Clip List is not Initialized!\n");
+        return false;
+    }
+
+    if (m_cclList && !m_cclList->contains(uid)) {
+        debug(ERROR(CRITICAL), "No clip in list!\n");
+        return false;
     }
 
     ui->clipSelection->setValue(1);
@@ -58,6 +76,8 @@ cobraClipDialog::setClip(QVector<int> uid)
             if (!m_cclList->contains(uid.at(x)))
                 return false;
     }
+
+    updateClip();
 
     return true;
 }
@@ -93,20 +113,23 @@ cobraClipDialog::on_clipSelection_valueChanged(int value)
 }
 
 void
-cobraClipDialog::on_titleEdit_textChanged(QString )
+cobraClipDialog::on_titleEdit_textChanged(QString txt)
 {
+    m_ccCurrent.setTitle(txt);
     updateButtons(true);
 }
 
 void
-cobraClipDialog::on_descEdit_textChanged(QString )
+cobraClipDialog::on_descEdit_textChanged(QString txt)
 {
+    m_ccCurrent.setDescription(txt);
     updateButtons(true);
 }
 
 void
-cobraClipDialog::on_tagsEdit_textChanged(QString )
+cobraClipDialog::on_tagsEdit_textChanged(QString txt)
 {
+    m_ccCurrent.setTags(txt);
     updateButtons(true);
 }
 
@@ -118,13 +141,17 @@ cobraClipDialog::updateButtons(bool edits)
     if (m_bHasEdits) {
         ui->clipSelection->setEnabled(false);
         ui->cancelBtn->setText("Cancel");
+        ui->cancelBtn->update();
         ui->saveBtn->setEnabled(true);
+        ui->revertBtn->setEnabled(true);
         return;
     }
 
     ui->clipSelection->setEnabled(true);
     ui->cancelBtn->setText("Close");
+    ui->cancelBtn->update();
     ui->saveBtn->setEnabled(false);
+    ui->revertBtn->setEnabled(false);
 }
 
 void
@@ -136,6 +163,7 @@ cobraClipDialog::on_saveBtn_clicked()
     }
 
     m_cclList->updateClip(m_ccCurrent);
+    updateButtons(false);
 }
 
 void
@@ -148,5 +176,8 @@ cobraClipDialog::on_revertBtn_clicked()
 void
 cobraClipDialog::on_cancelBtn_clicked()
 {
-    accept();
+    if (m_bHasEdits)
+        this->reject();
+    else
+        this->accept();
 }

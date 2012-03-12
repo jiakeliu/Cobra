@@ -7,12 +7,14 @@
 #include "preferences.h"
 #include "transfersdlg.h"
 #include "cobralistwidget.h"
+#include "clipdialog.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_pDialog(NULL), m_dTransfers(NULL)
+    m_pDialog(NULL), m_dTransfers(NULL),
+    m_ccdDialog(NULL)
 {
     ui->setupUi(this);
 
@@ -24,9 +26,6 @@ MainWindow::MainWindow(QWidget *parent) :
     //tabifyDockWidget(ui->fileList, ui->cueList);
     ui->cueList->setVisible(false);
     ui->fileInfoDock->setVisible(false);
-
-    ui->localTree->insertTopLevelItem(0, new QTreeWidgetItem(QStringList("Mah Text!"), 0));
-    ui->serverTree->insertTopLevelItem(0, new QTreeWidgetItem(QStringList("Mah Text!"), 0));
 
     QString style =
             "QDockWidget::title { "
@@ -368,18 +367,23 @@ void MainWindow::on_actionSelectUpload_triggered()
 bool
 MainWindow::focusFilter(QObject* obj, QEvent* event)
 {
-    debug(ERROR(CRITICAL), "made it...\n");
     QString objName = obj->objectName();
     if (objName != ui->localTree->objectName() &&
         objName != ui->serverTree->objectName())
         return false;
 
-    debug(ERROR(CRITICAL), "list or server ..\n");
+    cobralistwidget* wdt = qobject_cast<cobralistwidget*>(obj);
+    if (!wdt)
+        return false;
+
     if (event->type() == QEvent::FocusIn) {
-        debug(ERROR(CRITICAL), "focus it...\n");
+
+        m_cclFocused = static_cast<cobraClipList*>(wdt);
         ui->actionAddClip->setEnabled(true);
+
     } else if(event->type() == QEvent::FocusOut) {
-        debug(ERROR(CRITICAL), "unfocus it...\n");
+
+        m_cclFocused = NULL;
         ui->actionAddClip->setEnabled(false);
     }
 
@@ -389,5 +393,39 @@ MainWindow::focusFilter(QObject* obj, QEvent* event)
 void
 MainWindow::on_actionAddClip_triggered()
 {
+    int res = 0;
+    QVector<int> list;
 
+    if (!m_cclFocused) {
+        debug(ERROR(CRITICAL), "Failed to find associated List!");
+        ui->actionAddClip->setEnabled(false);
+        return;
+    }
+
+    cobraClip clip;
+    clip.setTitle("<title>");
+
+    if (!m_cclFocused->addClip(clip) || clip.getUid() == 0)
+        goto err;
+
+    if (!m_ccdDialog)
+        m_ccdDialog = new cobraClipDialog;
+
+    m_ccdDialog->setClipList(m_cclFocused);
+    if (!m_ccdDialog->setClip(clip.getUid()))
+        goto err;
+
+    m_ccdDialog->setModal(true);
+
+    m_ccdDialog->exec();
+    res = m_ccdDialog->result();
+
+    m_ccdDialog->setClipList(NULL);
+
+    if (res == QDialog::Rejected)
+        m_cclFocused->removeClip(clip.getUid());
+    return;
+
+err:
+    QMessageBox::critical(this, tr("Unable to Add Clip"), tr("Unable to add a clip to the specified list!!"));
 }

@@ -859,6 +859,12 @@ p, li { white-space: pre-wrap; }
    </property>
   </action>
   <action name="actionAddClip">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>AddClip</string>
    </property>

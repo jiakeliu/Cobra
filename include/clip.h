@@ -163,8 +163,6 @@ public:
         m_iUid = Uid;
     }
 
-
-
 //public slots:
 
 //signals:

@@ -9,7 +9,7 @@
 #include <QTableView>
 
 cobraClip::cobraClip()
-    :m_iUid(0)
+    :m_iSize(0), m_iUid(0)
 {
     debug(LOW, "cobraClip initializing...\n");
 }
@@ -39,15 +39,16 @@ cobraClipList::cobraClipList(QString dbName)
     }
 
     QSqlQuery query(m_dbDatabase);
-    QString select = "SELECT * FROM cobraClips";
-    QString create = "CREATE TABLE  cobraClips"
-            "(uid INTEGER PRIMARY KEY, path blob, hash varchar(32),"
-            "size INTEGER, modtime varchar(40), title varchar(80) NOT NULL,"
-            "tags varchar(140), description varchar(140),"
-            "extension varchar(16))";
+    QString select = "SELECT * FROM cobraClips;";
+    QString create = "CREATE TABLE  cobraClips "
+            "(uid INTEGER PRIMARY KEY, path blob, hash varchar(32), "
+            "size int, modtime varchar(40), title varchar(80), "
+            "tags varchar(140), description varchar(140), "
+            "extension varchar(16));";
 
     //creates table for new db
-    if (!sqlQuery(select) && !sqlQuery(create))
+    if (!sqlQuery(select))
+        if (!sqlQuery(create))
             debug(ERROR(CRITICAL), "Failed to create requested database!\n");
 }
 
@@ -61,50 +62,68 @@ cobraClipList::~cobraClipList()
 bool
 cobraClipList::contains(int uid)
 {
-    if (!m_dbDatabase.isOpen())
+    //if (!m_dbDatabase.isOpen())
+    //    return false;
+
+    QSqlQuery query(m_dbDatabase);
+
+    if (!query.exec("SELECT uid FROM cobraClips WHERE uid=" % QString::number(uid) % ";")) {
+        debug(LOW, "Failed to exec..\n");
         return false;
+    }
 
-    QSqlQuery query("SELECT uid FROM cobraClips WHERE uid='" % QString::number(uid) % "';", m_dbDatabase);
-    QSqlRecord res = query.record();
+    if (!query.next()) {
+        debug(LOW, "Failed to exec..\n");
+        return false;
+    }
 
-    return (res.value(0).toInt() == uid);
+    return (query.value(0).toInt() == uid);
 }
 
 bool
 cobraClipList::isValid() const
 {
-    return m_dbDatabase.isOpen();
+    return true; //m_dbDatabase.isOpen();
 }
 
 cobraClip cobraClipList::getClip(int uid)
 {
     cobraClip ccClip;
-    QSqlQuery query("SELECT * FROM cobraClips WHERE uid='" % QString::number(uid) % "';", m_dbDatabase);
-    QSqlRecord sqlRecord = query.record();
-    ccClip.setUid(sqlRecord.value(0).toInt());
-    ccClip.setPath(sqlRecord.value(1).toString());
-    ccClip.setHash(sqlRecord.value(2).toString());
-    ccClip.setSize(sqlRecord.value(3).toInt());
-    ccClip.setModifiedTime(sqlRecord.value(4).toString());
-    ccClip.setTitle(sqlRecord.value(5).toString());
-    ccClip.setTags(sqlRecord.value(6).toString());
-    ccClip.setDescription(sqlRecord.value(7).toString());
-    ccClip.setExtension(sqlRecord.value(8).toString());
-    return ccClip;   
+    QSqlQuery query(m_dbDatabase);
+
+    bool result = query.exec("SELECT uid,path,hash,size,modtime,title,tags,description,extension "
+                             "FROM cobraClips WHERE uid=" % QString::number(uid) % ";");
+
+    if (!result || !query.next()) {
+        debug(ERROR(CRITICAL), "Failed to get specified clip.\n");
+        return ccClip;
+    }
+
+    ccClip.setUid(query.value(0).toInt());
+    ccClip.setPath(query.value(1).toString());
+    ccClip.setHash(query.value(2).toString());
+    ccClip.setSize(query.value(3).toInt());
+    ccClip.setModifiedTime(query.value(4).toString());
+    ccClip.setTitle(query.value(5).toString());
+    ccClip.setTags(query.value(6).toString());
+    ccClip.setDescription(query.value(7).toString());
+    ccClip.setExtension(query.value(8).toString());
+
+    return ccClip;
 }
 
 bool
 cobraClipList::updateClip(cobraClip& clip)
 {
     QString updateString = "UPDATE cobraClips SET "
-            "path=" % clip.getPath() % ","
-            "hash=" % clip.getHash() % ","
+            "path='" % clip.getPath() % "',"
+            "hash='" % clip.getHash() % "',"
             "size=" % QString::number(clip.getSize()) % ","
-            "modtime=" % clip.getModifiedTime() % ","
-            "title=" % clip.getTitle() % ","
-            "tags=" % clip.getTags() % ","
-            "extension=" % clip.getExtension() % ","
-            "description=" % clip.getDescription() %  ","
+            "modtime='" % clip.getModifiedTime() % "',"
+            "title='" % clip.getTitle() % "',"
+            "tags='" % clip.getTags() % "',"
+            "extension='" % clip.getExtension() % "',"
+            "description='" % clip.getDescription() %  "' "
             "WHERE uid=" % QString::number(clip.getUid()) % ";";
 
 
@@ -114,7 +133,7 @@ cobraClipList::updateClip(cobraClip& clip)
 bool
 cobraClipList::removeClip(int uid)
 {
-    QString deleteString = "DELETE FROM cobraClips WHERE uid='" % QString::number(uid) % "';";
+    QString deleteString = "DELETE FROM cobraClips WHERE uid=" % QString::number(uid) % ";";
     return sqlQuery(deleteString);
 }
 
@@ -123,16 +142,18 @@ cobraClipList::addClip(cobraClip& clip)
 {
     QSqlQuery query(m_dbDatabase);
     QString insertString =
-            "INSERT INTO cobraClips (uid,path,hash,size,modtime,title,tags,description,extension) VALUES (NULL,"
-            "'" % clip.getPath() % "',"
-            "'" % clip.getHash() % "',"
-            "'" % QString::number(clip.getSize()) % "',"
-            "'" % clip.getModifiedTime() % "',"
-            "'" % clip.getTitle() % "',"
-            "'" % clip.getTags() % "',"
-            "'" % clip.getDescription() % "',"
+            "INSERT INTO cobraClips (uid, path, hash, size, modtime, title, tags, description, extension) "
+            "VALUES (NULL, "
+            "'" % clip.getPath() % "', "
+            "'" % clip.getHash() % "', "
+            "'" % QString::number(clip.getSize()) % "', "
+            "'" % clip.getModifiedTime() % "', "
+            "'" % clip.getTitle() % "', "
+            "'" % clip.getTags() % "', "
+            "'" % clip.getDescription() % "', "
             "'" % clip.getExtension() % "');";
 
+    debug(LOW, "Inserted: %s\n", qPrintable(insertString));
     if (!query.exec(insertString)) {
         QSqlError err = m_dbDatabase.lastError();
         debug(ERROR(CRITICAL), "Failed to Query Database (%s).\n", qPrintable(m_dbDatabase.connectionName()));
