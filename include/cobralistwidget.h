@@ -14,6 +14,7 @@ public:
     bool removeClip(int uid);
     bool addClip(cobraClip& clip);
 
+    void getSelectedUids(QVector<int>& uids);
 
 signals:
 

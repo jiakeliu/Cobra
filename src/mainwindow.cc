@@ -6,6 +6,7 @@
 #include "filevalidator.h"
 #include "preferences.h"
 #include "transfersdlg.h"
+#include "cobralistwidget.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :

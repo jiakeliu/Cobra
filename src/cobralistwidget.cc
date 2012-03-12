@@ -6,7 +6,7 @@ cobralistwidget::cobralistwidget(QWidget *parent) :
 {
     this->setColumnCount(6);
     this->setHeaderLabels(
-    QStringList()<<"Flag"<<"ID"<<"Title"<<"Description"<<"Modified Time"<<"Tags");
+    QStringList()<<"Flag"<<"ID"<<"Title"<<"Description"<<"Modified OMG"<<"Tags");
 }
 
 bool
@@ -22,11 +22,26 @@ cobralistwidget::updateClip(cobraClip& clip)
      * This should NOT be the function called when a user selected to edit a Clip's information,
      * this SHOULD be the function called AFTER the user has selected to SAVE the clip information.
      */
-    int clipid = clip.getUID();
+
+    QString clipid = (QString)clip.getUID();
     QString cliptitle = clip.getTitle();
     QString clipdesc = clip.getDescription();
     QString cliptime = clip.getModifiedTime();
     QString cliptags = clip.getTags();
+
+    QList<QTreeWidgetItem*> c = this->findItems(clipid, Qt::MatchExactly, 1);
+
+    if(c.size() != 1)
+        return false;
+
+    QTreeWidgetItem* itm = c.takeFirst();
+    itm->setCheckState(0, Qt::Checked);
+    itm->setText(1, clipid);
+    itm->setText(2, cliptitle);
+    itm->setText(3, clipdesc);
+    itm->setText(4, cliptime);
+    itm->setText(5, cliptags);
+
 
     /**
       Do no create  new item here...
@@ -44,22 +59,27 @@ cobralistwidget::updateClip(cobraClip& clip)
 bool
 cobralistwidget::removeClip(int uid)
 {
-    //@todo call parent function here to remove entry in database
+    bool ret = cobraClipList::removeClip(uid);
+    if (!ret)
+        return ret;
 
-    //delete this->currentItem();
-    // OR
-    //this->takeTopLevelItem(uid);
+    QList<QTreeWidgetItem*> c = this->findItems((QString)uid, Qt::MatchExactly, 1);
 
-    /**
-       See update clip comments for insight...
-       */
-    return 1;
+    if(c.size() != 1)
+        return false;
+
+    delete c.takeFirst();
+
+    return true;
 }
 
 bool
 cobralistwidget::addClip(cobraClip& clip)
 {
-    //@todo call parent function here to add entry to database
+    bool ret = cobraClipList::addClip(clip);
+    if (!ret)
+        return ret;
+
 
     QTreeWidgetItem *itm = new QTreeWidgetItem(this);
     QString clipid = (QString)clip.getUID();
@@ -76,5 +96,16 @@ cobralistwidget::addClip(cobraClip& clip)
     itm->setText(5, cliptags);
     this->addTopLevelItem(itm);
 
-    return 1;
+    return true;
+}
+
+void
+cobralistwidget::getSelectedUids(QVector<int>& uids)
+{
+    QList<QTreeWidgetItem *> items = this->selectedItems();
+    for(int i = 0; i < items.size(); i++)
+    {
+        QTreeWidgetItem *itm = items.at(i);
+        uids.append(itm->text(1).toInt(0,10));
+    }
 }
