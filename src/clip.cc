@@ -105,7 +105,7 @@ cobraClipList::updateClip(cobraClip& clip)
             "tags=" % clip.getTags() % ","
             "extension=" % clip.getExtension() % ","
             "description=" % clip.getDescription() %  ","
-            "WHERE uid=" % QString::number(clip.getUID()) % ";";
+            "WHERE uid=" % QString::number(clip.getUid()) % ";";
 
 
     return sqlQuery(updateString);
