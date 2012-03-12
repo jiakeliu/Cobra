@@ -53,8 +53,8 @@ private slots:
     void on_actionTransfers_triggered();
     void on_actionSelectUpload_triggered();
     void on_actionAddClip_triggered();
-    void on_actionRemoveCilp_triggered();
-    void on_actionEditCilp_triggered();
+    void on_actionRemoveClip_triggered();
+    void on_actionEditClip_triggered();
 
 protected:
     bool setName(QString);

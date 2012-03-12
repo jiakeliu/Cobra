@@ -162,6 +162,11 @@ cobraClipDialog::on_saveBtn_clicked()
         return;
     }
 
+    if (m_ccCurrent.getTitle() == "<title>") {
+        QMessageBox::critical(this, tr("Must Have a Title!"), tr("This clip must have a title specified!"));
+        return;
+    }
+
     m_cclList->updateClip(m_ccCurrent);
     updateButtons(false);
 }

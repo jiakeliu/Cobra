@@ -396,12 +396,12 @@ MainWindow::on_actionAddClip_triggered()
     clip.setPath(path);
 
     if (!list->addClip(clip)) {
-        QMessageBox::critical(this, tr("Unable to Add Clip"), tr("Failed to add the !"));
+        QMessageBox::critical(this, tr("Unable to Add Clip"), tr("Failed to add the clip!"));
         return;
     }
 
     if (clip.getUid() == 0) {
-        QMessageBox::critical(this, tr("Unable to Add Clip"), tr("Failed to add the !"));
+        QMessageBox::critical(this, tr("Unable to Add Clip"), tr("Failed to add the clip!"));
         return;
     }
 
@@ -426,23 +426,21 @@ MainWindow::on_actionAddClip_triggered()
 }
 
 void
-MainWindow::on_actionRemoveCilp_triggered()
+MainWindow::on_actionRemoveClip_triggered()
 {
     cobralistwidget *clw =  dynamic_cast<cobralistwidget*>(m_cclFocused);
 
     if (!clw)
         return;
-
-    //clw->
-
 
 }
 
 void
-MainWindow::on_actionEditCilp_triggered()
+MainWindow::on_actionEditClip_triggered()
 {
     cobralistwidget *clw =  dynamic_cast<cobralistwidget*>(m_cclFocused);
 
     if (!clw)
         return;
+
 }

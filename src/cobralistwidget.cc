@@ -66,10 +66,12 @@ cobralistwidget::removeClip(int uid)
     if (!ret)
         return ret;
 
-    QList<QTreeWidgetItem*> c = this->findItems((QString)uid, Qt::MatchExactly, 1);
+    QList<QTreeWidgetItem*> c = this->findItems(QString::number(uid), Qt::MatchExactly, 1);
 
-    if(c.size() != 1)
+    if(c.size() != 1) {
+        debug(ERROR(HIGH), "Failed to find specified ID!\n");
         return false;
+    }
 
     delete c.takeFirst();
 

@@ -186,6 +186,8 @@ public:
     cobraClipList(QString dbName = ":memory:");
     virtual ~cobraClipList();
 
+   void                         setName(QString dbName);
+
    void                         enumClips(QVector<int>& vector);
    cobraClip                    getClip(int Uid);
    virtual bool                 updateClip(cobraClip& clip);
