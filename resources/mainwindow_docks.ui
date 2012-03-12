@@ -156,6 +156,8 @@
    <addaction name="actionSelectUpload"/>
    <addaction name="separator"/>
    <addaction name="actionAddClip"/>
+   <addaction name="actionRemoveClip"/>
+   <addaction name="actionEditClip"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="fileInfoDock">
@@ -859,6 +861,34 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="shortcut">
     <string>Ctrl++</string>
+   </property>
+  </action>
+  <action name="actionRemoveClip">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>RemoveClip</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove the selected clip from the clip list</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
+   </property>
+  </action>
+  <action name="actionEditClip">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>EditClip</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit the selected clip on the clip list.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
    </property>
   </action>
  </widget>

@@ -349,11 +349,21 @@ MainWindow::focusFilter(QObject* obj, QEvent* event)
 
         m_cclFocused = static_cast<cobraClipList*>(wdt);
         ui->actionAddClip->setEnabled(true);
+        QList<QTreeWidgetItem*> selection =  ui->localTree->selectedItems();
+        if(selection.size() > 0) {
+            ui->actionEditClip->setEnabled(true);
+            ui->actionRemoveClip->setEnabled(true);
+
+        } else {
+            ui->actionEditClip->setEnabled(false);
+            ui->actionRemoveClip->setEnabled(false);
+        }
 
     } else if(event->type() == QEvent::FocusOut) {
 
         m_cclFocused = NULL;
         ui->actionAddClip->setEnabled(false);
+        ui->actionRemoveClip->setEnabled(false);
     }
 
     return false;
@@ -409,4 +419,16 @@ MainWindow::on_actionAddClip_triggered()
 
     if (res == QDialog::Rejected)
         list->removeClip(clip.getUid());
+}
+
+void
+MainWindow::on_actionRemoveCilp_triggered()
+{
+    cobralistwidget *clw = new cobralistwidget(ui->localTree);
+}
+
+void
+MainWindow::on_actionEditCilp_triggered()
+{
+    cobralistwidget *clw = new cobralistwidget(ui->localTree);
 }
