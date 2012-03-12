@@ -27,6 +27,17 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->cueList->setVisible(false);
     ui->fileInfoDock->setVisible(false);
     ui->serverTree->setColumnHidden(0, true);
+    ui->serverTree->setColumnWidth(1, 30);
+    ui->serverTree->setColumnWidth(2, 120);
+    ui->serverTree->setColumnWidth(3, 235);
+    ui->serverTree->setColumnWidth(4, 120);
+    ui->serverTree->setColumnWidth(5, 90);
+    ui->localTree->setColumnWidth(0, 55);
+    ui->localTree->setColumnWidth(1, 30);
+    ui->localTree->setColumnWidth(2, 120);
+    ui->localTree->setColumnWidth(3, 180);
+    ui->localTree->setColumnWidth(4, 120);
+    ui->localTree->setColumnWidth(5, 90);
 
     QString style =
             "QDockWidget::title { "

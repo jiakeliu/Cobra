@@ -12,5 +12,6 @@
         <file>images/Network_Connections.png</file>
         <file>images/pref.png</file>
         <file>images/upload.png</file>
+        <file>images/upload_icon.png</file>
     </qresource>
 </RCC>
