@@ -448,6 +448,50 @@ MainWindow::on_actionEditClip_triggered()
     if (!clw)
         return;
 
+
+    QTreeWidgetItem* ci = clw->currentItem();
+
+    int res = 0;
+
+    if (!m_cclFocused) {
+        debug(ERROR(CRITICAL), "Failed to find associated List!");
+        ui->actionEditClip->setEnabled(false);
+        return;
+    }
+
+    cobraClipList *list = m_cclFocused;
+
+    cobraClip clip;
+    clip.setTitle(ci->text(2));
+    clip.setDescription(ci->text(3));
+    clip.setTags(ci->text(5));
+    clip.setUid(ci->text(1).toInt(0, 10));
+
+    if(!clw->updateClip(clip)){
+        QMessageBox::critical(this, tr("Unable to Edit Clip"), tr("Failed to edit the clip!"));
+        return;
+    }
+
+    if (clip.getUid() == 0) {
+        QMessageBox::critical(this, tr("Unable to Edit Clip"), tr("Failed to edit the clip!"));
+        return;
+    }
+
+    if (!m_ccdDialog)
+        m_ccdDialog = new cobraClipDialog;
+
+    m_ccdDialog->setClipList(list);
+    if (!m_ccdDialog->setClip(clip.getUid())) {
+        QMessageBox::critical(this, tr("Unable to Edit Clip"), tr("Unable to edit specified clip!"));
+        return;
+    }
+
+    m_ccdDialog->setModal(true);
+
+    m_ccdDialog->exec();
+    res = m_ccdDialog->result();
+
+    m_ccdDialog->setClipList(NULL);
 }
 
 void MainWindow::on_actionSyncLists_triggered()
