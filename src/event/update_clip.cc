@@ -10,7 +10,7 @@ cobraClipUpdateEvent::cobraClipUpdateEvent()
 {}
 
 cobraClipUpdateEvent::cobraClipUpdateEvent(cobraClipUpdateEvent& event)
-    :cobraNetEvent(event), m_ccClip(event.m_ccClip)
+    :cobraNetEvent(event), m_ccClip(event.m_ccClip), m_iCommand(event.m_iCommand)
 {}
 
 cobraClipUpdateEvent::~cobraClipUpdateEvent()
@@ -155,8 +155,8 @@ cobraClipUpdateEventHandler::handleEvent(cobraNetEvent* event)
     if (event->isRequest())
         return handleServerEvent(event);
 
-    debug(ERROR(CRITICAL), "Handling CUP Event: Client!\n");
     cobraClipUpdateEvent* cup = static_cast<cobraClipUpdateEvent*>(event);
+    debug(ERROR(CRITICAL), "Handling CUP Event: Client! %d\n", cup->command());
 
     switch(cup->command()) {
     case cobraClipUpdateEvent::Update:
@@ -180,9 +180,10 @@ cobraClipUpdateEventHandler::handleEvent(cobraNetEvent* event)
 bool
 cobraClipUpdateEventHandler::handleServerEvent(cobraNetEvent* event)
 {
-    debug(ERROR(CRITICAL), "Handling CUP Event: Server!\n");
 
     cobraClipUpdateEvent* cup = static_cast<cobraClipUpdateEvent*>(event);
+
+    debug(ERROR(CRITICAL), "Handling CUP Event: Server! %d\n", cup->command());
 
     switch(cup->command()) {
     case cobraClipUpdateEvent::Update:

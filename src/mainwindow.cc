@@ -656,5 +656,5 @@ MainWindow::refreshServerList()
         hack->removeClip(list.at(x));
     }
 
-    cobraNetHandler::instance()->sendEvent(event);
+    cobraSendEvent(event);
 }
