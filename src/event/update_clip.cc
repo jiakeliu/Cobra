@@ -35,6 +35,7 @@ int cobraClipUpdateEvent::serialize(QDataStream& connection)
     connection << m_ccClip.getModifiedTime();
     connection << m_ccClip.getTitle();
     connection << m_ccClip.getTags();
+    connection << m_ccClip.getExtension();
     connection << m_ccClip.getDescription();
 
     return size + QString::number(m_ccClip.getUid()).length() +
@@ -44,6 +45,7 @@ int cobraClipUpdateEvent::serialize(QDataStream& connection)
                   m_ccClip.getModifiedTime().length() +
                   m_ccClip.getTitle().length() +
                   m_ccClip.getTags().length() +
+                  m_ccClip.getExtension().length() +
                   m_ccClip.getDescription().length();
 }
 
@@ -86,6 +88,10 @@ cobraClipUpdateEvent::deserialize(QDataStream& connection)
     connection >> tmpString;
     size += tmpString.length();
     m_ccClip.setTags(tmpString);
+
+    connection >> tmpString;
+    size += tmpString.length();
+    m_ccClip.setExtension(tmpString);
 
     connection >> tmpString;
     size += tmpString.length();
@@ -146,11 +152,10 @@ cobraClipUpdateEventHandler::handleEvent(cobraNetEvent* event)
     if (event->type() != cobraClipUpdateEventType)
         return false;
 
-    debug(ERROR(CRITICAL), "Handling CUP Event!\n");
-
     if (event->isRequest())
         return handleServerEvent(event);
 
+    debug(ERROR(CRITICAL), "Handling CUP Event: Client!\n");
     cobraClipUpdateEvent* cup = static_cast<cobraClipUpdateEvent*>(event);
 
     switch(cup->command()) {
@@ -160,10 +165,13 @@ cobraClipUpdateEventHandler::handleEvent(cobraNetEvent* event)
     case cobraClipUpdateEvent::Add:
         return handleAddEvent(cup, serverList());
 
+    default:
+        debug(ERROR(CRITICAL), "Default!!!");
+        break;
+
     case cobraClipUpdateEvent::Remove:
         debug(ERROR(CRITICAL), "Not implemented!!!");
         break;
-
     }
 
     return true;
@@ -172,7 +180,7 @@ cobraClipUpdateEventHandler::handleEvent(cobraNetEvent* event)
 bool
 cobraClipUpdateEventHandler::handleServerEvent(cobraNetEvent* event)
 {
-    debug(LOW, "Handling Clip Update Request!\n");
+    debug(ERROR(CRITICAL), "Handling CUP Event: Server!\n");
 
     cobraClipUpdateEvent* cup = static_cast<cobraClipUpdateEvent*>(event);
 
@@ -185,6 +193,10 @@ cobraClipUpdateEventHandler::handleServerEvent(cobraNetEvent* event)
 
     case cobraClipUpdateEvent::RequestSync:
         return handleSyncRequest(cup, serverList());
+
+    default:
+        debug(ERROR(CRITICAL), "Default!!!");
+        break;
 
     case cobraClipUpdateEvent::Remove:
         debug(ERROR(CRITICAL), "Not implemented!!!");
@@ -201,11 +213,7 @@ cobraClipUpdateEventHandler::handleUpdateEvent(cobraClipUpdateEvent* event, cobr
         return false;
 
     cobraClip clip = event->clip();
-    cobraClip clip2 = list->getClip(clip.getUid());
-
-    if (clip2.getHash() != clip.getHash())
-        list->addClip(clip);
-
+    debug(ERROR(CRITICAL), "Recieving update...\n");
     return list->updateClip(clip);
 }
 
@@ -216,6 +224,7 @@ cobraClipUpdateEventHandler::handleAddEvent(cobraClipUpdateEvent* event, cobraCl
         return false;
 
     cobraClip clip = event->clip();
+    debug(ERROR(CRITICAL), "Recieving add...\n");
     return list->addClip(clip);
 }
 

@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     m_pDialog(NULL), m_dTransfers(NULL),
-    m_ccdDialog(NULL)
+    m_cclFocused(NULL), m_ccdDialog(NULL)
 {
     ui->setupUi(this);
 
@@ -93,7 +93,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* Hide the central widget so that the dock widgets take over. */
     ui->centralwidget->hide();
-    m_cclFocused = dynamic_cast<cobralistwidget*>(ui->localTree);
 
     QRect rect = geometry();
     rect.setHeight(500);
@@ -361,18 +360,31 @@ MainWindow::focusFilter(QObject* obj, QEvent* event)
     if (!wdt)
         return false;
 
-    if(event->type() == QEvent::FocusOut) {
-
+    if (event->type() == QEvent::FocusIn) {
+        m_cclFocused = dynamic_cast<cobralistwidget*>(obj);
+        ui->actionRemoveClip->setEnabled(true);
+        ui->actionEditClip->setEnabled(true);
+    } else
+    if (event->type() == QEvent::FocusOut) {
+        m_cclFocused = NULL;
         ui->actionRemoveClip->setEnabled(false);
         ui->actionEditClip->setEnabled(false);
 
     } else {
-        QList<QTreeWidgetItem*> selection = wdt->selectedItems();
+
+        if (!m_cclFocused)
+            return false;
+
+        cobralistwidget* widget = dynamic_cast<cobralistwidget*>(m_cclFocused);
+
+        if (!widget)
+            return false;
+
+        QList<QTreeWidgetItem*> selection = widget->selectedItems();
 
         if(selection.size() > 0) {
             ui->actionEditClip->setEnabled(true);
-            ui->actionRemoveClip->setEnabled(true);
-
+            ui->actionRemoveClip->setEnabled(m_cclFocused == ui->localTree);
         } else {
             ui->actionEditClip->setEnabled(false);
             ui->actionRemoveClip->setEnabled(false);
@@ -386,15 +398,7 @@ void
 MainWindow::on_actionAddClip_triggered()
 {
     int res = 0;
-
-    if (!m_cclFocused) {
-        debug(ERROR(CRITICAL), "Failed to find associated List!");
-        ui->actionAddClip->setEnabled(false);
-        return;
-    }
-
-    cobraClipList *list = m_cclFocused;
-
+    cobraClipList *list = ui->localTree;
     QString path = QFileDialog::getOpenFileName(this, tr("Open File"),QDir::homePath(), QString::null);
 
     if (path.isEmpty() || path.isNull())
@@ -459,16 +463,12 @@ MainWindow::on_actionRemoveClip_triggered()
     }
     else if(msgBox.clickedButton() == yesButton) {
         debug(ERROR(LOW), "Clip removal confirmed\n");
-        cobralistwidget *clw =  dynamic_cast<cobralistwidget*>(m_cclFocused);
 
-        if (!clw)
-            return;
-
-        QTreeWidgetItem* ci = clw->currentItem();
+        QTreeWidgetItem* ci = ui->localTree->currentItem();
         if (ci!=NULL)
         {
             int uid = ci->text(1).toInt(0,10);
-            clw->removeClip(uid);
+            ui->localTree->removeClip(uid);
         } else return;
     }
 }
@@ -481,10 +481,14 @@ MainWindow::on_actionEditClip_triggered()
     if (!clw)
         return;
 
-
+    int res = 0;
     QTreeWidgetItem* ci = clw->currentItem();
 
-    int res = 0;
+    if (!ci) {
+        debug(ERROR(CRITICAL), "Failed to find associated list item!");
+        ui->actionEditClip->setEnabled(false);
+        return;
+    }
 
     if (!m_cclFocused) {
         debug(ERROR(CRITICAL), "Failed to find associated List!");
@@ -494,18 +498,8 @@ MainWindow::on_actionEditClip_triggered()
 
     cobraClipList *list = m_cclFocused;
 
-    cobraClip clip;
-    clip.setTitle(ci->text(2));
-    clip.setDescription(ci->text(3));
-    clip.setTags(ci->text(5));
-    clip.setUid(ci->text(1).toInt(0, 10));
-
+    cobraClip clip = m_cclFocused->getClip(ci->text(1).toInt());
     if(!clw->updateClip(clip)){
-        QMessageBox::critical(this, tr("Unable to Edit Clip"), tr("Failed to edit the clip!"));
-        return;
-    }
-
-    if (clip.getUid() == 0) {
         QMessageBox::critical(this, tr("Unable to Edit Clip"), tr("Failed to edit the clip!"));
         return;
     }
@@ -514,6 +508,7 @@ MainWindow::on_actionEditClip_triggered()
         m_ccdDialog = new cobraClipDialog;
 
     m_ccdDialog->setClipList(list);
+
     if (!m_ccdDialog->setClip(clip.getUid())) {
         QMessageBox::critical(this, tr("Unable to Edit Clip"), tr("Unable to edit specified clip!"));
         return;
@@ -530,8 +525,6 @@ MainWindow::on_actionEditClip_triggered()
 void
 MainWindow::on_actionSync_triggered()
 {
-    bool localFiles = ui->localTree->syncable();
-    bool localEdits = ui->serverTree->syncable();
     bool wantUpload = false;
     bool wantDownload = false;
 
@@ -546,17 +539,12 @@ MainWindow::on_actionSync_triggered()
         msgBox.setIcon(QMessageBox::Question);
         msgBox.exec();
 
-        if (!localFiles && !localEdits) {
-            bothButton->setEnabled(false);
-            serverButton->setEnabled(false);
-        }
-
         if(msgBox.clickedButton() == cancelButton) {
             debug(ERROR(LOW), "Canceled Sync List\n");
         }
         else if(msgBox.clickedButton() == bothButton) {
             debug(ERROR(LOW), "Sync Both Lists\n");
-            wantUpload = localEdits|localFiles;
+            wantUpload = true;
             wantDownload = true;
         }
         else if(msgBox.clickedButton() == serverButton) {
@@ -565,7 +553,7 @@ MainWindow::on_actionSync_triggered()
         }
         else if(msgBox.clickedButton() == localButton) {
             debug(ERROR(LOW), "Sync From Local List\n");
-            wantUpload = localEdits|localFiles;
+            wantUpload = true;
         }
 
         if (wantUpload)
@@ -602,8 +590,9 @@ MainWindow::sendLocalUpdates()
         cobraClipUpdateEvent* event = new cobraClipUpdateEvent();
         event->setSource(cobraMyId);
         event->setDestination(SERVER);
+        event->setResponse(false);
         event->setClip(clip);
-        event->setCommand(cobraClipUpdateEvent::Update);
+        event->setCommand(cobraClipUpdateEvent::Add);
 
         cobraSendEvent(event);
     }
@@ -620,6 +609,7 @@ MainWindow::sendLocalUpdates()
         cobraClipUpdateEvent* event = new cobraClipUpdateEvent();
         event->setSource(cobraMyId);
         event->setDestination(SERVER);
+        event->setResponse(false);
         event->setClip(clip);
         event->setCommand(cobraClipUpdateEvent::Add);
 
