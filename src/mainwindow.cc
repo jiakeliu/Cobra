@@ -39,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->localTree->setColumnWidth(4, 150);
     ui->localTree->setColumnWidth(5, 90);
 
+
     QString style =
             "QDockWidget::title { "
             "border-top-left-radius: 0px; "
