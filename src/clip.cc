@@ -11,7 +11,6 @@
 cobraClip::cobraClip()
     :m_iSize(0), m_iUid(0)
 {
-    setSize(-1);
     debug(LOW, "cobraClip initializing...\n");
 }
 
@@ -60,9 +59,12 @@ cobraClipList::~cobraClipList()
 }
 
 
+/* TODO: contains(QString hash)... */
+
 bool
 cobraClipList::contains(int uid)
 {
+    /* TODO: same here */
     //if (!m_dbDatabase.isOpen())
     //    return false;
 
@@ -84,6 +86,7 @@ cobraClipList::contains(int uid)
 bool
 cobraClipList::isValid() const
 {
+    /* TODO: See if you can't figure out why this is failing. */
     return true; //m_dbDatabase.isOpen();
 }
 
@@ -119,7 +122,7 @@ cobraClip cobraClipList::getClipByHash(QString hash)
     QSqlQuery query(m_dbDatabase);
 
     bool result = query.exec("SELECT uid,path,hash,size,modtime,title,tags,description,extension "
-                             "FROM cobraClips WHERE hash=" % hash % ";");
+                             "FROM cobraClips WHERE hash='" % hash % "';");
 
     if (!result || !query.next()) {
         debug(ERROR(CRITICAL), "Failed to get specified clip.\n");
@@ -142,6 +145,8 @@ cobraClip cobraClipList::getClipByHash(QString hash)
 bool
 cobraClipList::updateClip(cobraClip& clip)
 {
+    /* TODO: check here to ensure that the hashes match prior to update!
+                add a bool to allow for forcing an update (to include hash). */
     QString updateString = "UPDATE cobraClips SET "
             "path='" % clip.getPath() % "',"
             "hash='" % clip.getHash() % "',"
@@ -149,7 +154,6 @@ cobraClipList::updateClip(cobraClip& clip)
             "modtime=CURRENT_TIMESTAMP,"
             "title='" % clip.getTitle() % "',"
             "tags='" % clip.getTags() % "',"
-            "extension='" % clip.getExtension() % "',"
             "description='" % clip.getDescription() %  "' "
             "WHERE uid=" % QString::number(clip.getUid()) % ";";
 
@@ -167,6 +171,7 @@ cobraClipList::removeClip(int uid)
 bool
 cobraClipList::addClip(cobraClip& clip)
 {
+    /* TODO: Check here to ensure no other clip with this hash value exists!!! */
     QSqlQuery query(m_dbDatabase);
     QString insertString =
             "INSERT INTO cobraClips (uid, path, hash, size, modtime, title, tags, description, extension) "
