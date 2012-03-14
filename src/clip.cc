@@ -113,6 +113,32 @@ cobraClip cobraClipList::getClip(int uid)
     return ccClip;
 }
 
+cobraClip cobraClipList::getClipByHash(QString hash)
+{
+    cobraClip ccClip;
+    QSqlQuery query(m_dbDatabase);
+
+    bool result = query.exec("SELECT uid,path,hash,size,modtime,title,tags,description,extension "
+                             "FROM cobraClips WHERE hash=" % hash % ";");
+
+    if (!result || !query.next()) {
+        debug(ERROR(CRITICAL), "Failed to get specified clip.\n");
+        return ccClip;
+    }
+
+    ccClip.setUid(query.value(0).toInt());
+    ccClip.setPath(query.value(1).toString());
+    ccClip.setHash(query.value(2).toString());
+    ccClip.setSize(query.value(3).toInt());
+    ccClip.setModifiedTime(query.value(4).toString());
+    ccClip.setTitle(query.value(5).toString());
+    ccClip.setTags(query.value(6).toString());
+    ccClip.setDescription(query.value(7).toString());
+    ccClip.setExtension(query.value(8).toString());
+
+    return ccClip;
+}
+
 bool
 cobraClipList::updateClip(cobraClip& clip)
 {

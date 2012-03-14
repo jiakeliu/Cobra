@@ -555,6 +555,7 @@ MainWindow::on_actionSync_triggered()
         else if(msgBox.clickedButton() == localButton) {
             debug(ERROR(LOW), "Sync From Local List\n");
             wantUpload = true;
+            qDebug() << "wanted?????: " << wantUpload;
         }
 
         if (wantUpload)

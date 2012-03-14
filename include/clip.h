@@ -190,6 +190,7 @@ public:
 
    void                         enumClips(QVector<int>& vector);
    cobraClip                    getClip(int Uid);
+   cobraClip                    getClipByHash(QString hash);
    virtual bool                 updateClip(cobraClip& clip);
    virtual bool                 removeClip(int Uid);
    virtual bool                 addClip(cobraClip& clip);
