@@ -22,7 +22,8 @@ SOURCES = src/main.cc \
     src/transfersdlg.cc \
     src/clip.cc \
     src/clipdialog.cpp \
-    src/event/update_clip.cc
+    src/event/update_clip.cc \
+    src/timeline.cc
 
 INCLUDEPATH = include
 
@@ -39,7 +40,8 @@ HEADERS += \
     include/transfersdlg.h \
     include/clip.h \
     include/transfer.h \
-    include/clipdialog.h
+    include/clipdialog.h \
+    include/timeline.h
 
 FORMS += \
     resources/mainwindow.ui \
