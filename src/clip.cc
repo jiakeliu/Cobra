@@ -58,15 +58,34 @@ cobraClipList::~cobraClipList()
     debug(LOW, "cobraClipList dieing...\n");
 }
 
+bool
+cobraClipList::containsHash(QString hash)
+{
+    if (!m_dbDatabase.isOpen())
+        return false;
 
-/* TODO: contains(QString hash)... */
+    int uid;
+
+    QSqlQuery query(m_dbDatabase);
+
+    if (!query.exec("SELECT uid FROM cobraClips WHERE hash=" % hash % ";")) {
+        debug(LOW, "Failed to exec..\n");
+        return false;
+    }
+
+    if (!query.next()) {
+        debug(LOW, "Failed to exec..\n");
+        return false;
+    }
+
+    return (query.value(0).toInt() == uid);
+}
 
 bool
 cobraClipList::contains(int uid)
 {
-    /* TODO: same here */
-    //if (!m_dbDatabase.isOpen())
-    //    return false;
+    if (!m_dbDatabase.isOpen())
+        return false;
 
     QSqlQuery query(m_dbDatabase);
 
@@ -171,6 +190,7 @@ cobraClipList::removeClip(int uid)
 bool
 cobraClipList::addClip(cobraClip& clip)
 {
+
     /* TODO: Check here to ensure no other clip with this hash value exists!!! */
     QSqlQuery query(m_dbDatabase);
     QString insertString =

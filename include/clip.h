@@ -196,6 +196,7 @@ public:
    virtual bool                 addClip(cobraClip& clip);
 
    virtual bool                 contains(int Uid);
+   virtual bool                 containsHash(QString hash);
    bool                         isValid() const;
 
 protected:
