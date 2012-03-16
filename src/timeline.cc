@@ -39,10 +39,23 @@ cobraTimelineList::cobraTimelineList(QString dbName)
     }
 
     QSqlQuery query(m_dbDatabase);
+
+    // table creation strings for timelines
     QString select = "SELECT * FROM cobraTimelines;";
     QString create = "CREATE TABLE  cobraTimelines "
             "(uid INTEGER PRIMARY KEY, title varchar(60),"
             "description varchar(140), timestarted datetime);";
+
+    //creates table for new db
+    if (!sqlQuery(select))
+        if (!sqlQuery(create))
+            debug(ERROR(CRITICAL), "Failed to create requested database!\n");
+
+    // table creation strings for markers
+    select = "SELECT * FROM cobraMarkers;";
+    create = "CREATE TABLE  cobraMarkers "
+            "(uid INTEGER PRIMARY KEY, timelineKey INTEGER,"
+            "comment varchar(140), offset INTEGER);";
 
     //creates table for new db
     if (!sqlQuery(select))
@@ -148,6 +161,51 @@ cobraTimelineList::addTimeline(cobraTimeline& timeline)
 
     bool ok = false;
     timeline.setUid(query.lastInsertId().toInt(&ok));
+    return ok;
+}
+
+bool
+cobraTimelineList::updateMark(cobraMark& mark)
+{
+    QString updateString = "UPDATE cobraMarkers SET "
+            "comment='" % mark.getComment() %  "' "
+            "WHERE uid=" % QString::number(mark.getUid()) % ";";
+
+    debug(LOW, "Updated: %s\n", qPrintable(updateString));
+    return sqlQuery(updateString);
+}
+
+bool
+cobraTimelineList::removeMark(int uid)
+{
+    QString deleteString = "DELETE FROM cobraMarkers WHERE uid=" % QString::number(uid) % ";";
+    return sqlQuery(deleteString);
+}
+
+bool
+cobraTimelineList::addMark(cobraMark& mark)
+{
+    QSqlQuery query(m_dbDatabase);
+    QString insertString =
+            "INSERT INTO cobraMarkers (uid, timelineKey, comment, offset) "
+            "VALUES (NULL, "
+            "'" % QString::number(mark.getTimelineKey()) % "', "
+            "'" % mark.getComment() % "', "
+            "'" % QString::number(mark.getTimeOffset()) % "');";
+
+    debug(LOW, "Inserted: %s\n", qPrintable(insertString));
+    if (!query.exec(insertString)) {
+        QSqlError err = m_dbDatabase.lastError();
+        debug(ERROR(CRITICAL), "Failed to Query Database (%s).\n", qPrintable(m_dbDatabase.connectionName()));
+        if (!err.databaseText().isEmpty())
+            debug(ERROR(CRITICAL),"%s\n", qPrintable(err.databaseText()));
+        if (!err.driverText().isEmpty())
+            debug(ERROR(CRITICAL),"%s\n", qPrintable(err.driverText()));
+        return false;
+    }
+
+    bool ok = false;
+    mark.setUid(query.lastInsertId().toInt(&ok));
     return ok;
 }
 

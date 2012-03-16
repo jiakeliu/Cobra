@@ -20,11 +20,11 @@ public:
     virtual ~cobraMark();
 
     /**
-     * @fn QString getTimeOffset() 
+     * @fn int getTimeOffset() 
      * @return the offset of a Mark
      */
-    QString getTimeOffset() {
-        return (m_sTimeOffset);
+    int getTimeOffset() {
+        return (m_iTimeOffset);
     }
 
     /**
@@ -52,11 +52,11 @@ public:
     }
 
     /**
-     * @fn QString setTimeOffset() 
+     * @fn int setTimeOffset() 
      * sets the offset of a Mark
      */
-    void setTimeOffset(QString offset) {
-        m_sTimeOffset = offset;
+    void setTimeOffset(int offset) {
+        m_iTimeOffset = offset;
     }
 
     /**
@@ -90,7 +90,7 @@ public:
 protected:
 
     QString                             m_sComment;
-    QString                             m_sTimeOffset;
+    int                                 m_iTimeOffset;
     int                                 m_iTimelineKey;
     int                                 m_iUid;
     
@@ -199,11 +199,11 @@ public:
     cobraTimeline                getTimeline(int Uid);
     cobraMark                    getMark(int Uid);
     virtual bool                 updateTimeline(cobraTimeline& timeline);
-//    virtual bool                 updateMark(cobraMark& mark);
+    virtual bool                 updateMark(cobraMark& mark);
     virtual bool                 removeTimeline(int Uid);
-//    virtual bool                 removeMark(int Uid);
+    virtual bool                 removeMark(int Uid);
     virtual bool                 addTimeline(cobraTimeline& timeline);
-//    virtual bool                 addMark(cobraMark& mark);
+    virtual bool                 addMark(cobraMark& mark);
  
     virtual bool                 contains(int Uid);
     bool                         isValid() const;
