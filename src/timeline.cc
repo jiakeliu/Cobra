@@ -19,6 +19,24 @@ cobraTimeline::~cobraTimeline()
     debug(LOW, "cobraTimeline dieing...\n");
 }
 
+void cobraTimeline::start()
+{
+    m_dtStart = QDateTime::currentDateTime();
+}
+
+cobraMark::cobraMark(cobraTimeline& timeline)
+    : m_iUid(0)
+{
+    m_iTimelineKey = timeline.getUid();
+    m_iTimeOffset = QDateTime::currentDateTime().secsTo(timeline.getStartTime());
+    debug(LOW, "cobraMark initializing...\n");
+}
+
+cobraMark::~cobraMark()
+{
+    debug(LOW, "cobraMark dieing...\n");
+}
+
 int cobraTimelineList::m_iLists;
 
 int
@@ -113,7 +131,7 @@ cobraTimeline cobraTimelineList::getTimeline(int uid)
     ctTimeline.setUid(query.value(0).toInt());
     ctTimeline.setTitle(query.value(1).toString());
     ctTimeline.setDescription(query.value(2).toString());
-    ctTimeline.setStart(query.value(3).toString());
+    ctTimeline.setStart(query.value(3));
 
     return ctTimeline;
 }
@@ -146,7 +164,7 @@ cobraTimelineList::addTimeline(cobraTimeline& timeline)
             "VALUES (NULL, "
             "'" % timeline.getTitle() % "', "
             "'" % timeline.getDescription() % "', "
-            "'" % timeline.getStart() % "');";
+            "'" % timeline.getStartTime().toString("YYYY-MM-DD HH:MM:SS") % "');";
 
     debug(LOW, "Inserted: %s\n", qPrintable(insertString));
     if (!query.exec(insertString)) {

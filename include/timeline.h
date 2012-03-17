@@ -3,7 +3,101 @@
 
 #include <QSqlDatabase>
 #include <QtSql>
+#include <QDateTime>
 
+
+
+/**
+ * @class cobraTimeline timeline.h "timeline."
+ *
+ * The cobraTimeline handles all underlying sqllite and abstracts it.
+ * This will allow functions to be called and just return file titles and
+ * fields.  You can then poopulate the file lists with this information.
+ */
+class cobraTimeline {
+
+public:
+    cobraTimeline();
+    virtual ~cobraTimeline();
+
+    /**
+     * @fn QString getTitle() 
+     * @return the title of a Timeline
+     */
+    QString getTitle() {
+        return (m_sTitle);
+    }
+
+    /**
+     * @fn QString getStart() 
+     * @return the start time of a Timeline
+     */
+    QDateTime getStartTime() {
+        return(m_dtStart);
+    }
+
+    /**
+     * @fn QString getDescription()
+     * @return the description of a Timeline
+     */
+    QString getDescription() {
+        return(m_sDescription);
+    }
+
+    /**
+     * @fn int getUid()
+     * @return the unique id of a Timeline
+     */
+    int getUid() {
+        return(m_iUid);
+    }
+
+    /**
+     * @fn QString setTitle() 
+     * sets the title of a Timeline
+     */
+    void setTitle(QString title) {
+        m_sTitle = title;
+    }
+
+    /**
+     * @fn void setStart() 
+     * sets the start time of a Timeline
+     */
+    void setStart(QVariant start) {
+        //m_dtStart = QDateTime(start,"'M'M'd'd'y'yyhh:mm:ss");
+        m_dtStart = start.toDateTime();
+    }
+
+    /**
+     * @fn void setDescription()
+     * sets the description of a Timeline
+     */
+    void setDescription(QString desc) {
+        m_sDescription = desc;
+    }
+
+    /**
+     * @fn void setUid()
+     * sets the unique id of a Timeline
+     */
+    void setUid(int Uid) {
+        m_iUid = Uid;
+    }
+
+//public slots:
+
+//signals:
+
+protected:
+
+    QString                             m_sTitle;
+    QDateTime                           m_dtStart;
+    QString                             m_sDescription;
+    int                                 m_iUid;
+
+    void                                start();
+};
 
 
 /**
@@ -16,7 +110,7 @@
 class cobraMark {
 
 public:
-    cobraMark();
+    cobraMark(cobraTimeline& timeline);
     virtual ~cobraMark();
 
     /**
@@ -55,8 +149,8 @@ public:
      * @fn int setTimeOffset() 
      * sets the offset of a Mark
      */
-    void setTimeOffset(int offset) {
-        m_iTimeOffset = offset;
+    void setTimeOffset(QDateTime& startTime) {
+        m_iTimeOffset = QDateTime::currentDateTime().secsTo(startTime);
     }
 
     /**
@@ -92,97 +186,6 @@ protected:
     QString                             m_sComment;
     int                                 m_iTimeOffset;
     int                                 m_iTimelineKey;
-    int                                 m_iUid;
-    
-};
-
-
-/**
- * @class cobraTimeline timeline.h "timeline."
- *
- * The cobraTimeline handles all underlying sqllite and abstracts it.
- * This will allow functions to be called and just return file titles and
- * fields.  You can then poopulate the file lists with this information.
- */
-class cobraTimeline {
-
-public:
-    cobraTimeline();
-    virtual ~cobraTimeline();
-
-    /**
-     * @fn QString getTitle() 
-     * @return the title of a Timeline
-     */
-    QString getTitle() {
-        return (m_sTitle);
-    }
-
-    /**
-     * @fn QString getStart() 
-     * @return the start time of a Timeline
-     */
-    QString getStart() {
-        return(m_sStart);
-    }
-
-    /**
-     * @fn QString getDescription()
-     * @return the description of a Timeline
-     */
-    QString getDescription() {
-        return(m_sDescription);
-    }
-
-    /**
-     * @fn int getUid()
-     * @return the unique id of a Timeline
-     */
-    int getUid() {
-        return(m_iUid);
-    }
-
-    /**
-     * @fn QString setTitle() 
-     * sets the title of a Timeline
-     */
-    void setTitle(QString title) {
-        m_sTitle = title;
-    }
-
-    /**
-     * @fn void setStart() 
-     * sets the start time of a Timeline
-     */
-    void setStart(QString start) {
-        m_sStart = start;
-    }
-
-    /**
-     * @fn void setDescription()
-     * sets the description of a Timeline
-     */
-    void setDescription(QString desc) {
-        m_sDescription = desc;
-    }
-
-    /**
-     * @fn void setUid()
-     * sets the unique id of a Timeline
-     */
-    void setUid(int Uid) {
-        m_iUid = Uid;
-    }
-
-//public slots:
-
-//signals:
-
-protected:
-
-    QString                             m_sTitle;
-    QString                             m_sStart;
-    QString                             m_sDescription;
     int                                 m_iUid;
     
 };
