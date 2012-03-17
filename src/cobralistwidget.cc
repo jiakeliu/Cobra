@@ -9,6 +9,40 @@ cobralistwidget::cobralistwidget(QWidget *parent) :
     connect(this, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(clipItemChanged(QTreeWidgetItem*, int)));
 }
 
+void
+cobralistwidget::showUpload(bool t)
+{
+    setColumnHidden(Upload, !t);
+}
+
+void
+cobralistwidget::showDownload(bool t)
+{
+    setColumnHidden(Download, !t);
+}
+
+void
+cobralistwidget::showUid(bool t)
+{
+    setColumnHidden(ID, !t);
+}
+
+void
+cobralistwidget::configure()
+{
+    /* Align the colums to the left */
+    setIndentation(0);
+
+    setColumnWidth(Upload, 30);
+    setColumnWidth(Download, 30);
+    setColumnWidth(ID, 10);
+    setColumnWidth(Hash, 48);
+    setColumnWidth(Title, 120);
+    setColumnWidth(Description, 205);
+    setColumnWidth(ModifiedTime, 150);
+    setColumnWidth(Tags, 90);
+}
+
 bool
 cobralistwidget::updateClip(cobraClip& clip)
 {
@@ -26,6 +60,7 @@ cobralistwidget::updateClip(cobraClip& clip)
      */
 
     QString clipid = QString::number(clip.getUid());
+    QString cliphash = clip.getHash().left(4);
     QString cliptitle = clip.getTitle();
     QString clipdesc = clip.getDescription();
     QString cliptime = clip.getModifiedTime();
@@ -40,24 +75,16 @@ cobralistwidget::updateClip(cobraClip& clip)
 
     QTreeWidgetItem* itm = c.takeFirst();
 
-    itm->setCheckState(0, Qt::Checked);
-    itm->setText(1, clipid);
-    itm->setText(2, cliptitle);
-    itm->setText(3, clipdesc);
-    itm->setText(4, cliptime);
-    itm->setText(5, cliptags);
+    itm->setCheckState(Upload, Qt::Unchecked);
+    itm->setCheckState(Download, Qt::Unchecked);
+    itm->setText(ID, clipid);
+    itm->setText(Hash, cliphash);
+    itm->setText(Title, cliptitle);
+    itm->setText(Description, clipdesc);
+    itm->setText(ModifiedTime, cliptime);
+    itm->setText(Tags, cliptags);
 
     m_bChecked = true;
-
-    /**
-      Do no create  new item here...
-      I would recommend making a hidden column to containt th eclipid
-      then you shoul dbe able to do something along the lines of
-
-      QList<QTreeWidgetItem*> clip = this->findItem(QString("%1").arg(clipid), ID_COLUMN);
-      at that point, fi the clipid exists, clip should contain it..
-      and you can just modify the item that exists in the tree...
-      */
 
     return true;
 }
@@ -91,16 +118,20 @@ cobralistwidget::addClip(cobraClip& clip)
     QTreeWidgetItem *itm = new QTreeWidgetItem(this);
 
     QString cliptitle = clip.getTitle();
+    QString clipid = QString::number(clip.getUid());
+    QString cliphash = clip.getHash().left(4);
     QString clipdesc = clip.getDescription();
     QString cliptime = clip.getModifiedTime();
     QString cliptags = clip.getTags();
 
-    itm->setCheckState(0, Qt::Checked);
-    itm->setText(1, QString::number(clip.getUid()));
-    itm->setText(2, cliptitle);
-    itm->setText(3, clipdesc);
-    itm->setText(4, cliptime);
-    itm->setText(5, cliptags);
+    itm->setCheckState(Upload, Qt::Unchecked);
+    itm->setCheckState(Download, Qt::Unchecked);
+    itm->setText(ID, clipid);
+    itm->setText(Hash, cliphash);
+    itm->setText(Title, cliptitle);
+    itm->setText(Description, clipdesc);
+    itm->setText(ModifiedTime, cliptime);
+    itm->setText(Tags, cliptags);
     this->addTopLevelItem(itm);
 
     m_bChecked = true;
@@ -118,7 +149,7 @@ cobralistwidget::getSelectedUids(QVector<int>& uids)
         if (!itm)
             continue;
 
-        uids.append(itm->text(1).toInt(0,10));
+        uids.append(itm->text(ID).toInt(0,10));
     }
 }
 
@@ -134,10 +165,10 @@ cobralistwidget::getCheckedUids(QVector<int>& uids)
         if (!itm)
             continue;
 
-        if (itm->checkState(0) != Qt::Checked)
+        if (itm->checkState(Upload) != Qt::Checked)
             continue;
 
-        uids.append(itm->text(1).toInt(0,10));
+        uids.append(itm->text(ID).toInt(0,10));
     }
 }
 
@@ -161,7 +192,7 @@ cobralistwidget::clipItemChanged(QTreeWidgetItem* item, int index)
         if (!itm)
             continue;
 
-        if (itm->checkState(0) != Qt::Checked)
+        if (itm->checkState(Upload) != Qt::Checked)
             continue;
 
         m_bChecked = true;
@@ -183,6 +214,6 @@ cobralistwidget::synchronized()
         if (!itm)
             continue;
 
-        itm->setCheckState(0, Qt::Unchecked);
+        itm->setCheckState(Upload, Qt::Unchecked);
     }
 }

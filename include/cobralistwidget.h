@@ -20,11 +20,27 @@ public:
     void synchronized();
     bool syncable() const;
 
+    void showUpload(bool t);
+    void showDownload(bool t);
+    void showUid(bool t);
+
+    void configure();
+
+    enum cobraCondition {
+        Update = 0x1, Add = 0x2
+    };
+    void setAutoCheck(int item, int condition);
+
 signals:
     void setSyncable(bool cansync);
 
 public slots:
     void clipItemChanged(QTreeWidgetItem* item, int index);
+
+public:
+    enum ClipColumns{
+        Upload, Download, ID, Hash, Title, Description, Tags, ModifiedTime
+    };
 
 protected:
 

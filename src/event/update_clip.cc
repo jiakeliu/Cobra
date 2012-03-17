@@ -10,7 +10,7 @@ cobraClipUpdateEvent::cobraClipUpdateEvent()
 {}
 
 cobraClipUpdateEvent::cobraClipUpdateEvent(cobraClipUpdateEvent& event)
-    :cobraNetEvent(event), m_ccClip(event.m_ccClip), m_iCommand(event.m_iCommand)
+    :cobraNetEvent(event), m_iCommand(event.m_iCommand), m_ccClip(event.m_ccClip)
 {}
 
 cobraClipUpdateEvent::~cobraClipUpdateEvent()
@@ -160,17 +160,27 @@ cobraClipUpdateEventHandler::handleEvent(cobraNetEvent* event)
 
     switch(cup->command()) {
     case cobraClipUpdateEvent::Update:
-        return handleUpdateEvent(cup, serverList());
+        return handleUpdate(cup, serverList());
 
     case cobraClipUpdateEvent::Add:
-        return handleAddEvent(cup, serverList());
+        return handleAdd(cup, serverList());
 
-    default:
-        debug(ERROR(CRITICAL), "Default!!!");
+    case cobraClipUpdateEvent::BlindUpdate:
+        return handleBlindUpdate(cup, serverList());
+
+    case cobraClipUpdateEvent::FileRequest:
+        debug(ERROR(CRITICAL), "Not implemented!!!");
         break;
+
+    case cobraClipUpdateEvent::FileResponse:
+        return handleUpdate(cup, localList());
 
     case cobraClipUpdateEvent::Remove:
         debug(ERROR(CRITICAL), "Not implemented!!!");
+        break;
+
+    default:
+        debug(ERROR(CRITICAL), "Default!!!");
         break;
     }
 
@@ -187,20 +197,28 @@ cobraClipUpdateEventHandler::handleServerEvent(cobraNetEvent* event)
 
     switch(cup->command()) {
     case cobraClipUpdateEvent::Update:
-        return handleUpdateEvent(cup, serverList());
+        return handleUpdate(cup, serverList());
 
     case cobraClipUpdateEvent::Add:
-        return handleAddEvent(cup, serverList());
+        return handleAdd(cup, serverList());
 
     case cobraClipUpdateEvent::RequestSync:
         return handleSyncRequest(cup, serverList());
 
-    default:
-        debug(ERROR(CRITICAL), "Default!!!");
+    case cobraClipUpdateEvent::FileRequest:
+        return handleFileRequest(cup, serverList());
+
+    case cobraClipUpdateEvent::FileResponse:
+    case cobraClipUpdateEvent::BlindUpdate:
+        debug(ERROR(CRITICAL), "Server shoudln't be ever recieve this!!!");
         break;
 
     case cobraClipUpdateEvent::Remove:
         debug(ERROR(CRITICAL), "Not implemented!!!");
+        break;
+
+    default:
+        debug(ERROR(CRITICAL), "Default!!!");
         break;
     }
 
@@ -208,7 +226,22 @@ cobraClipUpdateEventHandler::handleServerEvent(cobraNetEvent* event)
 }
 
 bool
-cobraClipUpdateEventHandler::handleUpdateEvent(cobraClipUpdateEvent* event, cobraClipList* list)
+cobraClipUpdateEventHandler::handleBlindUpdate(cobraClipUpdateEvent* event, cobraClipList* list)
+{
+    if (!list)
+        return false;
+
+    cobraClip clip = event->clip();
+    debug(ERROR(CRITICAL), "Recieving blind update...\n");
+
+    /*if (list->contains(clip.getHash()))
+        list->updateClipByHash(clip);
+*/
+    return list->addClip(clip);
+}
+
+bool
+cobraClipUpdateEventHandler::handleUpdate(cobraClipUpdateEvent* event, cobraClipList* list)
 {
     if (!list)
         return false;
@@ -219,7 +252,7 @@ cobraClipUpdateEventHandler::handleUpdateEvent(cobraClipUpdateEvent* event, cobr
 }
 
 bool
-cobraClipUpdateEventHandler::handleAddEvent(cobraClipUpdateEvent* event, cobraClipList* list)
+cobraClipUpdateEventHandler::handleAdd(cobraClipUpdateEvent* event, cobraClipList* list)
 {
     if (!list)
         return false;
@@ -227,6 +260,32 @@ cobraClipUpdateEventHandler::handleAddEvent(cobraClipUpdateEvent* event, cobraCl
     cobraClip clip = event->clip();
     debug(ERROR(CRITICAL), "Recieving add...\n");
     return list->addClip(clip);
+}
+
+bool
+cobraClipUpdateEventHandler::handleFileRequest(cobraClipUpdateEvent* event, cobraClipList* list)
+{
+ //   if (!list)
+        return false;
+#if 0
+    cobraClip clip = event->clip();
+    cobraClip localClip = list->getClip(clip.getHash());
+
+    cobraId source = event->source();
+
+    if (!localClip.getUid())
+        return false;
+
+    cobraTransferFile* file = new cobraTransferFile(localClip.getPath());
+    file->setSource(cobraMyId);
+    file->setDestination(source);
+    file->setSending(true);
+
+    if (!file->exists())
+        return false;
+    return cobraNetHandler::instance()->sendFile(file);
+
+#endif
 }
 
 bool
@@ -251,7 +310,7 @@ cobraClipUpdateEventHandler::handleSyncRequest(cobraClipUpdateEvent* inevent, co
         event->setDestination(inevent->source());
         event->setSource(inevent->destination());
         event->setResponse(true);
-        event->setCommand(cobraClipUpdateEvent::Add);
+        event->setCommand(cobraClipUpdateEvent::BlindUpdate);
 
         cobraNetHandler::instance()->sendEvent(event);
     }

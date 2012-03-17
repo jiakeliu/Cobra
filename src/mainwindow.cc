@@ -25,20 +25,16 @@ MainWindow::MainWindow(QWidget *parent) :
     //tabifyDockWidget(ui->serverList, ui->fileList);
     //tabifyDockWidget(ui->fileList, ui->cueList);
     ui->cueList->setVisible(false);
-    ui->fileInfoDock->setVisible(false);
-    ui->serverTree->setColumnHidden(0, true);
-    ui->serverTree->setColumnWidth(1, 30);
-    ui->serverTree->setColumnWidth(2, 120);
-    ui->serverTree->setColumnWidth(3, 205);
-    ui->serverTree->setColumnWidth(4, 150);
-    ui->serverTree->setColumnWidth(5, 90);
-    ui->localTree->setColumnWidth(0, 55);
-    ui->localTree->setColumnWidth(1, 30);
-    ui->localTree->setColumnWidth(2, 120);
-    ui->localTree->setColumnWidth(3, 150);
-    ui->localTree->setColumnWidth(4, 150);
-    ui->localTree->setColumnWidth(5, 90);
 
+    ui->serverTree->showUpload(false);
+    ui->serverTree->showDownload(true);
+    ui->serverTree->showUid(false);
+    ui->serverTree->configure();
+
+    ui->localTree->showUpload(true);
+    ui->localTree->showDownload(false);
+    ui->localTree->showUid(false);
+    ui->localTree->configure();
 
     QString style =
             "QDockWidget::title { "
@@ -91,6 +87,8 @@ MainWindow::MainWindow(QWidget *parent) :
     stateHandler->put();
     chatHandler->put();
     authHandler->put();
+    xferHandler->put();
+    clipupdate->put();
 
     /* Hide the central widget so that the dock widgets take over. */
     ui->centralwidget->hide();
@@ -116,13 +114,11 @@ MainWindow::eventFilter(QObject *obj, QEvent *event)
         goto out;
 
     key->ignore();
-
     if (sendChat())
         return true;
 
 out:
     focusFilter(obj, event);
-
     return QMainWindow::eventFilter(obj, event);
 }
 
@@ -314,7 +310,7 @@ MainWindow::on_actionChat_Window_toggled(bool checked)
 void
 MainWindow::on_actionFile_Info_toggled(bool checked)
 {
-    ui->fileInfoDock->setVisible(checked);
+    ui->markDock->setVisible(checked);
     checked=!checked;
 }
 

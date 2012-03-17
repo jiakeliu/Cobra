@@ -559,9 +559,11 @@ public:
 
 protected:
     virtual bool handleServerEvent(cobraNetEvent* event);
-    bool handleAddEvent(cobraClipUpdateEvent* event, cobraClipList*);
-    bool handleUpdateEvent(cobraClipUpdateEvent* event, cobraClipList*);
+    bool handleAdd(cobraClipUpdateEvent* event, cobraClipList*);
+    bool handleUpdate(cobraClipUpdateEvent* event, cobraClipList*);
     bool handleSyncRequest(cobraClipUpdateEvent* event, cobraClipList*);
+    bool handleBlindUpdate(cobraClipUpdateEvent* event, cobraClipList*);
+    bool handleFileRequest(cobraClipUpdateEvent* event, cobraClipList*);
 
 protected:
     cobraClipList*    m_cclServer;
@@ -588,7 +590,7 @@ public:
    int command() const;
 
    enum ClipCommands {
-       Update, Add, Remove, RequestSync
+       Update, Add, Remove, RequestSync, BlindUpdate, FileRequest, FileResponse
    };
 
 public:

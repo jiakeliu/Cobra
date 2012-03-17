@@ -103,6 +103,9 @@ cobraClipDialog::updateClip()
     ui->tagsEdit->setText(m_ccCurrent.getTags());
     ui->modifiedLabel->setText(m_ccCurrent.getModifiedTime());
     ui->typeLabel->setText(m_ccCurrent.getExtension());
+
+    if (m_ccCurrent.getTitle() == "<title>")
+        ui->titleEdit->selectAll();
 }
 
 void
@@ -162,8 +165,9 @@ cobraClipDialog::on_saveBtn_clicked()
         return;
     }
 
-    if (m_ccCurrent.getTitle() == "<title>" || m_ccCurrent.getTitle().isEmpty()) {
+    if (m_ccCurrent.getTitle().isEmpty() || m_ccCurrent.getTitle() == "<title>") {
         QMessageBox::critical(this, tr("Must Have a Title!"), tr("This clip must have a title specified!"));
+        ui->titleEdit->selectAll();
         return;
     }
 
