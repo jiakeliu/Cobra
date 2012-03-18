@@ -41,6 +41,8 @@ main(int argc, char* argv[])
     QApplication app(argc, argv);
     handleArgs(app);
 
+
+
     QApplication::setWindowIcon(QIcon(":images/cobra_main.png"));
 
     QSettings cobra_settings("./cobra.ini", QSettings::IniFormat);

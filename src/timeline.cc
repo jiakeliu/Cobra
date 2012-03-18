@@ -19,17 +19,18 @@ cobraTimeline::~cobraTimeline()
     debug(LOW, "cobraTimeline dieing...\n");
 }
 
-void cobraTimeline::start()
-{
-    m_dtStart = QDateTime::currentDateTime();
-}
-
 cobraMark::cobraMark(cobraTimeline& timeline)
     : m_iUid(0)
 {
     m_iTimelineKey = timeline.getUid();
     m_iTimeOffset = QDateTime::currentDateTime().secsTo(timeline.getStartTime());
     debug(LOW, "cobraMark initializing...\n");
+}
+
+cobraMark::cobraMark()
+    : m_iUid(0)
+{
+    debug(LOW, "cobraMark initializing for copy...\n");
 }
 
 cobraMark::~cobraMark()
@@ -164,7 +165,7 @@ cobraTimelineList::addTimeline(cobraTimeline& timeline)
             "VALUES (NULL, "
             "'" % timeline.getTitle() % "', "
             "'" % timeline.getDescription() % "', "
-            "'" % timeline.getStartTime().toString("YYYY-MM-DD HH:MM:SS") % "');";
+            "'" % timeline.getStartTime().toString("yyyy-MM-dd HH:mm:ss") % "');";
 
     debug(LOW, "Inserted: %s\n", qPrintable(insertString));
     if (!query.exec(insertString)) {
@@ -180,6 +181,27 @@ cobraTimelineList::addTimeline(cobraTimeline& timeline)
     bool ok = false;
     timeline.setUid(query.lastInsertId().toInt(&ok));
     return ok;
+}
+
+cobraMark cobraTimelineList::getMark(int uid)
+{
+    cobraMark cmMark;
+    QSqlQuery query(m_dbDatabase);
+
+    bool result = query.exec("SELECT uid, timelineKey, comment, offset "
+                             "FROM cobraMarks WHERE uid=" % QString::number(uid) % ";");
+
+    if (!result || !query.next()) {
+        debug(ERROR(CRITICAL), "Failed to get specified timeline.\n");
+        return cmMark;
+    }
+
+    cmMark.setUid(query.value(0).toInt());
+    cmMark.setTimelineKey(query.value(1).toInt());
+    cmMark.setComment(query.value(2).toString());
+    cmMark.setTimeOffset(query.value(3).toInt());
+
+    return cmMark;
 }
 
 bool
@@ -250,6 +272,22 @@ void
 cobraTimelineList::enumTimelines(QVector<int>& vector)
 {
     QSqlQuery query("SELECT uid FROM cobraTimelines", m_dbDatabase);
+
+    query.exec();
+
+    while (query.next())
+        vector.append(query.value(0).toInt());
+
+    return;
+}
+
+void
+cobraTimelineList::enumTimelineMarkers(QVector<int>& vector, cobraTimeline& timeline)
+{
+    QString enumString = "SELECT uid FROM cobraMarkers "
+            "WHERE timelineKey=" % QString::number(timeline.getUid()) % ";";
+
+    QSqlQuery query(enumString, m_dbDatabase);
 
     query.exec();
 

@@ -4,7 +4,7 @@
 #include <QSqlDatabase>
 #include <QtSql>
 #include <QDateTime>
-
+#include <debug.h>
 
 
 /**
@@ -67,6 +67,16 @@ public:
     void setStart(QVariant start) {
         //m_dtStart = QDateTime(start,"'M'M'd'd'y'yyhh:mm:ss");
         m_dtStart = start.toDateTime();
+        debug(LOW, "Setting start time to %s for timeline %i \n", 
+                    qPrintable(m_dtStart.toString("yyyy-MM-dd HH:mm:ss")),
+                    m_iUid);
+    }
+
+    void setStartTime() {
+        m_dtStart = QDateTime::currentDateTime();
+        debug(LOW, "Setting start time to %s for timeline %i \n", 
+                    qPrintable(m_dtStart.toString("yyyy-MM-dd HH:mm:ss")),
+                    m_iUid);
     }
 
     /**
@@ -91,12 +101,11 @@ public:
 
 protected:
 
-    QString                             m_sTitle;
-    QDateTime                           m_dtStart;
-    QString                             m_sDescription;
-    int                                 m_iUid;
+    QString                  m_sTitle;
+    QDateTime                m_dtStart;
+    QString                  m_sDescription;
+    int                      m_iUid;
 
-    void                                start();
 };
 
 
@@ -110,6 +119,7 @@ protected:
 class cobraMark {
 
 public:
+    cobraMark();
     cobraMark(cobraTimeline& timeline);
     virtual ~cobraMark();
 
@@ -153,6 +163,10 @@ public:
         m_iTimeOffset = QDateTime::currentDateTime().secsTo(startTime);
     }
 
+    void setTimeOffset(int offset) {
+        m_iTimeOffset = offset;
+    }
+
     /**
      * @fn void setComment() 
      * sets the hash of a Mark
@@ -183,10 +197,10 @@ public:
 
 protected:
 
-    QString                             m_sComment;
-    int                                 m_iTimeOffset;
-    int                                 m_iTimelineKey;
-    int                                 m_iUid;
+    QString                  m_sComment;
+    int                      m_iTimeOffset;
+    int                      m_iTimelineKey;
+    int                      m_iUid;
     
 };
 
@@ -195,31 +209,32 @@ public:
     cobraTimelineList(QString dbName = ":memory:");
     virtual ~cobraTimelineList();
  
-    void                         setName(QString dbName);
+    void                     setName(QString dbName);
  
-    void                         enumTimelines(QVector<int>& vector);
-    void                         enumTimelineMarkers(QVector<int>& vector);
-    cobraTimeline                getTimeline(int Uid);
-    cobraMark                    getMark(int Uid);
-    virtual bool                 updateTimeline(cobraTimeline& timeline);
-    virtual bool                 updateMark(cobraMark& mark);
-    virtual bool                 removeTimeline(int Uid);
-    virtual bool                 removeMark(int Uid);
-    virtual bool                 addTimeline(cobraTimeline& timeline);
-    virtual bool                 addMark(cobraMark& mark);
+    void                     enumTimelines(QVector<int>& vector);
+    void                     enumTimelineMarkers(QVector<int>& vector,
+                                                  cobraTimeline& timeline);
+    cobraTimeline            getTimeline(int Uid);
+    cobraMark                getMark(int Uid);
+    virtual bool             updateTimeline(cobraTimeline& timeline);
+    virtual bool             updateMark(cobraMark& mark);
+    virtual bool             removeTimeline(int Uid);
+    virtual bool             removeMark(int Uid);
+    virtual bool             addTimeline(cobraTimeline& timeline);
+    virtual bool             addMark(cobraMark& mark);
  
-    virtual bool                 contains(int Uid);
-    bool                         isValid() const;
+    virtual bool             contains(int Uid);
+    bool                     isValid() const;
 
 protected:
-    bool                         sqlQuery(QString&);
-    static int                   nextList();
+    bool                     sqlQuery(QString&);
+    static int               nextList();
 
 protected:
-    QString                      m_sDBName;
-    QSqlDatabase                 m_dbDatabase;
+    QString                  m_sDBName;
+    QSqlDatabase             m_dbDatabase;
 
-    static int                   m_iLists;
+    static int               m_iLists;
 };
 
 #endif // timeline_H
