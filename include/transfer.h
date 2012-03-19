@@ -111,7 +111,7 @@ class cobraTransferFile : public QFile {
 
 public:
 
-    cobraTransferFile(QString&);
+    cobraTransferFile(QString);
     ~cobraTransferFile();
 
     uint32_t uid() const;

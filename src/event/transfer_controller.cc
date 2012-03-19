@@ -50,7 +50,7 @@ cobraTransferStatistics::getStatistics(cobraStatMap& map) const
     map = m_mumMetrics;
 }
 
-cobraTransferFile::cobraTransferFile(QString& path)
+cobraTransferFile::cobraTransferFile(QString path)
     :QFile(path), m_uiUid(~0x0), m_bPendingCompletion(false)
 {
     m_uiUid = cobraTransferFile::nextUid();
@@ -479,8 +479,7 @@ cobraTransferController::addTransfer(cobraTransferFile* file)
     if (!file || file->is(~0x0U))
         return false;
 
-    debug(MED, "Adding file '%s' to transfer list.\n", 
-          qPrintable(file->fileName()));
+    debug(MED, "Adding file '%s' to transfer list.\n", qPrintable(file->fileName()));
     file->activate(false);
 
     if (m_iNextTransfer < 0)

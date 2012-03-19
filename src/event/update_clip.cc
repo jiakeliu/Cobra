@@ -234,9 +234,9 @@ cobraClipUpdateEventHandler::handleBlindUpdate(cobraClipUpdateEvent* event, cobr
     cobraClip clip = event->clip();
     debug(ERROR(CRITICAL), "Recieving blind update...\n");
 
-    /*if (list->contains(clip.getHash()))
-        list->updateClipByHash(clip);
-*/
+    if (list->containsHash(clip.getHash()))
+        list->updateClip(clip);
+
     return list->addClip(clip);
 }
 
@@ -265,11 +265,11 @@ cobraClipUpdateEventHandler::handleAdd(cobraClipUpdateEvent* event, cobraClipLis
 bool
 cobraClipUpdateEventHandler::handleFileRequest(cobraClipUpdateEvent* event, cobraClipList* list)
 {
- //   if (!list)
+    if (!list)
         return false;
-#if 0
+
     cobraClip clip = event->clip();
-    cobraClip localClip = list->getClip(clip.getHash());
+    cobraClip localClip = list->getClipByHash(clip.getHash());
 
     cobraId source = event->source();
 
@@ -277,15 +277,15 @@ cobraClipUpdateEventHandler::handleFileRequest(cobraClipUpdateEvent* event, cobr
         return false;
 
     cobraTransferFile* file = new cobraTransferFile(localClip.getPath());
+
     file->setSource(cobraMyId);
     file->setDestination(source);
     file->setSending(true);
 
     if (!file->exists())
         return false;
-    return cobraNetHandler::instance()->sendFile(file);
 
-#endif
+    return cobraNetHandler::instance()->sendFile(file);
 }
 
 bool

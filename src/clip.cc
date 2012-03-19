@@ -164,20 +164,36 @@ cobraClip cobraClipList::getClipByHash(QString hash)
 bool
 cobraClipList::updateClip(cobraClip& clip)
 {
-    /* TODO: check here to ensure that the hashes match prior to update!
-                add a bool to allow for forcing an update (to include hash). */
+    QString hash = clip.getHash();
+    if (!containsHash(hash))
+        return false;
+
     QString updateString = "UPDATE cobraClips SET "
             "path='" % clip.getPath() % "',"
-            "hash='" % clip.getHash() % "',"
             "size=" % QString::number(clip.getSize()) % ","
             "modtime=CURRENT_TIMESTAMP,"
             "title='" % clip.getTitle() % "',"
             "tags='" % clip.getTags() % "',"
             "description='" % clip.getDescription() %  "' "
-            "WHERE uid=" % QString::number(clip.getUid()) % ";";
+            "WHERE hash='" % hash % "'';";
 
     debug(LOW, "Updated: %s\n", qPrintable(updateString));
-    return sqlQuery(updateString);
+    bool result = sqlQuery(updateString);
+
+    if (!result)
+        return false;
+
+    QSqlQuery query(m_dbDatabase);
+    result = query.exec("SELECT uid FROM cobraClips WHERE hash='" % hash % "';");
+
+    if (!result || !query.next()) {
+        debug(ERROR(CRITICAL), "Failed to get specified clip.\n");
+        return false;
+    }
+
+    clip.setUid(query.value(0).toInt());
+
+    return true;
 }
 
 bool
