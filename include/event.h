@@ -7,14 +7,16 @@
 #include <QtNetwork/QAbstractSocket>
 #include <stdint.h>
 #include <clip.h>
+#include <timeline.h>
 
-#define cobraNetEventType           (QEvent::User+1)
-#define cobraStateEventType         (cobraNetEventType+1)
-#define cobraAuthEventType          (cobraNetEventType+2)
-#define cobraChatEventType          (cobraNetEventType+3)
-#define cobraTransferEventType      (cobraNetEventType+4)
-#define cobraClipUpdateEventType    (cobraNetEventType+5)
-#define cobraNetEventTypeMax        (cobraNetEventType+6)
+#define cobraNetEventType               (QEvent::User+1)
+#define cobraStateEventType             (cobraNetEventType+1)
+#define cobraAuthEventType              (cobraNetEventType+2)
+#define cobraChatEventType              (cobraNetEventType+3)
+#define cobraTransferEventType          (cobraNetEventType+4)
+#define cobraClipUpdateEventType        (cobraNetEventType+5)
+#define cobraNetEventTypeMax            (cobraNetEventType+6)
+#define cobraTimelineUpdateEventType    (cobraNetEventType+5)
 
 inline bool
 validEvent(int type) {
@@ -620,6 +622,58 @@ public:
 protected:
    int          m_iCommand;
    cobraClip    m_ccClip;
+};
+
+/**
+ * @class cobraTimelineUpdateEvent event.h "event.h"
+ *
+ * The event used to communicate authentication information to the server and other
+ * machines.
+ */
+
+class cobraTimelineUpdateEvent : public cobraNetEvent {
+public:
+   cobraTimelineUpdateEvent();
+   cobraTimelineUpdateEvent(cobraTimelineUpdateEvent& state);
+   virtual ~cobraTimelineUpdateEvent();
+
+   cobraTimeline timeline() const;
+   void setTimeline(const cobraTimeline& timeline);
+
+   void setCommand(int x);
+   int command() const;
+
+   enum TimelineCommands {
+       Update, Add, Remove, RequestSync, BlindUpdate, FileRequest, FileResponse
+   };
+
+public:
+
+   /**
+    * @fn virtual int serialize(QDataStream& stream)
+    * Serialize the data for chats which is pending on the given cobraNetConnection.
+    */
+   virtual int serialize(QDataStream& stream);
+
+   /**
+    * @fn virtual int deserialize(QDataStream& stream)
+    * Deserialize the data for chats which is pending on the given cobraNetConnection.
+    */
+   virtual int deserialize(QDataStream& stream);
+
+   /**
+    * @fn virtual cobraNetEvent* duplicate()
+    * Create a new duplicate event and dump all values to it!
+    * This is called to ensure that the main event loop or thread loop
+    * doesn't delete it while we are using it, as once posted, the event loop
+    * handles deletion.
+    * @return A pointer to the copied cobra event.
+    */
+   virtual cobraNetEvent* duplicate();
+
+protected:
+   int          m_iCommand;
+   cobraTimeline    m_ccTimeline;
 };
 
 
