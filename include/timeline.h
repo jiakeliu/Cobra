@@ -159,8 +159,11 @@ public:
      * @fn int setTimeOffset() 
      * sets the offset of a Mark
      */
-    void setTimeOffset(QDateTime& startTime) {
-        m_iTimeOffset = QDateTime::currentDateTime().secsTo(startTime);
+    void setTimeOffset(const QDateTime& startTime) {
+        debug(LOW,"start time : Current Time - %s : %s\n", 
+               qPrintable(startTime.toString()), 
+               qPrintable(QDateTime::currentDateTime().toString()));
+        m_iTimeOffset = startTime.secsTo(QDateTime::currentDateTime());
     }
 
     void setTimeOffset(int offset) {

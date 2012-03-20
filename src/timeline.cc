@@ -23,7 +23,7 @@ cobraMark::cobraMark(cobraTimeline& timeline)
     : m_iUid(0)
 {
     m_iTimelineKey = timeline.getUid();
-    m_iTimeOffset = QDateTime::currentDateTime().secsTo(timeline.getStartTime());
+    setTimeOffset(timeline.getStartTime());
     debug(LOW, "cobraMark initializing...\n");
 }
 
@@ -189,10 +189,10 @@ cobraMark cobraTimelineList::getMark(int uid)
     QSqlQuery query(m_dbDatabase);
 
     bool result = query.exec("SELECT uid, timelineKey, comment, offset "
-                             "FROM cobraMarks WHERE uid=" % QString::number(uid) % ";");
+                             "FROM cobraMarkers WHERE uid=" % QString::number(uid) % ";");
 
     if (!result || !query.next()) {
-        debug(ERROR(CRITICAL), "Failed to get specified timeline.\n");
+        debug(ERROR(CRITICAL), "Failed to get specified mark.\n");
         return cmMark;
     }
 

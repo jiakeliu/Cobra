@@ -6,7 +6,7 @@
 #include <QtNetwork/QSslSocket>
 #include "net.h"
 #include "clip.h"
-
+#include "timeline.h"
 /**
  * @fn void handleArgs(QApplication& app)
  *
@@ -40,6 +40,7 @@ main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
     handleArgs(app);
+
 
 
 
