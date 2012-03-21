@@ -624,6 +624,57 @@ protected:
    cobraClip    m_ccClip;
 };
 
+class cobraTimelineList;
+class cobraTimelineUpdateEvent;
+
+/**
+ * @class cobraTimelineUpdateEventHandler event.h "event.h"
+ *
+ * The cobraTimelineUpdateEventHandler is used to handle incoming authorization requests.
+ */
+class cobraTimelineUpdateEventHandler : public cobraNetEventHandler {
+
+public:
+    cobraTimelineUpdateEventHandler();
+    cobraTimelineUpdateEventHandler(cobraTimelineUpdateEventHandler& event);
+    virtual ~cobraTimelineUpdateEventHandler();
+
+    void setServerList(cobraTimelineList* server) {
+        m_cclServer = server;
+    }
+
+    cobraTimelineList* serverList() const {
+        return m_cclServer;
+    }
+
+    void setLocalList(cobraTimelineList* local) {
+        m_cclLocal = local;
+    }
+
+    cobraTimelineList* localList() const {
+        return m_cclLocal;
+    }
+
+public:
+    virtual bool handleEvent(cobraNetEvent* event);
+
+    /**
+     * @fn virtual cobraNetEvent* eventGenesis() const;
+     * Generates an event of the type that it handles.
+     */
+    virtual cobraNetEvent* eventGenesis() const;
+
+protected:
+    virtual bool handleServerEvent(cobraNetEvent* event);
+    bool handleAdd(cobraTimelineUpdateEvent* event, cobraTimelineList*);
+    bool handleUpdate(cobraTimelineUpdateEvent* event, cobraTimelineList*);
+
+protected:
+    cobraTimelineList*    m_cclServer;
+    cobraTimelineList*    m_cclLocal;
+};
+
+
 /**
  * @class cobraTimelineUpdateEvent event.h "event.h"
  *
@@ -640,11 +691,14 @@ public:
    cobraTimeline timeline() const;
    void setTimeline(const cobraTimeline& timeline);
 
+   cobraMark mark() const;
+   void setMark(const cobraMark& mark);
+
    void setCommand(int x);
    int command() const;
 
    enum TimelineCommands {
-       Update, Add, Remove, RequestSync, BlindUpdate, FileRequest, FileResponse
+       Update, Add, Remove
    };
 
 public:
@@ -672,8 +726,9 @@ public:
    virtual cobraNetEvent* duplicate();
 
 protected:
-   int          m_iCommand;
-   cobraTimeline    m_ccTimeline;
+   int              m_iCommand;
+   cobraTimeline    m_ctTimeline;
+   cobraMark        m_cmMark;
 };
 
 
